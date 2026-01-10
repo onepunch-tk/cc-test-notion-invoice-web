@@ -57,7 +57,7 @@ jobs:
       - name: Build project
         run: bun run build
         env:
-          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          CLOUDFLARE_ENV: ${{ env.DEPLOY_ENV }}
 
       - name: Remove _redirects file (Cloudflare Workers doesn't need it)
         # React Router 7이 빌드 시 _redirects 파일을 생성할 수 있습니다
@@ -75,7 +75,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env ${{ env.DEPLOY_ENV }}
+          command: deploy
           environment: ${{ env.DEPLOY_ENV }}
           # 참고: Cloudflare Workers의 환경 변수는 다음 방법 중 하나로 설정해야 합니다:
           # 1. Cloudflare Dashboard → Workers & Pages → [worker-name] → Settings → Variables

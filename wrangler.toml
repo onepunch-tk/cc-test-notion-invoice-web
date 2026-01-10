@@ -8,10 +8,8 @@ legacy_env = false
 enabled = true
 
 [env.production]
-name = "claude-rr7-starterkit-production"
 
 [env.staging]
-name = "claude-rr7-starterkit-staging"
 
 upload_source_maps = true
 
