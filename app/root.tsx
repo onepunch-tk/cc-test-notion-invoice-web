@@ -7,7 +7,9 @@ import {
 	ScrollRestoration,
 } from "react-router";
 import "./app.css";
+import { ThemeProvider } from "next-themes";
 import { NotFound } from "~/components/not-found";
+import { Toaster } from "~/components/ui/sonner";
 import type { Route } from "./+types/root";
 
 export const links: Route.LinksFunction = () => [
@@ -25,7 +27,7 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,9 +35,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				{children}
-				<ScrollRestoration />
-				<Scripts />
+				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+					{children}
+					<Toaster />
+					<ScrollRestoration />
+					<Scripts />
+				</ThemeProvider>
 			</body>
 		</html>
 	);

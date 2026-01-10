@@ -1,4 +1,5 @@
 import { redirect } from "react-router";
+import CtaSection from "~/components/landing/cta-section";
 import FeaturesSection from "~/components/landing/features-section";
 import FooterSection from "~/components/landing/footer-section";
 import HeroSection from "~/components/landing/hero-section";
@@ -45,6 +46,7 @@ export default function Home() {
 			<main className="flex-1">
 				<HeroSection />
 				<FeaturesSection />
+				<CtaSection />
 			</main>
 			<FooterSection />
 		</div>
