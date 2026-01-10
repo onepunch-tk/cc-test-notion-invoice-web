@@ -1,4 +1,7 @@
-import { Form, Link, useActionData } from "react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
@@ -8,9 +11,20 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { createAuthInstance } from "~/lib/auth.server";
+import {
+	type SignupFormData,
+	signupSchema,
+} from "~/features/auth/types";
 import { requireGuest } from "~/middleware/guest.middleware";
 import type { Route } from "./+types/signup";
 
@@ -26,42 +40,52 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 	return {};
 };
 
-export const action = async ({ request, context }: Route.ActionArgs) => {
-	const formData = await request.formData();
-	const email = formData.get("email") as string;
-	const password = formData.get("password") as string;
-	const name = formData.get("name") as string;
-
-	const env = context.cloudflare.env;
-	const auth = createAuthInstance(
-		env.DATABASE_URL,
-		env.BASE_URL,
-		env.GITHUB_CLIENT_ID,
-		env.GITHUB_CLIENT_SECRET,
-		env.GOOGLE_CLIENT_ID,
-		env.GOOGLE_CLIENT_SECRET,
-		env.KAKAO_CLIENT_ID,
-		env.KAKAO_CLIENT_SECRET,
-	);
-
-	try {
-		await auth.api.signUpEmail({
-			body: { email, password, name },
-		});
-
-		return {
-			success: "회원가입이 완료되었습니다. 이메일을 확인해주세요.",
-		};
-	} catch (error) {
-		return {
-			error:
-				error instanceof Error ? error.message : "회원가입에 실패했습니다.",
-		};
-	}
-};
+// action 함수는 더 이상 사용되지 않으므로 제거
 
 export default function Signup() {
-	const actionData = useActionData<typeof action>();
+	const [error, setError] = useState<string | null>(null);
+	const [success, setSuccess] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const form = useForm<SignupFormData>({
+		resolver: zodResolver(signupSchema),
+		defaultValues: {
+			name: "",
+			email: "",
+			password: "",
+		},
+	});
+
+	const onSubmit = async (data: SignupFormData) => {
+		setIsLoading(true);
+		setError(null);
+		setSuccess(null);
+
+		try {
+			// 회원가입 API 호출
+			const response = await fetch("/api/auth/sign-up/email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name: data.name,
+					email: data.email,
+					password: data.password,
+				}),
+			});
+
+			if (!response.ok) {
+				const errorData = (await response.json()) as { message?: string };
+				throw new Error(errorData.message || "회원가입에 실패했습니다.");
+			}
+
+			setSuccess("회원가입이 완료되었습니다. 이메일을 확인해주세요.");
+			form.reset();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "회원가입에 실패했습니다.");
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<Card className="w-full max-w-md">
@@ -72,56 +96,79 @@ export default function Signup() {
 				</CardDescription>
 			</CardHeader>
 
-			<Form method="post">
-				<CardContent className="space-y-4">
-					{actionData?.error && (
-						<div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-							{actionData.error}
-						</div>
-					)}
-					{actionData?.success && (
-						<div className="rounded-lg bg-green-500/10 p-3 text-sm text-green-600">
-							{actionData.success}
-						</div>
-					)}
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
+					<CardContent className="space-y-4">
+						{error && (
+							<div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+								{error}
+							</div>
+						)}
+						{success && (
+							<div className="rounded-lg bg-green-500/10 p-3 text-sm text-green-600">
+								{success}
+							</div>
+						)}
 
-					<div className="space-y-2">
-						<Label htmlFor="name">이름</Label>
-						<Input id="name" name="name" type="text" required />
-					</div>
-
-					<div className="space-y-2">
-						<Label htmlFor="email">이메일</Label>
-						<Input id="email" name="email" type="email" required />
-					</div>
-
-					<div className="space-y-2">
-						<Label htmlFor="password">비밀번호</Label>
-						<Input
-							id="password"
-							name="password"
-							type="password"
-							required
-							minLength={8}
+						<FormField
+							control={form.control}
+							name="name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>이름</FormLabel>
+									<FormControl>
+										<Input type="text" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						<p className="text-xs text-muted-foreground">
-							최소 8자 이상, 대소문자와 숫자를 포함해주세요
+
+						<FormField
+							control={form.control}
+							name="email"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>이메일</FormLabel>
+									<FormControl>
+										<Input type="email" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="password"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>비밀번호</FormLabel>
+									<FormControl>
+										<Input type="password" {...field} />
+									</FormControl>
+									<FormDescription>
+										최소 8자 이상, 대소문자와 숫자를 포함해주세요
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<Button type="submit" className="w-full" disabled={isLoading}>
+							{isLoading ? "회원가입 중..." : "회원가입"}
+						</Button>
+					</CardContent>
+
+					<CardFooter className="flex justify-center">
+						<p className="text-sm text-muted-foreground">
+							이미 계정이 있으신가요?{" "}
+							<Link to="/auth/login" className="text-primary hover:underline">
+								로그인
+							</Link>
 						</p>
-					</div>
-
-					<Button type="submit" className="w-full">
-						회원가입
-					</Button>
-				</CardContent>
-
-				<CardFooter className="flex justify-center">
-					<p className="text-sm text-muted-foreground">
-						이미 계정이 있으신가요?{" "}
-						<Link to="/auth/login" className="text-primary hover:underline">
-							로그인
-						</Link>
-					</p>
-				</CardFooter>
+					</CardFooter>
+				</form>
 			</Form>
 		</Card>
 	);

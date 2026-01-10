@@ -18,7 +18,7 @@ export default [
 	route("auth/logout", "routes/auth/logout.tsx"), // 레이아웃 없음
 
 	// Better-auth API 라우트 (catch-all)
-	route("api/auth/*", "routes/api/auth/$.tsx"),
+	route("auth/api/*", "features/auth/api/$.tsx"),
 
 	// 대시보드 라우트 (레이아웃 포함)
 	layout("routes/dashboard/layout.tsx", [

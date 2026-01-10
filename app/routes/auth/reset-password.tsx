@@ -1,4 +1,7 @@
-import { Form, redirect, useActionData, useSearchParams } from "react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate, useSearchParams } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
@@ -7,8 +10,20 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import {
+	type ResetPasswordFormData,
+	resetPasswordSchema,
+} from "~/features/auth/types";
 import type { Route } from "./+types/reset-password";
 
 /**
@@ -18,51 +33,54 @@ export const meta: Route.MetaFunction = () => [
 	{ title: "비밀번호 재설정 - Claude RR7 Starterkit" },
 ];
 
-export const action = async ({ request, context }: Route.ActionArgs) => {
-	const formData = await request.formData();
-	const password = formData.get("password") as string;
-	const passwordConfirm = formData.get("passwordConfirm") as string;
-	const token = formData.get("token") as string;
-
-	if (!token) {
-		return { error: "유효하지 않은 재설정 링크입니다." };
-	}
-
-	if (password !== passwordConfirm) {
-		return { error: "비밀번호가 일치하지 않습니다." };
-	}
-
-	try {
-		// Better-auth API를 통한 비밀번호 재설정
-		const response = await fetch(
-			`${context.cloudflare.env.BASE_URL}/api/auth/reset-password`,
-			{
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ newPassword: password, token }),
-			},
-		);
-
-		if (!response.ok) {
-			const error = (await response.json()) as { message?: string };
-			return { error: error.message || "비밀번호 재설정에 실패했습니다." };
-		}
-
-		return redirect("/auth/login");
-	} catch (error) {
-		return {
-			error:
-				error instanceof Error
-					? error.message
-					: "비밀번호 재설정에 실패했습니다.",
-		};
-	}
-};
+// action 함수는 더 이상 사용되지 않으므로 제거
 
 export default function ResetPassword() {
-	const actionData = useActionData<typeof action>();
+	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const token = searchParams.get("token");
+	const [error, setError] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const form = useForm<ResetPasswordFormData>({
+		resolver: zodResolver(resetPasswordSchema),
+		defaultValues: {
+			password: "",
+			passwordConfirm: "",
+			token: token || "",
+		},
+	});
+
+	const onSubmit = async (data: ResetPasswordFormData) => {
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			// 비밀번호 재설정 API 호출
+			const response = await fetch("/api/auth/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					newPassword: data.password,
+					token: data.token,
+				}),
+			});
+
+			if (!response.ok) {
+				const errorData = (await response.json()) as { message?: string };
+				throw new Error(errorData.message || "비밀번호 재설정에 실패했습니다.");
+			}
+
+			// 성공 시 로그인 페이지로 이동
+			navigate("/auth/login");
+		} catch (err) {
+			setError(
+				err instanceof Error ? err.message : "비밀번호 재설정에 실패했습니다.",
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	if (!token) {
 		return (
@@ -84,44 +102,51 @@ export default function ResetPassword() {
 				<CardDescription>새로운 비밀번호를 입력해주세요</CardDescription>
 			</CardHeader>
 
-			<Form method="post">
-				<input type="hidden" name="token" value={token} />
-				<CardContent className="space-y-4">
-					{actionData?.error && (
-						<div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-							{actionData.error}
-						</div>
-					)}
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
+					<CardContent className="space-y-4">
+						{error && (
+							<div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+								{error}
+							</div>
+						)}
 
-					<div className="space-y-2">
-						<Label htmlFor="password">새 비밀번호</Label>
-						<Input
-							id="password"
+						<FormField
+							control={form.control}
 							name="password"
-							type="password"
-							required
-							minLength={8}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>새 비밀번호</FormLabel>
+									<FormControl>
+										<Input type="password" {...field} />
+									</FormControl>
+									<FormDescription>
+										최소 8자 이상, 대소문자와 숫자를 포함해주세요
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						<p className="text-xs text-muted-foreground">
-							최소 8자 이상, 대소문자와 숫자를 포함해주세요
-						</p>
-					</div>
 
-					<div className="space-y-2">
-						<Label htmlFor="passwordConfirm">비밀번호 확인</Label>
-						<Input
-							id="passwordConfirm"
+						<FormField
+							control={form.control}
 							name="passwordConfirm"
-							type="password"
-							required
-							minLength={8}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>비밀번호 확인</FormLabel>
+									<FormControl>
+										<Input type="password" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-					</div>
 
-					<Button type="submit" className="w-full">
-						비밀번호 재설정
-					</Button>
-				</CardContent>
+						<Button type="submit" className="w-full" disabled={isLoading}>
+							{isLoading ? "재설정 중..." : "비밀번호 재설정"}
+						</Button>
+					</CardContent>
+				</form>
 			</Form>
 		</Card>
 	);

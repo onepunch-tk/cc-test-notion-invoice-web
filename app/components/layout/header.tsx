@@ -1,5 +1,5 @@
 import { LogOut, Menu, User as UserIcon } from "lucide-react";
-import { Form } from "react-router";
+import { useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
 	DropdownMenu,
@@ -22,6 +22,23 @@ interface HeaderProps {
  * - 사용자 메뉴 (프로필, 로그아웃)
  */
 export const Header = ({ user }: HeaderProps) => {
+	const navigate = useNavigate();
+
+	const handleLogout = async () => {
+		try {
+			// 로그아웃 API 호출
+			await fetch("/api/auth/sign-out", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			// 홈으로 리다이렉트
+			navigate("/");
+		} catch (error) {
+			console.error("로그아웃 실패:", error);
+		}
+	};
+
 	return (
 		<header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-6">
 			<SidebarTrigger>
@@ -44,13 +61,9 @@ export const Header = ({ user }: HeaderProps) => {
 						</div>
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem asChild>
-						<Form method="post" action="/auth/logout">
-							<button type="submit" className="flex w-full items-center">
-								<LogOut className="mr-2 h-4 w-4" />
-								로그아웃
-							</button>
-						</Form>
+					<DropdownMenuItem onClick={handleLogout}>
+						<LogOut className="mr-2 h-4 w-4" />
+						로그아웃
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>

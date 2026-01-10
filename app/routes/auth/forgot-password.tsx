@@ -1,4 +1,7 @@
-import { Form, Link, useActionData } from "react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
@@ -8,9 +11,19 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { sendPasswordResetEmail } from "~/lib/email.server";
+import {
+	type ForgotPasswordFormData,
+	forgotPasswordSchema,
+} from "~/features/auth/types";
 import type { Route } from "./+types/forgot-password";
 
 /**
@@ -20,32 +33,48 @@ export const meta: Route.MetaFunction = () => [
 	{ title: "비밀번호 찾기 - Claude RR7 Starterkit" },
 ];
 
-export const action = async ({ request, context }: Route.ActionArgs) => {
-	const formData = await request.formData();
-	const email = formData.get("email") as string;
-
-	const env = context.cloudflare.env;
-
-	try {
-		// 임시 토큰 생성 (실제로는 DB에 저장하고 Better-auth API 사용)
-		const token = crypto.randomUUID();
-
-		// 비밀번호 재설정 이메일 전송
-		await sendPasswordResetEmail(email, token, env.BASE_URL);
-
-		return {
-			success: "비밀번호 재설정 이메일이 전송되었습니다.",
-		};
-	} catch (error) {
-		return {
-			error:
-				error instanceof Error ? error.message : "이메일 전송에 실패했습니다.",
-		};
-	}
-};
+// loader는 그대로 유지하되, action은 제거
 
 export default function ForgotPassword() {
-	const actionData = useActionData<typeof action>();
+	const [error, setError] = useState<string | null>(null);
+	const [success, setSuccess] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const form = useForm<ForgotPasswordFormData>({
+		resolver: zodResolver(forgotPasswordSchema),
+		defaultValues: {
+			email: "",
+		},
+	});
+
+	const onSubmit = async (data: ForgotPasswordFormData) => {
+		setIsLoading(true);
+		setError(null);
+		setSuccess(null);
+
+		try {
+			// 비밀번호 재설정 이메일 전송 API 호출
+			const response = await fetch("/api/auth/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					email: data.email,
+				}),
+			});
+
+			if (!response.ok) {
+				const errorData = (await response.json()) as { message?: string };
+				throw new Error(errorData.message || "이메일 전송에 실패했습니다.");
+			}
+
+			setSuccess("비밀번호 재설정 이메일이 전송되었습니다.");
+			form.reset();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "이메일 전송에 실패했습니다.");
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<Card className="w-full max-w-md">
@@ -56,37 +85,48 @@ export default function ForgotPassword() {
 				</CardDescription>
 			</CardHeader>
 
-			<Form method="post">
-				<CardContent className="space-y-4">
-					{actionData?.error && (
-						<div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-							{actionData.error}
-						</div>
-					)}
-					{actionData?.success && (
-						<div className="rounded-lg bg-green-500/10 p-3 text-sm text-green-600">
-							{actionData.success}
-						</div>
-					)}
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
+					<CardContent className="space-y-4">
+						{error && (
+							<div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+								{error}
+							</div>
+						)}
+						{success && (
+							<div className="rounded-lg bg-green-500/10 p-3 text-sm text-green-600">
+								{success}
+							</div>
+						)}
 
-					<div className="space-y-2">
-						<Label htmlFor="email">이메일</Label>
-						<Input id="email" name="email" type="email" required />
-					</div>
+						<FormField
+							control={form.control}
+							name="email"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>이메일</FormLabel>
+									<FormControl>
+										<Input type="email" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
-					<Button type="submit" className="w-full">
-						재설정 링크 전송
-					</Button>
-				</CardContent>
+						<Button type="submit" className="w-full" disabled={isLoading}>
+							{isLoading ? "전송 중..." : "재설정 링크 전송"}
+						</Button>
+					</CardContent>
 
-				<CardFooter className="flex justify-center">
-					<Link
-						to="/auth/login"
-						className="text-sm text-primary hover:underline"
-					>
-						로그인으로 돌아가기
-					</Link>
-				</CardFooter>
+					<CardFooter className="flex justify-center">
+						<Link
+							to="/auth/login"
+							className="text-sm text-primary hover:underline"
+						>
+							로그인으로 돌아가기
+						</Link>
+					</CardFooter>
+				</form>
 			</Form>
 		</Card>
 	);

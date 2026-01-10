@@ -6,16 +6,16 @@ import { createAuthInstance } from "~/lib/auth.server";
  *
  * /api/auth/* 경로의 모든 요청을 Better-auth에 위임
  * Better-auth가 자동으로 다음 엔드포인트들을 처리:
- * - POST /api/auth/sign-up
- * - POST /api/auth/sign-in
- * - POST /api/auth/sign-out
- * - GET /api/auth/session
- * - POST /api/auth/verify-email
- * - POST /api/auth/send-verification-email
- * - POST /api/auth/forget-password
- * - POST /api/auth/reset-password
- * - GET /api/auth/callback/github
- * - GET /api/auth/callback/google
+ * - POST auth/api/sign-up
+ * - POST auth/api/sign-in
+ * - POST auth/api/sign-out
+ * - GET auth/api/session
+ * - POST auth/api/verify-email
+ * - POST auth/api/send-verification-email
+ * - POST auth/api/forget-password
+ * - POST auth/api/reset-password
+ * - GET auth/api/callback/github
+ * - GET auth/api/callback/google
  * - 기타 모든 Better-auth 엔드포인트
  */
 
