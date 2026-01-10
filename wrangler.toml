@@ -12,8 +12,7 @@ name = "claude-rr7-starterkit-production"
 [env.staging]
 name = "claude-rr7-starterkit-staging"
 
-[upload_source_maps]
-enabled = true
+upload_source_maps = true
 
 [assets]
 directory = "./public/"
