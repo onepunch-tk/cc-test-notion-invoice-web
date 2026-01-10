@@ -1,0 +1,82 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  check:
+    name: Type Check & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Type check
+        run: bun run typecheck
+      - name: Lint
+        run: bunx @biomejs/biome check .
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build/
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    environment:
+      name: staging
+      # ⭐ wrangler.toml의 [env.staging].name과 일치해야 함
+      # 형식: https://[env.staging.name].workers.dev
+      url: https://claude-rr7-starterkit-staging.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          # GitHub Repository Secrets에서 설정
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env staging
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      # ⭐ wrangler.toml의 [env.production].name과 일치해야 함
+      # 형식: https://[env.production.name].workers.dev
+      url: https://claude-rr7-starterkit.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          # GitHub Repository Secrets에서 설정
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env production
