@@ -2,99 +2,60 @@ name: Deploy to Cloudflare Workers
 
 on:
   push:
-    branches: [main, staging]
-  pull_request:
-    branches: [main]
-
-env:
-  NODE_VERSION: "24"
+    branches:
+      - main
+  workflow_dispatch: # 수동 실행 허용
 
 jobs:
-  check:
-    name: Type Check & Lint
+  deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      deployments: write
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-      - name: Type check
-        run: bun run typecheck
-      - name: Lint
-        run: bunx @biomejs/biome check .
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: check
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
-      
-      # 1. 여기서 빌드 실행
-      - name: Build
+
+      - name: Build project
         run: bun run build
-      
-      # 2. 생성된 build 폴더를 'build-artifact'라는 이름으로 임시 저장소에 업로드
-      - uses: actions/upload-artifact@v4
-        with:
-          name: build-artifact
-          path: build/
-          retention-days: 1
 
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
-    environment:
-      name: staging
-      url: https://claude-rr7-starterkit-staging.workers.dev
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      
-      # Wrangler 실행을 위해 의존성은 필요함 (단, 빌드는 안 함)
-      - run: bun install --frozen-lockfile
+      - name: Remove _redirects file (Cloudflare Workers doesn't need it)
+        # React Router 7이 빌드 시 _redirects 파일을 생성할 수 있습니다
+        # Cloudflare Workers는 SSR을 사용하므로 _redirects 파일이 필요 없고 무한 루프를 일으킬 수 있습니다
+        run: |
+          # build 디렉토리와 public 디렉토리에서 _redirects 파일 찾아서 삭제
+          find build public -name "_redirects" -type f 2>/dev/null | while read file; do
+            echo "Removing $file"
+            rm -f "$file"
+          done || true
+          echo "✓ Checked for _redirects files (removed if found)"
 
-      # 3. 아까 저장한 build 폴더를 다운로드 (이게 핵심!)
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: build/
-
-      # 4. 파일이 존재하므로 빌드 없이 즉시 배포 가능
-      - uses: cloudflare/wrangler-action@v3
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # package.json 스크립트 실행 (빌드 명령어 없음)
-          command: deploy --env staging
+          # 참고: Cloudflare Workers의 환경 변수는 다음 방법 중 하나로 설정해야 합니다:
+          # 1. Cloudflare Dashboard → Workers & Pages → jongrogwon-news → Settings → Variables
+          # 2. 로컬에서 wrangler secret put 명령 실행 (수동)
+          # 
+          # 필요한 서버 사이드 환경 변수 (process.env.*):
+          # - DATABASE_URL
+          # - SUPABASE_URL
+          # - SUPABASE_PUBLISHABLE_KEY
+          # - SUPABASE_SERVICE_ROLE_KEY
+          # - COOKIE_SECRET
+          # - SITE_URL
+          # 
+          # 참고: VITE_* 변수는 빌드 시점에 번들에 포함되므로 Cloudflare Dashboard에 설정할 필요 없습니다
 
-  deploy-production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment:
-      name: production
-      url: https://claude-rr7-starterkit.workers.dev
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-
-      # Production도 똑같이 다운로드
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: build/
-
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # package.json 스크립트 실행
-          command: deploy --env production
