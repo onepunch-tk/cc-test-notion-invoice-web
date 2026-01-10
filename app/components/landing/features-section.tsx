@@ -43,7 +43,7 @@ const features = [
  */
 export default function FeaturesSection() {
 	return (
-		<section className="mx-auto w-full py-20 px-4 sm:px-6 lg:px-8">
+		<section className="container py-20">
 			<div className="mx-auto max-w-6xl">
 				{/* 섹션 헤더 */}
 				<div className="mb-12 text-center">

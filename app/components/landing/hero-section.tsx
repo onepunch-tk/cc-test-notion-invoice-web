@@ -9,7 +9,7 @@ import { Button } from "~/components/ui/button";
  */
 export default function HeroSection() {
 	return (
-		<section className="mx-auto flex w-full min-h-[calc(100vh-4rem)] items-center justify-center px-4 sm:px-6 lg:px-8">
+		<section className="container flex min-h-[calc(100vh-4rem)] items-center justify-center">
 			<div className="mx-auto flex max-w-4xl flex-col items-center space-y-8 text-center">
 				{/* 배지 */}
 				<div className="inline-flex items-center rounded-full border border-border bg-muted px-4 py-1.5 text-sm">

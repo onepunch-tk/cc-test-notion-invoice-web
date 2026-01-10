@@ -28,7 +28,7 @@ export default function CtaSection() {
 	};
 
 	return (
-		<section className="mx-auto w-full py-20 px-4 sm:px-6 lg:px-8">
+		<section className="container py-20">
 			<div className="mx-auto max-w-4xl">
 				<Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-muted/30">
 					<CardHeader className="text-center">

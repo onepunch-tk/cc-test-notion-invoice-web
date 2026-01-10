@@ -10,7 +10,7 @@ export default function FooterSection() {
 
 	return (
 		<footer className="border-t border-border">
-			<div className="mx-auto w-full py-8 px-4 sm:px-6 lg:px-8">
+			<div className="container py-8">
 				<div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
 					{/* 저작권 */}
 					<p className="text-sm text-muted-foreground">
