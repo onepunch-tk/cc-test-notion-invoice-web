@@ -75,8 +75,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
-          environment: ${{ env.DEPLOY_ENV }}
+          command: deploy --env ${{ env.DEPLOY_ENV }}
           # 참고: Cloudflare Workers의 환경 변수는 다음 방법 중 하나로 설정해야 합니다:
           # 1. Cloudflare Dashboard → Workers & Pages → [worker-name] → Settings → Variables
           # 2. 로컬에서 wrangler secret put 명령 실행 (수동)

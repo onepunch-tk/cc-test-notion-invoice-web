@@ -2,7 +2,6 @@ name = "claude-rr7-starterkit"
 main = "./workers/app.ts"
 compatibility_date = "2025-04-04"
 compatibility_flags = ["nodejs_compat"]
-legacy_env = false
 
 [observability]
 enabled = true
