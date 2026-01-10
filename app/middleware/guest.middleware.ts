@@ -37,7 +37,10 @@ interface MiddlewareContext {
  * };
  * ```
  */
-export const requireGuest = async ({ request, context }: MiddlewareContext): Promise<void> => {
+export const requireGuest = async ({
+	request,
+	context,
+}: MiddlewareContext): Promise<void> => {
 	const user = await getOptionalAuth({ request, context });
 
 	if (user) {

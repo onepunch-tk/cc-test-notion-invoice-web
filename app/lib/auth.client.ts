@@ -80,7 +80,7 @@ export const forgotPassword = async (email: string) => {
 	});
 
 	if (!response.ok) {
-		const error = await response.json() as { message?: string };
+		const error = (await response.json()) as { message?: string };
 		throw new Error(error.message || "비밀번호 재설정 요청에 실패했습니다.");
 	}
 
@@ -101,7 +101,7 @@ export const resetPassword = async (newPassword: string, token: string) => {
 	});
 
 	if (!response.ok) {
-		const error = await response.json() as { message?: string };
+		const error = (await response.json()) as { message?: string };
 		throw new Error(error.message || "비밀번호 재설정에 실패했습니다.");
 	}
 

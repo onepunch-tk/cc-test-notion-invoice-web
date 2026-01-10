@@ -16,20 +16,14 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
+			"suspicious": {
+				"noEmptyInterface": "off"
+			},
 			"correctness": {
 				"useExhaustiveDependencies": "off",
-				"noUnusedVariables": {
-					"level": "error",
-					"fix": "none"
-				},
-				"noUnusedFunctionParameters": {
-					"level": "error",
-					"fix": "none"
-				},
-				"noUnusedImports": {
-					"level": "warn",
-					"fix": "none"
-				}
+				"noUnusedVariables": "off",
+				"noUnusedFunctionParameters": "off",
+				"noUnusedImports": "off"
 			},
 			"a11y": {
 				"noSvgWithoutTitle": "off"

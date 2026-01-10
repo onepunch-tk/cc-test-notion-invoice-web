@@ -1,10 +1,10 @@
 import { redirect } from "react-router";
-import type { Route } from "./+types/index";
-import { getOptionalAuth } from "@/middleware/auth.middleware";
-import LandingNavbar from "@/components/landing/landing-navbar";
-import HeroSection from "@/components/landing/hero-section";
 import FeaturesSection from "@/components/landing/features-section";
 import FooterSection from "@/components/landing/footer-section";
+import HeroSection from "@/components/landing/hero-section";
+import LandingNavbar from "@/components/landing/landing-navbar";
+import { getOptionalAuth } from "@/middleware/auth.middleware";
+import type { Route } from "./+types/index";
 
 /**
  * 홈 페이지 loader

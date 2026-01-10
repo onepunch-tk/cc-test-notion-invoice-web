@@ -8,7 +8,11 @@ export const meta: Route.MetaFunction = () => [
 	{ title: "사용자 상세 - Claude RR7 Starterkit" },
 ];
 
-export const loader = async ({ params, request, context }: Route.LoaderArgs) => {
+export const loader = async ({
+	params,
+	request,
+	context,
+}: Route.LoaderArgs) => {
 	const userId = params.id;
 
 	// TODO: Drizzle로 사용자 조회
@@ -40,7 +44,9 @@ export default function UserDetail({ loaderData }: Route.ComponentProps) {
 			<div className="rounded-lg border bg-card p-6">
 				<div className="space-y-4">
 					<div>
-						<div className="text-sm font-medium text-muted-foreground">이름</div>
+						<div className="text-sm font-medium text-muted-foreground">
+							이름
+						</div>
 						<div className="mt-1 text-lg font-semibold">{user.fullName}</div>
 					</div>
 
@@ -62,7 +68,9 @@ export default function UserDetail({ loaderData }: Route.ComponentProps) {
 						<div className="text-sm font-medium text-muted-foreground">
 							가입일
 						</div>
-						<div className="mt-1">{user.createdAt.toLocaleDateString("ko-KR")}</div>
+						<div className="mt-1">
+							{user.createdAt.toLocaleDateString("ko-KR")}
+						</div>
 					</div>
 				</div>
 			</div>

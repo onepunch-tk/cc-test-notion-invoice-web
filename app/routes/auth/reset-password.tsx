@@ -1,7 +1,5 @@
-import { redirect, Form, useActionData, useSearchParams } from "react-router";
+import { Form, redirect, useActionData, useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Card,
 	CardContent,
@@ -9,6 +7,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { Route } from "./+types/reset-password";
 
 /**
@@ -34,21 +34,27 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
 
 	try {
 		// Better-auth API를 통한 비밀번호 재설정
-		const response = await fetch(`${context.cloudflare.env.BASE_URL}/api/auth/reset-password`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ newPassword: password, token }),
-		});
+		const response = await fetch(
+			`${context.cloudflare.env.BASE_URL}/api/auth/reset-password`,
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ newPassword: password, token }),
+			},
+		);
 
 		if (!response.ok) {
-			const error = await response.json() as { message?: string };
+			const error = (await response.json()) as { message?: string };
 			return { error: error.message || "비밀번호 재설정에 실패했습니다." };
 		}
 
 		return redirect("/auth/login");
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : "비밀번호 재설정에 실패했습니다.",
+			error:
+				error instanceof Error
+					? error.message
+					: "비밀번호 재설정에 실패했습니다.",
 		};
 	}
 };

@@ -1,7 +1,6 @@
-import { Link, redirect, Form, useActionData } from "react-router";
+import { Github } from "lucide-react";
+import { Form, Link, redirect, useActionData } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Card,
 	CardContent,
@@ -10,10 +9,11 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { requireGuest } from "@/middleware/guest.middleware";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { createAuthInstance } from "@/lib/auth.server";
+import { requireGuest } from "@/middleware/guest.middleware";
 import type { Route } from "./+types/login";
-import { Github } from "lucide-react";
 
 /**
  * 로그인 페이지
@@ -47,11 +47,19 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
 
 	// OAuth 로그인
 	if (provider) {
-		if (provider === "github" && env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) {
+		if (
+			provider === "github" &&
+			env.GITHUB_CLIENT_ID &&
+			env.GITHUB_CLIENT_SECRET
+		) {
 			const redirectUrl = `${env.BASE_URL}/api/auth/callback/github`;
 			return redirect(redirectUrl);
 		}
-		if (provider === "google" && env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
+		if (
+			provider === "google" &&
+			env.GOOGLE_CLIENT_ID &&
+			env.GOOGLE_CLIENT_SECRET
+		) {
 			const redirectUrl = `${env.BASE_URL}/api/auth/callback/google`;
 			return redirect(redirectUrl);
 		}
@@ -69,7 +77,9 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
 		const redirectTo = url.searchParams.get("redirectTo") || "/dashboard";
 		return redirect(redirectTo);
 	} catch (error) {
-		return { error: error instanceof Error ? error.message : "로그인에 실패했습니다." };
+		return {
+			error: error instanceof Error ? error.message : "로그인에 실패했습니다.",
+		};
 	}
 };
 
@@ -80,9 +90,7 @@ export default function Login() {
 		<Card className="w-full max-w-md">
 			<CardHeader>
 				<CardTitle>로그인</CardTitle>
-				<CardDescription>
-					계정에 로그인하여 서비스를 이용하세요
-				</CardDescription>
+				<CardDescription>계정에 로그인하여 서비스를 이용하세요</CardDescription>
 			</CardHeader>
 
 			<Form method="post">

@@ -1,6 +1,6 @@
+import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { createAuthInstance } from "@/lib/auth.server";
-import type { ActionFunctionArgs } from "react-router";
 
 /**
  * 로그아웃 라우트

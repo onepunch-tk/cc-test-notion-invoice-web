@@ -1,7 +1,5 @@
-import { Link, Form, useActionData } from "react-router";
+import { Form, Link, useActionData } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Card,
 	CardContent,
@@ -10,8 +8,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { requireGuest } from "@/middleware/guest.middleware";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { createAuthInstance } from "@/lib/auth.server";
+import { requireGuest } from "@/middleware/guest.middleware";
 import type { Route } from "./+types/signup";
 
 /**
@@ -54,7 +54,8 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : "회원가입에 실패했습니다.",
+			error:
+				error instanceof Error ? error.message : "회원가입에 실패했습니다.",
 		};
 	}
 };

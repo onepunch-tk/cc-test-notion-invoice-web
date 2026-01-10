@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
-import { createAuthInstance } from "@/lib/auth.server";
 import type { User } from "@/db/schema";
+import { createAuthInstance } from "@/lib/auth.server";
 
 interface MiddlewareContext {
 	request: Request;
@@ -39,7 +39,10 @@ interface MiddlewareContext {
  * };
  * ```
  */
-export const requireAuth = async ({ request, context }: MiddlewareContext): Promise<User> => {
+export const requireAuth = async ({
+	request,
+	context,
+}: MiddlewareContext): Promise<User> => {
 	const env = context.cloudflare?.env;
 
 	if (!env?.DATABASE_URL || !env?.BASE_URL || !env?.BETTER_AUTH_SECRET) {
@@ -85,7 +88,10 @@ export const requireAuth = async ({ request, context }: MiddlewareContext): Prom
  * };
  * ```
  */
-export const getOptionalAuth = async ({ request, context }: MiddlewareContext): Promise<User | null> => {
+export const getOptionalAuth = async ({
+	request,
+	context,
+}: MiddlewareContext): Promise<User | null> => {
 	const env = context.cloudflare?.env;
 
 	if (!env?.DATABASE_URL || !env?.BASE_URL || !env?.BETTER_AUTH_SECRET) {

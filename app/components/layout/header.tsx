@@ -1,5 +1,5 @@
+import { LogOut, Menu, User as UserIcon } from "lucide-react";
 import { Form } from "react-router";
-import { Menu, LogOut, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,

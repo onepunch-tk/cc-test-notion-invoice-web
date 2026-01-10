@@ -1,7 +1,5 @@
-import { Link, Form, useActionData } from "react-router";
+import { Form, Link, useActionData } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Card,
 	CardContent,
@@ -10,6 +8,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { sendPasswordResetEmail } from "@/lib/email.server";
 import type { Route } from "./+types/forgot-password";
 
@@ -38,7 +38,8 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
 		};
 	} catch (error) {
 		return {
-			error: error instanceof Error ? error.message : "이메일 전송에 실패했습니다.",
+			error:
+				error instanceof Error ? error.message : "이메일 전송에 실패했습니다.",
 		};
 	}
 };

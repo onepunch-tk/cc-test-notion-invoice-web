@@ -1,5 +1,12 @@
-import { pgTable, text, timestamp, boolean, integer, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import {
+	boolean,
+	integer,
+	pgTable,
+	text,
+	timestamp,
+	uuid,
+} from "drizzle-orm/pg-core";
 
 // ============================================================================
 // Better-auth 필수 테이블
@@ -114,9 +121,7 @@ export const twoFactorTable = pgTable("two_factor", {
  * Better-auth의 user 테이블과 연동하여 추가 정보 저장
  */
 export const profilesTable = pgTable("profiles", {
-	id: uuid("id")
-		.primaryKey()
-		.default(sql`gen_random_uuid()`),
+	id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
 	userId: text("user_id")
 		.notNull()
 		.unique()

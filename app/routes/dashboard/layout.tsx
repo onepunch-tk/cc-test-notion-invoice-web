@@ -1,8 +1,8 @@
 import { Outlet } from "react-router";
-import { requireAuth } from "@/middleware/auth.middleware";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Header } from "@/components/layout/header";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { requireAuth } from "@/middleware/auth.middleware";
 import type { Route } from "./+types/layout";
 
 /**

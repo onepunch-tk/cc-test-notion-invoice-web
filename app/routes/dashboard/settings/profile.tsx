@@ -1,7 +1,14 @@
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import {
 	Form,
 	FormControl,
@@ -12,7 +19,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	Select,
 	SelectContent,
@@ -21,13 +27,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import type { Route } from "./+types/profile";
 
 /**
@@ -36,10 +36,7 @@ import type { Route } from "./+types/profile";
 const profileSchema = z.object({
 	fullName: z.string().min(1, "이름을 입력해주세요"),
 	email: z.string().email("올바른 이메일 형식이 아닙니다"),
-	bio: z
-		.string()
-		.max(500, "자기소개는 500자 이내로 작성해주세요")
-		.optional(),
+	bio: z.string().max(500, "자기소개는 500자 이내로 작성해주세요").optional(),
 	language: z.enum(["ko", "en", "ja"]),
 	notifications: z.boolean(),
 });

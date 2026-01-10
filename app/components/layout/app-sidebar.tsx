@@ -1,5 +1,5 @@
+import { Home, LayoutDashboard, Settings, Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
-import { Home, Users, Settings, LayoutDashboard } from "lucide-react";
 import {
 	Sidebar,
 	SidebarContent,

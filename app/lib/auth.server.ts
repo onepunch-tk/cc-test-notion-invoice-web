@@ -2,10 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createDrizzleClient } from "@/db";
 import * as schema from "@/db/schema";
-import {
-	sendVerificationEmail,
-	sendPasswordResetEmail,
-} from "./email.server";
+import { sendPasswordResetEmail, sendVerificationEmail } from "./email.server";
 
 /**
  * Better-auth 인스턴스 생성
@@ -73,18 +70,20 @@ export const createAuthInstance = (
 
 		// ✅ OAuth 프로바이더 설정
 		socialProviders: {
-			github: githubClientId && githubClientSecret
-				? {
-						clientId: githubClientId,
-						clientSecret: githubClientSecret,
-				  }
-				: undefined,
-			google: googleClientId && googleClientSecret
-				? {
-						clientId: googleClientId,
-						clientSecret: googleClientSecret,
-				  }
-				: undefined,
+			github:
+				githubClientId && githubClientSecret
+					? {
+							clientId: githubClientId,
+							clientSecret: githubClientSecret,
+						}
+					: undefined,
+			google:
+				googleClientId && googleClientSecret
+					? {
+							clientId: googleClientId,
+							clientSecret: googleClientSecret,
+						}
+					: undefined,
 			// Kakao는 Better-auth v1.3+에서 공식 지원
 			// 아직 지원되지 않으면 커스텀 OAuth로 구현 필요
 		},
