@@ -55,6 +55,7 @@ max_client_conn = 100
 enabled = true
 # Specifies an ordered list of schema files that describe your database.
 # Supports glob patterns relative to supabase directory: "./schemas/*.sql"
+# Drizzle Kit이 생성한 마이그레이션을 supabase/migrations에서 자동으로 읽음
 schema_paths = []
 
 [db.seed]

@@ -15,8 +15,8 @@
 supabase/.branches
 supabase/.temp
 
-# Drizzle 마이그레이션 (선택적 - 팀마다 다름)
-# /drizzle/
+# Drizzle 마이그레이션은 supabase/migrations에서 관리됨
+# (Git에 커밋하여 버전 관리)
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,windows,visualstudiocode,jetbrains+all

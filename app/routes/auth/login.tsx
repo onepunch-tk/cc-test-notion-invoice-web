@@ -21,10 +21,7 @@ import {
 	FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import {
-	type LoginFormData,
-	loginSchema,
-} from "~/features/auth/types";
+import { type LoginFormData, loginSchema } from "~/features/auth/types";
 import { requireGuest } from "~/middleware/guest.middleware";
 import type { Route } from "./+types/login";
 
@@ -81,9 +78,9 @@ export default function Login() {
 			navigate(redirectTo);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "로그인에 실패했습니다.");
-		} finally {
-			setIsLoading(false);
 		}
+
+		setIsLoading(false);
 	};
 
 	const handleOAuthLogin = (provider: string) => {
