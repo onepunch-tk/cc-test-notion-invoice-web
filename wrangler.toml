@@ -7,7 +7,7 @@ name = "claude-rr7-starterkit"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-main = "./build/server/index.js"
+main = "./workers/app.ts" 
 assets = { directory = "./build/client" }
 
 [build]
