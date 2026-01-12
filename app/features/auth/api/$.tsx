@@ -1,10 +1,10 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { createAuthInstance } from "~/lib/auth.server";
+import { createAuthFromContext } from "~/lib/auth-helpers.server";
 
 /**
  * Better-auth API 핸들러 (Catch-all)
  *
- * /api/auth/* 경로의 모든 요청을 Better-auth에 위임
+ * auth/api/* 경로의 모든 요청을 Better-auth에 위임
  * Better-auth가 자동으로 다음 엔드포인트들을 처리:
  * - POST auth/api/sign-up
  * - POST auth/api/sign-in
@@ -23,33 +23,7 @@ const handleAuth = async (
 	request: Request,
 	context: LoaderFunctionArgs["context"],
 ) => {
-	const env = context.cloudflare?.env as {
-		DATABASE_URL: string;
-		BASE_URL: string;
-		BETTER_AUTH_SECRET: string;
-		GITHUB_CLIENT_ID?: string;
-		GITHUB_CLIENT_SECRET?: string;
-		GOOGLE_CLIENT_ID?: string;
-		GOOGLE_CLIENT_SECRET?: string;
-		KAKAO_CLIENT_ID?: string;
-		KAKAO_CLIENT_SECRET?: string;
-	};
-
-	if (!env.DATABASE_URL || !env.BASE_URL || !env.BETTER_AUTH_SECRET) {
-		throw new Error("환경 변수가 설정되지 않았습니다.");
-	}
-
-	const auth = createAuthInstance(
-		env.DATABASE_URL,
-		env.BASE_URL,
-		env.GITHUB_CLIENT_ID,
-		env.GITHUB_CLIENT_SECRET,
-		env.GOOGLE_CLIENT_ID,
-		env.GOOGLE_CLIENT_SECRET,
-		env.KAKAO_CLIENT_ID,
-		env.KAKAO_CLIENT_SECRET,
-	);
-
+	const auth = createAuthFromContext(context);
 	return auth.handler(request);
 };
 

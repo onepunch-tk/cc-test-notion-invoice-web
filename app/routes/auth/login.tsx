@@ -22,6 +22,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { type LoginFormData, loginSchema } from "~/features/auth/types";
+import { signIn } from "~/lib/auth.client";
 import { requireGuest } from "~/middleware/guest.middleware";
 import type { Route } from "./+types/login";
 
@@ -58,34 +59,21 @@ export default function Login() {
 		setError(null);
 
 		try {
-			// 이메일/비밀번호 로그인 API 호출
-			const response = await fetch("/api/auth/sign-in/email", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					email: data.email,
-					password: data.password,
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = (await response.json()) as { message?: string };
-				throw new Error(errorData.message || "로그인에 실패했습니다.");
-			}
+			await signIn(data.email, data.password);
 
 			// redirectTo 파라미터가 있으면 해당 페이지로, 없으면 대시보드로
 			const redirectTo = searchParams.get("redirectTo") || "/dashboard";
 			navigate(redirectTo);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "로그인에 실패했습니다.");
+		} finally {
+			setIsLoading(false);
 		}
-
-		setIsLoading(false);
 	};
 
 	const handleOAuthLogin = (provider: string) => {
 		// OAuth 로그인 처리
-		const redirectUrl = `/api/auth/callback/${provider}`;
+		const redirectUrl = `/auth/api/callback/${provider}`;
 		window.location.href = redirectUrl;
 	};
 

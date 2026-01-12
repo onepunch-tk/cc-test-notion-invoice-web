@@ -1,24 +1,6 @@
 import { redirect } from "react-router";
 import { getOptionalAuth } from "./auth.middleware";
-
-interface MiddlewareContext {
-	request: Request;
-	context: {
-		cloudflare?: {
-			env: {
-				DATABASE_URL: string;
-				BASE_URL: string;
-				BETTER_AUTH_SECRET: string;
-				GITHUB_CLIENT_ID?: string;
-				GITHUB_CLIENT_SECRET?: string;
-				GOOGLE_CLIENT_ID?: string;
-				GOOGLE_CLIENT_SECRET?: string;
-				KAKAO_CLIENT_ID?: string;
-				KAKAO_CLIENT_SECRET?: string;
-			};
-		};
-	};
-}
+import type { MiddlewareContext } from "~/lib/auth-helpers.server";
 
 /**
  * 게스트 전용 미들웨어

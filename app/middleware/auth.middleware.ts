@@ -1,25 +1,9 @@
 import { redirect } from "react-router";
 import type { User } from "~/db/schema";
-import { createAuthInstance } from "~/lib/auth.server";
-
-interface MiddlewareContext {
-	request: Request;
-	context: {
-		cloudflare?: {
-			env: {
-				DATABASE_URL: string;
-				BASE_URL: string;
-				BETTER_AUTH_SECRET: string;
-				GITHUB_CLIENT_ID?: string;
-				GITHUB_CLIENT_SECRET?: string;
-				GOOGLE_CLIENT_ID?: string;
-				GOOGLE_CLIENT_SECRET?: string;
-				KAKAO_CLIENT_ID?: string;
-				KAKAO_CLIENT_SECRET?: string;
-			};
-		};
-	};
-}
+import {
+	createAuthFromContext,
+	type MiddlewareContext,
+} from "~/lib/auth-helpers.server";
 
 /**
  * 인증 필수 미들웨어
@@ -43,26 +27,10 @@ export const requireAuth = async ({
 	request,
 	context,
 }: MiddlewareContext): Promise<User> => {
-	const env = context.cloudflare?.env;
-
-	if (!env?.DATABASE_URL || !env?.BASE_URL || !env?.BETTER_AUTH_SECRET) {
-		throw new Error("환경 변수가 설정되지 않았습니다.");
-	}
-
-	const auth = createAuthInstance(
-		env.DATABASE_URL,
-		env.BASE_URL,
-		env.GITHUB_CLIENT_ID,
-		env.GITHUB_CLIENT_SECRET,
-		env.GOOGLE_CLIENT_ID,
-		env.GOOGLE_CLIENT_SECRET,
-		env.KAKAO_CLIENT_ID,
-		env.KAKAO_CLIENT_SECRET,
-	);
-
+	const auth = createAuthFromContext(context);
 	const session = await auth.api.getSession({ headers: request.headers });
 
-	if (!session || !session.user) {
+	if (!session?.user) {
 		const url = new URL(request.url);
 		const redirectTo = url.pathname + url.search;
 		throw redirect(`/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
@@ -92,28 +60,16 @@ export const getOptionalAuth = async ({
 	request,
 	context,
 }: MiddlewareContext): Promise<User | null> => {
-	const env = context.cloudflare?.env;
+	try {
+		const auth = createAuthFromContext(context);
+		const session = await auth.api.getSession({ headers: request.headers });
 
-	if (!env?.DATABASE_URL || !env?.BASE_URL || !env?.BETTER_AUTH_SECRET) {
+		if (!session?.user) {
+			return null;
+		}
+
+		return session.user as User;
+	} catch {
 		return null;
 	}
-
-	const auth = createAuthInstance(
-		env.DATABASE_URL,
-		env.BASE_URL,
-		env.GITHUB_CLIENT_ID,
-		env.GITHUB_CLIENT_SECRET,
-		env.GOOGLE_CLIENT_ID,
-		env.GOOGLE_CLIENT_SECRET,
-		env.KAKAO_CLIENT_ID,
-		env.KAKAO_CLIENT_SECRET,
-	);
-
-	const session = await auth.api.getSession({ headers: request.headers });
-
-	if (!session || !session.user) {
-		return null;
-	}
-
-	return session.user as User;
 };

@@ -24,6 +24,7 @@ import {
 	type ForgotPasswordFormData,
 	forgotPasswordSchema,
 } from "~/features/auth/types";
+import { forgotPassword } from "~/lib/auth.client";
 import type { Route } from "./+types/forgot-password";
 
 /**
@@ -53,24 +54,13 @@ export default function ForgotPassword() {
 		setSuccess(null);
 
 		try {
-			// 비밀번호 재설정 이메일 전송 API 호출
-			const response = await fetch("/api/auth/forgot-password", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					email: data.email,
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = (await response.json()) as { message?: string };
-				throw new Error(errorData.message || "이메일 전송에 실패했습니다.");
-			}
-
+			await forgotPassword(data.email);
 			setSuccess("비밀번호 재설정 이메일이 전송되었습니다.");
 			form.reset();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "이메일 전송에 실패했습니다.");
+			setError(
+				err instanceof Error ? err.message : "이메일 전송에 실패했습니다.",
+			);
 		} finally {
 			setIsLoading(false);
 		}

@@ -4,7 +4,7 @@ import { createAuthClient } from "better-auth/react";
  * Better-auth 클라이언트
  *
  * 브라우저에서 사용되는 인증 클라이언트
- * 서버의 /api/auth/* 엔드포인트와 통신
+ * 서버의 /auth/api/* 엔드포인트와 통신
  */
 export const authClient = createAuthClient({
 	baseURL: typeof window !== "undefined" ? window.location.origin : "",
@@ -73,7 +73,7 @@ export const signOut = async () => {
 export const forgotPassword = async (email: string) => {
 	// Better-auth의 비밀번호 재설정 API 호출
 	// 서버에서 이메일 전송 처리
-	const response = await fetch("/api/auth/forget-password", {
+	const response = await fetch("/auth/api/forget-password", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ email, redirectTo: "/auth/reset-password" }),
@@ -94,18 +94,10 @@ export const forgotPassword = async (email: string) => {
  * @param token - 재설정 토큰
  */
 export const resetPassword = async (newPassword: string, token: string) => {
-	const response = await fetch("/api/auth/reset-password", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ newPassword, token }),
+	return authClient.resetPassword({
+		newPassword,
+		token,
 	});
-
-	if (!response.ok) {
-		const error = (await response.json()) as { message?: string };
-		throw new Error(error.message || "비밀번호 재설정에 실패했습니다.");
-	}
-
-	return response.json();
 };
 
 /**
@@ -122,4 +114,23 @@ export const getSession = async () => {
  */
 export const updateUser = async (data: { name?: string; image?: string }) => {
 	return authClient.updateUser(data);
+};
+
+/**
+ * 비밀번호 변경 (인증된 사용자 전용)
+ *
+ * @param currentPassword - 현재 비밀번호
+ * @param newPassword - 새 비밀번호
+ * @param revokeOtherSessions - 다른 세션 무효화 (기본: true)
+ */
+export const changePassword = async (
+	currentPassword: string,
+	newPassword: string,
+	revokeOtherSessions = true,
+) => {
+	return authClient.changePassword({
+		currentPassword,
+		newPassword,
+		revokeOtherSessions,
+	});
 };

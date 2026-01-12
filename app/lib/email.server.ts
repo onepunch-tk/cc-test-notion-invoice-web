@@ -46,7 +46,7 @@ export const sendVerificationEmail = async (
 	token: string,
 	baseURL: string,
 ): Promise<void> => {
-	const verificationUrl = `${baseURL}/api/auth/verify-email?token=${token}`;
+	const verificationUrl = `${baseURL}/auth/api/verify-email?token=${token}`;
 
 	await sendEmail({
 		to: email,

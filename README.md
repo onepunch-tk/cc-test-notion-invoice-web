@@ -811,9 +811,9 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 - 로그인/회원가입 헬퍼 함수
 - OAuth 로그인 함수
 
-**API 라우트** (`app/routes/api/auth/$.tsx`):
+**API 라우트** (`app/routes/auth/api/$.tsx`):
 - Better-auth API 핸들러
-- `/api/auth/*` 경로의 모든 인증 요청 처리
+- `/auth/api/*` 경로의 모든 인증 요청 처리
 
 ## 📚 주요 라이브러리
 

@@ -1,6 +1,7 @@
 import { LogOut, Menu, User as UserIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
+import { signOut } from "~/lib/auth.client";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -26,13 +27,7 @@ export const Header = ({ user }: HeaderProps) => {
 
 	const handleLogout = async () => {
 		try {
-			// 로그아웃 API 호출
-			await fetch("/api/auth/sign-out", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-			});
-
-			// 홈으로 리다이렉트
+			await signOut();
 			navigate("/");
 		} catch (error) {
 			console.error("로그아웃 실패:", error);

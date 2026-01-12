@@ -24,6 +24,7 @@ import {
 	type ResetPasswordFormData,
 	resetPasswordSchema,
 } from "~/features/auth/types";
+import { resetPassword } from "~/lib/auth.client";
 import type { Route } from "./+types/reset-password";
 
 /**
@@ -56,22 +57,7 @@ export default function ResetPassword() {
 		setError(null);
 
 		try {
-			// 비밀번호 재설정 API 호출
-			const response = await fetch("/api/auth/reset-password", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					newPassword: data.password,
-					token: data.token,
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = (await response.json()) as { message?: string };
-				throw new Error(errorData.message || "비밀번호 재설정에 실패했습니다.");
-			}
-
-			// 성공 시 로그인 페이지로 이동
+			await resetPassword(data.password, data.token);
 			navigate("/auth/login");
 		} catch (err) {
 			setError(

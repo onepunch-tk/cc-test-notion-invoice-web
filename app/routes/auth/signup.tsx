@@ -21,10 +21,8 @@ import {
 	FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import {
-	type SignupFormData,
-	signupSchema,
-} from "~/features/auth/types";
+import { type SignupFormData, signupSchema } from "~/features/auth/types";
+import { signUp } from "~/lib/auth.client";
 import { requireGuest } from "~/middleware/guest.middleware";
 import type { Route } from "./+types/signup";
 
@@ -62,22 +60,7 @@ export default function Signup() {
 		setSuccess(null);
 
 		try {
-			// 회원가입 API 호출
-			const response = await fetch("/api/auth/sign-up/email", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					name: data.name,
-					email: data.email,
-					password: data.password,
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = (await response.json()) as { message?: string };
-				throw new Error(errorData.message || "회원가입에 실패했습니다.");
-			}
-
+			await signUp(data.email, data.password, data.name);
 			setSuccess("회원가입이 완료되었습니다. 이메일을 확인해주세요.");
 			form.reset();
 		} catch (err) {
