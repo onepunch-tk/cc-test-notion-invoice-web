@@ -22,6 +22,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import {
+	type AuthActionResponse,
 	type ForgotPasswordFormData,
 	forgotPasswordSchema,
 } from "~/features/auth/types";
@@ -43,12 +44,12 @@ export const meta: Route.MetaFunction = () => [
  *
  * useFetcher와 함께 작동하여 폼 제출을 처리
  */
-export const action = async ({ request, context }: ActionFunctionArgs) => {
+export const action = async ({
+	request,
+	context,
+}: ActionFunctionArgs): Promise<AuthActionResponse> => {
 	if (request.method !== "POST") {
-		throw new Response(JSON.stringify({ error: "POST 요청만 허용됩니다." }), {
-			status: 405,
-			headers: { "Content-Type": "application/json" },
-		});
+		return { error: "POST 요청만 허용됩니다." };
 	}
 
 	const formData = await request.formData();
@@ -57,13 +58,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	// 폼 검증
 	const result = forgotPasswordSchema.safeParse({ email });
 	if (!result.success) {
-		throw new Response(
-			JSON.stringify({ error: "유효한 이메일을 입력해주세요." }),
-			{
-				status: 400,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
+		return { error: "유효한 이메일을 입력해주세요." };
 	}
 
 	try {

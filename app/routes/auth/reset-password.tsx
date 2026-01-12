@@ -1,11 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-	redirect,
-	useFetcher,
-	useSearchParams,
-} from "react-router";
 import type { ActionFunctionArgs } from "react-router";
+import { redirect, useFetcher, useSearchParams } from "react-router";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import {
@@ -26,6 +22,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import {
+	type AuthActionResponse,
 	type ResetPasswordFormData,
 	resetPasswordSchema,
 } from "~/features/auth/types";
@@ -48,12 +45,12 @@ export const meta: Route.MetaFunction = () => [
  *
  * useFetcher와 함께 작동하여 폼 제출을 처리
  */
-export const action = async ({ request, context }: ActionFunctionArgs) => {
+export const action = async ({
+	request,
+	context,
+}: ActionFunctionArgs): Promise<AuthActionResponse | Response> => {
 	if (request.method !== "POST") {
-		throw new Response(JSON.stringify({ error: "POST 요청만 허용됩니다." }), {
-			status: 405,
-			headers: { "Content-Type": "application/json" },
-		});
+		return { error: "POST 요청만 허용됩니다." };
 	}
 
 	const formData = await request.formData();
@@ -63,10 +60,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
 	// token 검증
 	if (!token) {
-		throw new Response(JSON.stringify({ error: "유효하지 않은 토큰입니다." }), {
-			status: 400,
-			headers: { "Content-Type": "application/json" },
-		});
+		return { error: "유효하지 않은 토큰입니다." };
 	}
 
 	// 비밀번호 검증
@@ -77,12 +71,8 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	});
 
 	if (!result.success) {
-		const errorMessage =
-			result.error.errors[0]?.message || "입력값이 올바르지 않습니다.";
-		throw new Response(JSON.stringify({ error: errorMessage }), {
-			status: 400,
-			headers: { "Content-Type": "application/json" },
-		});
+		const errorMessage = result.error.message || "입력값이 올바르지 않습니다.";
+		return { error: errorMessage };
 	}
 
 	try {
@@ -98,11 +88,10 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 		return redirect("/auth/signin?message=password-reset-success");
 	} catch (error) {
 		const errorMessage =
-			error instanceof Error ? error.message : "비밀번호 재설정에 실패했습니다.";
-		throw new Response(JSON.stringify({ error: errorMessage }), {
-			status: 400,
-			headers: { "Content-Type": "application/json" },
-		});
+			error instanceof Error
+				? error.message
+				: "비밀번호 재설정에 실패했습니다.";
+		return { error: errorMessage };
 	}
 };
 
@@ -146,61 +135,61 @@ export default function ResetPassword() {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
 			<Card className="w-full max-w-md">
-			<CardHeader>
-				<CardTitle>비밀번호 재설정</CardTitle>
-				<CardDescription>새로운 비밀번호를 입력해주세요</CardDescription>
-			</CardHeader>
+				<CardHeader>
+					<CardTitle>비밀번호 재설정</CardTitle>
+					<CardDescription>새로운 비밀번호를 입력해주세요</CardDescription>
+				</CardHeader>
 
-			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)}>
-					<CardContent className="space-y-4">
-						{/* 에러 메시지 */}
-						{fetcher.data?.error && (
-							<Alert variant="destructive">
-								<AlertDescription>{fetcher.data.error}</AlertDescription>
-							</Alert>
-						)}
-
-						{/* 새 비밀번호 필드 */}
-						<FormField
-							control={form.control}
-							name="password"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>새 비밀번호</FormLabel>
-									<FormControl>
-										<Input type="password" {...field} />
-									</FormControl>
-									<FormDescription>
-										최소 8자 이상, 대소문자와 숫자를 포함해주세요
-									</FormDescription>
-									<FormMessage />
-								</FormItem>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<CardContent className="space-y-4">
+							{/* 에러 메시지 */}
+							{fetcher.data?.error && (
+								<Alert variant="destructive">
+									<AlertDescription>{fetcher.data.error}</AlertDescription>
+								</Alert>
 							)}
-						/>
 
-						{/* 비밀번호 확인 필드 */}
-						<FormField
-							control={form.control}
-							name="passwordConfirm"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>비밀번호 확인</FormLabel>
-									<FormControl>
-										<Input type="password" {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+							{/* 새 비밀번호 필드 */}
+							<FormField
+								control={form.control}
+								name="password"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>새 비밀번호</FormLabel>
+										<FormControl>
+											<Input type="password" {...field} />
+										</FormControl>
+										<FormDescription>
+											최소 8자 이상, 대소문자와 숫자를 포함해주세요
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-						{/* 재설정 버튼 */}
-						<Button type="submit" className="w-full" disabled={isSubmitting}>
-							{isSubmitting ? "재설정 중..." : "비밀번호 재설정"}
-						</Button>
-					</CardContent>
-				</form>
-			</Form>
+							{/* 비밀번호 확인 필드 */}
+							<FormField
+								control={form.control}
+								name="passwordConfirm"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>비밀번호 확인</FormLabel>
+										<FormControl>
+											<Input type="password" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							{/* 재설정 버튼 */}
+							<Button type="submit" className="w-full" disabled={isSubmitting}>
+								{isSubmitting ? "재설정 중..." : "비밀번호 재설정"}
+							</Button>
+						</CardContent>
+					</form>
+				</Form>
 			</Card>
 		</div>
 	);

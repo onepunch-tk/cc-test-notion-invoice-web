@@ -1,8 +1,15 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { eq } from "drizzle-orm";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { createDrizzleClient } from "~/db";
 import * as schema from "~/db/schema";
+import { userTable } from "~/db/schema";
+import {
+	DuplicateEmailError,
+	UserCreationError,
+} from "~/features/auth/errors";
+import { createUserProfile } from "~/features/auth/services/profile.server";
 import { sendPasswordResetEmail, sendVerificationEmail } from "./email.server";
 
 /**
@@ -27,6 +34,8 @@ export const createAuthInstance = (
 	googleClientSecret?: string,
 	kakaoClientId?: string,
 	kakaoClientSecret?: string,
+	resendApiKey?: string,
+	resendFromEmail?: string,
 ) => {
 	const db = createDrizzleClient(databaseUrl);
 
@@ -57,7 +66,13 @@ export const createAuthInstance = (
 			enabled: true,
 			requireEmailVerification: true,
 			sendResetPassword: async ({ user, url }) => {
-				await sendPasswordResetEmail(user.email, url, baseURL);
+				await sendPasswordResetEmail(
+					user.email,
+					url,
+					baseURL,
+					resendApiKey,
+					resendFromEmail,
+				);
 			},
 		},
 
@@ -66,7 +81,13 @@ export const createAuthInstance = (
 			sendOnSignUp: true,
 			autoSignInAfterVerification: true,
 			sendVerificationEmail: async ({ user, url }) => {
-				await sendVerificationEmail(user.email, url, baseURL);
+				await sendVerificationEmail(
+					user.email,
+					url,
+					baseURL,
+					resendApiKey,
+					resendFromEmail,
+				);
 			},
 		},
 
@@ -128,6 +149,8 @@ export interface CloudflareAuthEnv {
 	GOOGLE_CLIENT_SECRET?: string;
 	KAKAO_CLIENT_ID?: string;
 	KAKAO_CLIENT_SECRET?: string;
+	RESEND_API_KEY?: string;
+	RESEND_FROM_EMAIL?: string;
 }
 
 /**
@@ -186,6 +209,8 @@ export const createAuthFromContext = (
 		env.GOOGLE_CLIENT_SECRET,
 		env.KAKAO_CLIENT_ID,
 		env.KAKAO_CLIENT_SECRET,
+		env.RESEND_API_KEY,
+		env.RESEND_FROM_EMAIL,
 	);
 };
 
@@ -233,10 +258,14 @@ export const signInWithCredentials = async ({
 /**
  * 이메일/비밀번호 회원가입 (Action 전용)
  *
- * Better-auth의 signUpEmail API를 호출합니다.
+ * Better-auth의 signUpEmail API를 호출하고, 추가 로직을 수행합니다:
+ * 1. 이메일 중복 체크 (명시적)
+ * 2. Better-auth를 통한 사용자 생성
+ * 3. 프로필 자동 생성
  *
  * @param args - 회원가입 정보
- * @throws Error 회원가입 실패 시
+ * @throws DuplicateEmailError 이메일이 이미 사용 중인 경우
+ * @throws UserCreationError 사용자 생성에 실패한 경우
  */
 export const signUpWithCredentials = async ({
 	request,
@@ -251,11 +280,54 @@ export const signUpWithCredentials = async ({
 	password: string;
 	name: string;
 }) => {
+	// 1. 환경 변수 및 DB 클라이언트 생성
+	const env = extractAuthEnv(context);
+	const db = createDrizzleClient(env.DATABASE_URL);
+
+	// 2. 이메일 중복 체크 (명시적 확인)
+	const existingUser = await db
+		.select()
+		.from(userTable)
+		.where(eq(userTable.email, email))
+		.limit(1);
+
+	if (existingUser.length > 0) {
+		throw new DuplicateEmailError();
+	}
+
+	// 3. Better-auth로 사용자 생성 (기존 로직)
 	const auth = createAuthFromContext(context);
-	return await auth.api.signUpEmail({
+	const result = await auth.api.signUpEmail({
 		body: { email, password, name },
 		headers: request.headers,
 	});
+
+	// 4. 생성된 사용자 조회
+	const newUser = await db
+		.select()
+		.from(userTable)
+		.where(eq(userTable.email, email))
+		.limit(1);
+
+	if (newUser.length === 0) {
+		throw new UserCreationError();
+	}
+
+	// 5. 프로필 자동 생성 (실패해도 회원가입은 성공)
+	try {
+		await createUserProfile(db, {
+			userId: newUser[0].id,
+			fullName: name,
+			avatarUrl: null,
+			bio: null,
+		});
+	} catch (profileError) {
+		// ProfileCreationError는 비치명적이므로 로그만 남김
+		console.error("프로필 생성 실패:", profileError);
+		// 회원가입은 성공으로 처리
+	}
+
+	return result;
 };
 
 /**

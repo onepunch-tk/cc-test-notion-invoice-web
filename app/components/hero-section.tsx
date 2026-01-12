@@ -21,7 +21,7 @@ export default function HeroSection() {
 				<h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
 					빠르고 현대적인
 					<br />
-					<span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+					<span className="bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
 						풀스택 웹 개발
 					</span>
 				</h1>
@@ -42,7 +42,7 @@ export default function HeroSection() {
 						</Link>
 					</Button>
 					<Button size="lg" variant="outline" asChild>
-						<Link to="/auth/login">로그인</Link>
+						<Link to="/auth/signin">로그인</Link>
 					</Button>
 				</div>
 

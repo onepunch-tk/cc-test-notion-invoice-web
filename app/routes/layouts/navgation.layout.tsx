@@ -3,7 +3,7 @@ import { Await, Outlet } from "react-router";
 import FooterSection from "~/components/footer-section";
 import NavigationBar from "~/components/navigation-bar";
 import { getOptionalAuth } from "~/middleware/auth.middleware";
-import type { Route } from "./+types/public.layout";
+import type { Route } from "./+types/navgation.layout";
 
 /**
  * 공개 페이지 레이아웃

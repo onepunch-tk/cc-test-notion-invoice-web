@@ -1,96 +1,124 @@
-/**
- * 이메일 전송 유틸리티
- *
- * 개발 환경: 콘솔 로그로 이메일 내용 출력
- * 프로덕션: Resend, SendGrid 등의 서비스 사용
- */
+import type { ReactElement } from "react";
+import { Resend } from "resend";
+import PasswordResetEmail from "~/components/password-reset-email";
+import VerificationEmail from "~/components/verification-email";
+import {
+	EmailSendError,
+	EmailServiceNotConfiguredError,
+} from "~/features/auth/errors";
 
+/**
+ * 이메일 전송 옵션
+ */
 interface SendEmailOptions {
 	to: string;
 	subject: string;
-	text?: string;
-	html?: string;
+	react: ReactElement;
+	from?: string;
 }
+
+/**
+ * Resend 클라이언트 생성
+ */
+const createResendClient = (apiKey: string) => {
+	return new Resend(apiKey);
+};
 
 /**
  * 이메일 전송
  *
  * @param options - 이메일 전송 옵션
+ * @param apiKey - Resend API 키
+ * @param defaultFrom - 기본 발신자 이메일
+ * @throws EmailServiceNotConfiguredError API 키가 없을 경우
+ * @throws EmailSendError 이메일 전송 실패 시
  */
-export const sendEmail = async (options: SendEmailOptions): Promise<void> => {
-	// 개발 환경에서는 콘솔에 출력
-	if (process.env.NODE_ENV !== "production") {
-		console.log("📧 이메일 전송 (개발 모드):");
-		console.log(`To: ${options.to}`);
-		console.log(`Subject: ${options.subject}`);
-		console.log(`Text: ${options.text || "N/A"}`);
-		console.log(`HTML: ${options.html || "N/A"}`);
-		console.log("---");
-		return;
+export const sendEmail = async (
+	options: SendEmailOptions,
+	apiKey?: string,
+	defaultFrom?: string,
+): Promise<void> => {
+	// API 키 검증
+	if (!apiKey) {
+		console.error("❌ RESEND_API_KEY 환경 변수가 설정되지 않았습니다.");
+		throw new EmailServiceNotConfiguredError();
 	}
 
-	// 프로덕션 환경에서는 실제 이메일 서비스 사용
-	// TODO: Resend, SendGrid 등의 서비스 연동
-	throw new Error("이메일 전송 서비스가 설정되지 않았습니다.");
+	// 발신자 이메일 설정
+	const fromEmail = options.from || defaultFrom || "onboarding@resend.dev";
+
+	// Resend 클라이언트 생성
+	const resend = createResendClient(apiKey);
+
+	try {
+		// 이메일 전송
+		const result = await resend.emails.send({
+			from: fromEmail,
+			to: [options.to],
+			subject: options.subject,
+			react: options.react,
+		});
+
+		// 성공 로그
+		if (process.env.NODE_ENV !== "production") {
+			console.log("✅ 이메일 전송 성공:");
+			console.log(`  - ID: ${result.data?.id}`);
+			console.log(`  - To: ${options.to}`);
+			console.log(`  - Subject: ${options.subject}`);
+		}
+	} catch (error) {
+		console.error("❌ 이메일 전송 실패:", error);
+
+		if (error instanceof Error) {
+			throw new EmailSendError(`이메일 전송 실패: ${error.message}`);
+		}
+
+		throw new EmailSendError();
+	}
 };
 
 /**
  * 이메일 인증 링크 전송
- *
- * @param email - 수신자 이메일
- * @param token - 인증 토큰
- * @param baseURL - 애플리케이션 기본 URL
  */
 export const sendVerificationEmail = async (
 	email: string,
 	token: string,
 	baseURL: string,
+	apiKey?: string,
+	fromEmail?: string,
 ): Promise<void> => {
 	const verificationUrl = `${baseURL}/auth/api/verify-email?token=${token}`;
 
-	await sendEmail({
-		to: email,
-		subject: "이메일 인증",
-		text: `다음 링크를 클릭하여 이메일을 인증해주세요: ${verificationUrl}`,
-		html: `
-			<h1>이메일 인증</h1>
-			<p>다음 버튼을 클릭하여 이메일을 인증해주세요:</p>
-			<a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #0070f3; color: white; text-decoration: none; border-radius: 5px;">
-				이메일 인증하기
-			</a>
-			<p>또는 다음 링크를 복사하여 브라우저에 붙여넣으세요:</p>
-			<p>${verificationUrl}</p>
-		`,
-	});
+	await sendEmail(
+		{
+			to: email,
+			subject: "이메일 인증을 완료해주세요",
+			react: VerificationEmail({ verificationUrl }),
+		},
+		apiKey,
+		fromEmail,
+	);
 };
 
 /**
  * 비밀번호 재설정 링크 전송
- *
- * @param email - 수신자 이메일
- * @param token - 재설정 토큰
- * @param baseURL - 애플리케이션 기본 URL
  */
 export const sendPasswordResetEmail = async (
 	email: string,
 	token: string,
 	baseURL: string,
+	apiKey?: string,
+	fromEmail?: string,
 ): Promise<void> => {
 	const resetUrl = `${baseURL}/auth/reset-password?token=${token}`;
 
-	await sendEmail({
-		to: email,
-		subject: "비밀번호 재설정",
-		text: `다음 링크를 클릭하여 비밀번호를 재설정해주세요: ${resetUrl}`,
-		html: `
-			<h1>비밀번호 재설정</h1>
-			<p>다음 버튼을 클릭하여 비밀번호를 재설정해주세요:</p>
-			<a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #0070f3; color: white; text-decoration: none; border-radius: 5px;">
-				비밀번호 재설정하기
-			</a>
-			<p>또는 다음 링크를 복사하여 브라우저에 붙여넣으세요:</p>
-			<p>${resetUrl}</p>
-			<p>이 링크는 1시간 동안 유효합니다.</p>
-		`,
-	});
+	await sendEmail(
+		{
+			to: email,
+			subject: "비밀번호 재설정 요청",
+			react: PasswordResetEmail({ resetUrl }),
+		},
+		apiKey,
+		fromEmail,
+	);
 };

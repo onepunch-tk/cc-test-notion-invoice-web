@@ -30,7 +30,11 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import type { User } from "~/db/schema";
-import { type LoginFormData, loginSchema } from "~/features/auth/types";
+import {
+	type AuthActionResponse,
+	type LoginFormData,
+	loginSchema,
+} from "~/features/auth/types";
 import { signInWithCredentials } from "~/lib/auth.server";
 import type { Route } from "./+types/sign-in";
 
@@ -51,12 +55,12 @@ export const meta: Route.MetaFunction = () => [
  *
  * useFetcher와 함께 작동하여 폼 제출을 처리
  */
-export const action = async ({ request, context }: ActionFunctionArgs) => {
+export const action = async ({
+	request,
+	context,
+}: ActionFunctionArgs): Promise<AuthActionResponse | Response> => {
 	if (request.method !== "POST") {
-		throw new Response(JSON.stringify({ error: "POST 요청만 허용됩니다." }), {
-			status: 405,
-			headers: { "Content-Type": "application/json" },
-		});
+		return { error: "POST 요청만 허용됩니다." };
 	}
 
 	const formData = await request.formData();
@@ -66,13 +70,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	// 폼 검증
 	const result = loginSchema.safeParse({ email, password });
 	if (!result.success) {
-		throw new Response(
-			JSON.stringify({ error: "이메일과 비밀번호를 입력해주세요." }),
-			{
-				status: 400,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
+		return { error: "이메일과 비밀번호를 입력해주세요." };
 	}
 
 	try {
@@ -97,10 +95,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	} catch (error) {
 		const errorMessage =
 			error instanceof Error ? error.message : "로그인에 실패했습니다.";
-		throw new Response(JSON.stringify({ error: errorMessage }), {
-			status: 401,
-			headers: { "Content-Type": "application/json" },
-		});
+		return { error: errorMessage };
 	}
 };
 

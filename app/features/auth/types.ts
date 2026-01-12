@@ -24,6 +24,11 @@ export const signupSchema = z.object({
 			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
 			"비밀번호는 대소문자와 숫자를 포함해야 합니다",
 		),
+	termsAgreed: z
+		.boolean()
+		.refine((val) => val === true, {
+			message: "이용약관에 동의해주세요",
+		}),
 });
 
 export type SignupFormData = z.infer<typeof signupSchema>;
@@ -83,3 +88,32 @@ export const changePasswordSchema = z
 	});
 
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+
+/**
+ * 인증 관련 Action의 공통 응답 타입
+ *
+ * - error: 오류 메시지 (검증 실패, 인증 실패 등)
+ * - success: 성공 여부 (forgot-password 등에서 사용)
+ */
+export type AuthActionResponse = {
+	error?: string;
+	success?: boolean;
+};
+
+/**
+ * 비밀번호 강도 레벨
+ */
+export type PasswordStrengthLevel = "weak" | "medium" | "strong";
+
+/**
+ * 비밀번호 강도 결과
+ *
+ * - score: 0-100 점수
+ * - level: 강도 레벨 (약함/보통/강함)
+ * - message: 사용자에게 표시할 메시지
+ */
+export interface PasswordStrength {
+	score: number;
+	level: PasswordStrengthLevel;
+	message: string;
+}

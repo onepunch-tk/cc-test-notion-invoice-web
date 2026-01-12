@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 export function NotFound() {
 	return (
-		<div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+		<div className="flex flex-col h-dvh items-center justify-center min-h-[60vh] text-center px-4">
 			<h1 className="text-9xl font-black text-gray-200">404</h1>
 			<h2 className="text-2xl font-bold md:text-3xl text-gray-800">
 				페이지를 찾을 수 없습니다
