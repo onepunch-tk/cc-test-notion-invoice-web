@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Settings, Users } from "lucide-react";
+import { LayoutDashboard, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import {
 	Sidebar,
@@ -12,19 +12,17 @@ import {
 } from "~/components/ui/sidebar";
 
 /**
- * 메뉴 아이템 정의
+ * 메뉴 아이템 정의 (간소화)
  */
 const menuItems = [
-	{ title: "대시보드", url: "/dashboard", icon: LayoutDashboard },
-	{ title: "홈", url: "/dashboard/home", icon: Home },
-	{ title: "사용자", url: "/dashboard/users", icon: Users },
-	{ title: "설정", url: "/dashboard/settings", icon: Settings },
+	{ title: "대시보드", url: "/my/dashboard", icon: LayoutDashboard },
+	{ title: "설정", url: "/my/settings", icon: Settings },
 ];
 
 /**
  * 애플리케이션 사이드바
- * - 네비게이션 메뉴
- * - 활성 상태 표시
+ * - Dashboard와 Settings 두 개의 핵심 메뉴만 제공
+ * - 활성 상태 표시 (정확한 일치)
  */
 export const AppSidebar = () => {
 	const location = useLocation();

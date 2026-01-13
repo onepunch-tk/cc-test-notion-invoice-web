@@ -69,7 +69,6 @@ export const createAuthInstance = (
 				await sendPasswordResetEmail(
 					user.email,
 					url,
-					baseURL,
 					resendApiKey,
 					resendFromEmail,
 				);
@@ -84,7 +83,6 @@ export const createAuthInstance = (
 				await sendVerificationEmail(
 					user.email,
 					url,
-					baseURL,
 					resendApiKey,
 					resendFromEmail,
 				);

@@ -15,7 +15,7 @@ export default [
 	route("auth/api/*", "features/auth/api/$.tsx"),
 
 	layout("routes/layouts/navgation.layout.tsx", [
-		// 공개 페이지 (navgation.layout 직속)
+		// 공개 페이지
 		index("routes/home/home.tsx"),
 
 		// 인증 페이지
@@ -24,27 +24,18 @@ export default [
 		route("auth/forgot-password", "routes/auth/forgot-password.tsx"),
 		route("auth/reset-password", "routes/auth/reset-password.tsx"),
 
-		// 인증 필수 페이지 (private.layout)
+		// 인증 필수 페이지
 		layout("routes/layouts/private.layout.tsx", [
 			// 로그아웃 (인증 필수)
 			route("auth/signout", "routes/auth/sign-out.tsx"),
 
-			// 대시보드 (중첩 레이아웃)
-			...prefix("dashboard", [
-				layout("routes/dashboard/layout.tsx", [
-					index("routes/dashboard/index.tsx"),
+			// 공유 사이드바 레이아웃
+			layout("routes/layouts/app.layout.tsx", [
+				// Dashboard (단일 페이지)
+				route("my/dashboard", "routes/dashboard/index.tsx"),
 
-					// 사용자 관리
-					route("users", "routes/dashboard/users/index.tsx"),
-					route("users/:id", "routes/dashboard/users/[id].tsx"),
-
-					// 설정
-					...prefix("settings", [
-						index("routes/dashboard/settings/index.tsx"),
-						route("profile", "routes/dashboard/settings/profile.tsx"),
-						route("security", "routes/dashboard/settings/security.tsx"),
-					]),
-				]),
+				// Settings (단일 페이지)
+				route("my/settings", "routes/settings/index.tsx"),
 			]),
 		]),
 	]),

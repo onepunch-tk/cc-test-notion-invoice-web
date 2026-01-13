@@ -82,13 +82,10 @@ export const sendEmail = async (
  */
 export const sendVerificationEmail = async (
 	email: string,
-	token: string,
-	baseURL: string,
+	verificationUrl: string,
 	apiKey?: string,
 	fromEmail?: string,
 ): Promise<void> => {
-	const verificationUrl = `${baseURL}/auth/api/verify-email?token=${token}`;
-
 	await sendEmail(
 		{
 			to: email,
@@ -105,13 +102,10 @@ export const sendVerificationEmail = async (
  */
 export const sendPasswordResetEmail = async (
 	email: string,
-	token: string,
-	baseURL: string,
+	resetUrl: string,
 	apiKey?: string,
 	fromEmail?: string,
 ): Promise<void> => {
-	const resetUrl = `${baseURL}/auth/reset-password?token=${token}`;
-
 	await sendEmail(
 		{
 			to: email,
