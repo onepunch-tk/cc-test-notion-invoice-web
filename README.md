@@ -15,12 +15,13 @@ React Router v7 + Cloudflare Workers를 기반으로 한 프로덕션 레디 풀
 - **TypeScript** - 타입 안전성
 
 ### 주요 특징
-- ✅ 폴더 기반 라우팅 구조
+- ✅ 3단계 중첩 Layout 구조 (공개 → 인증 → 앱)
 - ✅ Better-auth 통합 (이메일/비밀번호, OAuth, 2FA/TOTP)
-- ✅ React Router 7 미들웨어 패턴
+- ✅ Resend 기반 실제 이메일 전송 (회원가입, 비밀번호 재설정)
+- ✅ React Router 7 네이티브 Form + Zod 검증
 - ✅ Drizzle ORM Code-first 접근 방식
 - ✅ Docker 기반 로컬 개발 환경 (Supabase CLI)
-- ✅ 체계적인 컴포넌트 계층 구조 (UI → 복합 → 레이아웃 → 페이지)
+- ✅ 재사용 가능한 Form 컴포넌트 (FormField, SubmitButton)
 - ✅ GitHub Actions CI/CD 파이프라인
 - ✅ 타입스크립트 엄격 모드
 - ✅ Biome 린터/포맷터
@@ -139,16 +140,21 @@ cp .env.example .env
 `.env` 파일을 열어 다음 값들을 설정하세요:
 
 ```bash
-# 로컬 PostgreSQL (Supabase CLI로 실행)
+# 데이터베이스 설정
 DATABASE_URL=postgresql://postgres:postgres@localhost:54322/postgres
-
-# 애플리케이션 URL
 BASE_URL=http://localhost:5173
 
-# Better-auth Secret (필수!)
+# Better-auth 설정 (필수!)
 BETTER_AUTH_SECRET=m93eRhpinFSwxkJYbsdsTy330WzUpSIj
 
-# OAuth 프로바이더 (실제 값으로 변경 필요)
+# Resend 이메일 서비스 (필수!)
+# https://resend.com/api-keys에서 API 키 발급
+RESEND_API_KEY=
+# 로컬 테스트: claude-rr7@resend.dev 사용 가능
+# 프로덕션: 도메인 인증 후 noreply@yourdomain.com 형식
+RESEND_FROM_EMAIL=claude-rr7@resend.dev
+
+# OAuth 프로바이더 (선택사항)
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 GOOGLE_CLIENT_ID=
@@ -157,10 +163,14 @@ KAKAO_CLIENT_ID=
 KAKAO_CLIENT_SECRET=
 ```
 
-**중요:**
-- `BETTER_AUTH_SECRET`: 암호화, 서명, 해싱에 사용되는 비밀 키 (최소 32자)
-- 프로덕션에서는 반드시 다른 값으로 변경해야 함
-- 생성 방법: `openssl rand -base64 32`
+**필수 설정:**
+- `BETTER_AUTH_SECRET`: 암호화에 사용되는 비밀 키 (최소 32자)
+  - 생성 방법: `openssl rand -base64 32`
+  - 프로덕션에서는 반드시 다른 값으로 변경
+- `RESEND_API_KEY`: Resend 이메일 서비스 API 키
+  - 로컬 개발: 무료 플랜 사용 가능 (월 100통)
+  - 프로덕션: 유료 플랜 필요
+- `RESEND_FROM_EMAIL`: 발신자 이메일 주소
 
 **OAuth 앱 설정 (선택사항):**
 - GitHub: https://github.com/settings/developers
@@ -276,12 +286,16 @@ bunx wrangler secret put VITE_SUPABASE_URL --env staging
 bunx wrangler secret put VITE_SUPABASE_ANON_KEY --env staging
 bunx wrangler secret put DATABASE_URL --env staging
 bunx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --env staging
+bunx wrangler secret put RESEND_API_KEY --env staging
+bunx wrangler secret put RESEND_FROM_EMAIL --env staging
 
 # Production 환경
 bunx wrangler secret put VITE_SUPABASE_URL --env production
 bunx wrangler secret put VITE_SUPABASE_ANON_KEY --env production
 bunx wrangler secret put DATABASE_URL --env production
 bunx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --env production
+bunx wrangler secret put RESEND_API_KEY --env production
+bunx wrangler secret put RESEND_FROM_EMAIL --env production
 ```
 
 #### 4. 배포 실행
@@ -386,11 +400,15 @@ GitHub Actions 탭에서 배포 진행 상황을 확인할 수 있습니다.
   - VITE_SUPABASE_ANON_KEY
   - DATABASE_URL
   - SUPABASE_SERVICE_ROLE_KEY
+  - RESEND_API_KEY
+  - RESEND_FROM_EMAIL
 - [ ] Production 환경 Secrets 설정 완료
   - VITE_SUPABASE_URL
   - VITE_SUPABASE_ANON_KEY
   - DATABASE_URL
   - SUPABASE_SERVICE_ROLE_KEY
+  - RESEND_API_KEY
+  - RESEND_FROM_EMAIL
 
 #### GitHub Secrets
 - [ ] CLOUDFLARE_API_TOKEN 추가
@@ -424,24 +442,28 @@ GitHub Actions 탭에서 배포 진행 상황을 확인할 수 있습니다.
 ```
 app/
 ├── components/          # 모든 React 컴포넌트 (UI만)
-│   ├── ui/             # 재사용 가능한 기본 UI (shadcn/ui)
-│   ├── layout/         # 앱 레이아웃 컴포넌트 (헤더, 사이드바)
-│   └── landing/        # 랜딩 페이지 섹션
+│   ├── ui/             # shadcn/ui 기본 컴포넌트
+│   ├── forms/          # FormField, SubmitButton 등
+│   ├── app-sidebar.tsx
+│   ├── navigation-bar.tsx
+│   └── (기타 섹션 컴포넌트들)
 │
-├── features/           # 도메인별 비즈니스 로직 (UI 제외)
+├── features/           # 도메인별 비즈니스 로직
 │   ├── auth/
-│   │   ├── api/       # API 라우트 핸들러
-│   │   ├── hooks/     # 도메인 전용 커스텀 훅
+│   │   ├── api/       # Better-auth API 라우트
+│   │   ├── lib/       # 도메인 전용 헬퍼
 │   │   ├── services/  # 비즈니스 로직 함수
-│   │   └── types.ts   # 도메인 타입 & Zod 스키마
+│   │   ├── errors.ts  # 에러 처리
+│   │   └── types.ts   # 타입 & Zod 스키마
 │   └── user/
-│       └── services/  # 사용자 관련 비즈니스 로직
+│       └── services/  # 사용자 관련 로직
 │
-├── lib/                # 앱 전체 설정 & 유틸리티
-│   ├── auth.server.ts # Better-auth 서버 설정
-│   ├── auth.client.ts # Better-auth 클라이언트
-│   ├── email.server.ts # 이메일 서비스
-│   └── utils.ts       # 공통 유틸리티 함수
+├── lib/                 # 앱 전체 설정 & 유틸리티
+│   ├── auth.server.ts   # Better-auth 서버
+│   ├── auth.client.ts   # Better-auth 클라이언트
+│   ├── email.server.ts  # Resend 이메일 서비스
+│   ├── form-helpers.ts  # Form 검증 유틸
+│   └── utils.ts         # 공통 유틸리티
 │
 ├── db/                 # 데이터베이스 계층
 │   ├── schema.ts      # Drizzle 스키마
@@ -474,9 +496,9 @@ app/
 **역할**: 순수 UI 컴포넌트 (props를 받아서 렌더링만 수행)
 
 **하위 폴더**:
-- `ui/`: shadcn/ui 기반 재사용 가능한 기본 UI 컴포넌트 (Button, Input, Card 등)
-- `layout/`: 앱 레이아웃 컴포넌트 (Header, AppSidebar)
-- `landing/`: 랜딩 페이지 섹션 컴포넌트
+- `ui/`: shadcn/ui 기본 컴포넌트
+- `forms/`: FormField, SubmitButton 등 폼 컴포넌트
+- `app-sidebar.tsx`, `navigation-bar.tsx` 등 레이아웃 컴포넌트들
 
 **규칙**:
 - ✅ `.tsx` 파일만 허용
@@ -601,11 +623,10 @@ features/auth/hooks/use-login.ts  // 로그인 기능 전용
 
 #### 6. `middleware/` - 요청 처리 미들웨어
 
-**역할**: React Router 라우트 보호 및 요청 전처리
+**역할**: React Router 라우트 보호
 
-**파일 예시**:
+**파일**:
 - `auth.middleware.ts`: 인증 확인 미들웨어
-- `guest.middleware.ts`: 게스트 전용 미들웨어
 
 **사용법**:
 ```typescript
@@ -625,8 +646,10 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 **구조**:
 ```
 routes/
+├── layouts/        # Layout 컴포넌트 (navgation, private, app)
 ├── auth/           # 인증 관련 페이지
 ├── dashboard/      # 대시보드 페이지
+├── settings/       # 설정 페이지
 └── index.tsx       # 홈 페이지
 ```
 
@@ -768,64 +791,108 @@ bun run db:studio
 - ✅ OAuth 소셜 로그인 (GitHub, Google - 설정 필요)
 - ✅ 2FA/TOTP (Google Authenticator)
 
-### React Router 미들웨어 패턴
+### 3단계 Layout 구조
 
-Better-auth와 함께 React Router 7의 미들웨어 패턴을 사용하여 인증을 중앙 집중식으로 관리합니다. **2개의 미들웨어만 사용**하여 단순하고 유연합니다.
+프로젝트는 다음과 같이 중첩된 Layout을 사용합니다:
 
-#### 1. 인증 필수 라우트 (보호된 페이지)
+**1) navgation.layout.tsx (L1 - 공개 레이아웃)**
+- `getOptionalAuth` 사용으로 로그인 선택적 처리
+- `SidebarProvider` 전역 제공
+- `NavigationBar`와 `FooterSection` 포함
+- 모든 페이지의 기본 틀
 
-미인증 사용자는 로그인 페이지로 자동 리다이렉트됩니다:
+**2) private.layout.tsx (L2 - 인증 레이어)**
+- `requireAuth` 미들웨어로 인증 강제
+- UI 없음 (인증 로직만)
+- user context를 하위로 전달
 
+**3) app.layout.tsx (L3 - 앱 사이드바)**
+- `AppSidebar` 컴포넌트 렌더링
+- Dashboard와 Settings 페이지가 이 레이아웃 사용
+
+---
+
+### React Router 7 Form + Zod 검증
+
+기존 React Hook Form이 제거되고, React Router 7의 네이티브 Form을 사용합니다:
+
+**Form 컴포넌트들** (`app/components/forms/`)
+- `FormField`: Label, Input, 에러 메시지를 통합한 재사용 컴포넌트
+- `SubmitButton`: `useNavigation`으로 자동 로딩 상태 관리
+
+**서버 사이드 검증** (`app/lib/form-helpers.ts`)
 ```typescript
-import { requireAuth } from "~/middleware/auth.middleware";
-
-export const loader = async ({ request, context }: Route.LoaderArgs) => {
-  const user = await requireAuth({ request, context });
-  return { user };
-};
-```
-
-**사용 사례**: 대시보드, 설정, 프로필 등 로그인 필수 페이지
-
-#### 2. 선택적 인증 (공개 페이지)
-
-로그인 여부와 관계없이 페이지에 접근 가능하며, UI에서 유연하게 처리합니다:
-
-```typescript
-import { getOptionalAuth } from "~/middleware/auth.middleware";
-
-export const loader = async ({ request, context }: Route.LoaderArgs) => {
-  const user = await getOptionalAuth({ request, context });
-  return { user };
-};
-```
-
-**사용 사례**:
-- 홈 페이지 (로그인 여부에 따라 다른 버튼 표시)
-- 인증 페이지 (로그인된 사용자에게 "이미 로그인됨" 메시지)
-- 비밀번호 찾기 (로그인 여부 무관)
-
-#### 3. 게스트 전용 미들웨어 제거 이유
-
-과거의 `requireGuest` 미들웨어는 **제거되었습니다**. 대신 `getOptionalAuth`를 사용하여 UI 레벨에서 처리합니다:
-
-```typescript
-// ❌ 과거 (제거됨)
-import { requireGuest } from "~/middleware/guest.middleware";
-
-// ✅ 현재 (개선됨)
-const { user } = useOutletContext<{ user: User | null }>();
-
-if (user) {
-  return <Card>이미 로그인되어 있습니다...</Card>;
+// Zod 스키마로 검증
+const validation = validateFormData(loginSchema, formData);
+if (!validation.success) {
+  return { errors: validation.errors };
 }
-return <Card>로그인 폼</Card>;
 ```
 
-**개선 이유**:
-- **더 유연함**: "다른 계정으로 로그인" 같은 기능 구현 가능
-- **더 나은 UX**: 강제 리다이렉트 없음 (GitHub, Gmail 패턴)
-- **더 간단함**: 2개의 미들웨어만으로 충분
+**Action 함수 사용 예시**
+```typescript
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  
+  // Zod 검증
+  const validation = validateFormData(loginSchema, formData);
+  if (!validation.success) {
+    return { errors: validation.errors };
+  }
+  
+  // 서버 사이드 로그인
+  await signInWithCredentials({
+    request, context,
+    email: validation.data.email,
+    password: validation.data.password,
+  });
+  
+  return redirect('/dashboard');
+};
+```
+
+---
+
+### Resend 이메일 서비스 통합
+
+이메일 기반 회원가입 및 비밀번호 재설정을 Resend로 구현합니다:
+
+**이메일 서비스** (`app/lib/email.server.ts`)
+```typescript
+// 이메일 인증 링크 전송
+export const sendVerificationEmail = async (
+  email: string,
+  verificationUrl: string,
+) => { ... };
+
+// 비밀번호 재설정 링크 전송
+export const sendPasswordResetEmail = async (
+  email: string,
+  resetUrl: string,
+) => { ... };
+```
+
+**이메일 템플릿** (`app/components/`)
+- `VerificationEmail`: 이메일 인증 템플릿
+- `PasswordResetEmail`: 비밀번호 재설정 템플릿
+- `EmailLayout`: 공통 레이아웃
+
+**Better-auth 콜백 설정** (`app/lib/auth.server.ts`)
+```typescript
+emailVerification: {
+  sendOnSignUp: true,
+  sendVerificationEmail: async ({ user, url }) => {
+    await sendVerificationEmail(user.email, url);
+  },
+},
+emailAndPassword: {
+  sendResetPassword: async ({ user, url }) => {
+    await sendPasswordResetEmail(user.email, url);
+  },
+}
+```
+
+---
 
 ### Better-auth 구조
 
@@ -927,8 +994,12 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 - **lucide-react** - 아이콘 라이브러리
 
 ### 폼 관리
-- **React Hook Form** - 고성능 폼 라이브러리
+- **React Router 7 Form** - 서버 사이드 Form 처리
 - **Zod** - 스키마 검증
+
+### 이메일
+- **Resend** - 실제 이메일 전송 서비스
+- **@react-email/components** - 이메일 템플릿 작성
 
 ### 데이터베이스 & 인증
 - **Drizzle ORM** - TypeScript ORM
