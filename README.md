@@ -491,33 +491,36 @@ app/
 
 ### 📋 폴더별 역할
 
-#### 1. `components/` - React 컴포넌트 (UI만)
+#### 1. `components/` - React 컴포넌트 (UI 재사용 가능)
 
-**역할**: 순수 UI 컴포넌트 (props를 받아서 렌더링만 수행)
+**역할**: 모든 재사용 가능한 UI 컴포넌트. props만 받아서 화면에 표시하는 역할
 
 **하위 폴더**:
-- `ui/`: shadcn/ui 기본 컴포넌트
-- `forms/`: FormField, SubmitButton 등 폼 컴포넌트
-- `app-sidebar.tsx`, `navigation-bar.tsx` 등 레이아웃 컴포넌트들
+- `ui/`: shadcn/ui 기본 컴포넌트 (Button, Input, Card 등)
+- `forms/`: 폼 관련 컴포넌트 (FormField, SubmitButton)
+- 기타: 레이아웃 컴포넌트 (AppSidebar, NavigationBar), 섹션 컴포넌트
 
 **규칙**:
-- ✅ `.tsx` 파일만 허용
-- ✅ 비즈니스 로직 최소화 (표시 로직만)
+- ✅ 순수 UI 렌더링만 담당
+- ✅ props를 받아서 화면에 표시
+- ❌ 비즈니스 로직 금지 (로직은 `features/`에서 담당)
 - ❌ API 호출, 데이터 처리 금지
 
 **예시**:
 ```tsx
-// ✅ 좋은 예
-export default function Button({ children, onClick }: Props) {
-  return <button onClick={onClick}>{children}</button>;
+// ✅ 좋은 예: 순수 UI 컴포넌트
+export default function LoginForm({ onSubmit, isLoading }: Props) {
+  return (
+    <FormField name="email" label="이메일" />
+  );
 }
 
-// ❌ 나쁜 예
-export default function LoginButton() {
-  const handleLogin = async () => {
-    await fetch('/api/login'); // API 호출 금지!
+// ❌ 나쁜 예: 로직이 포함되면 안됨
+export default function LoginForm() {
+  const [email, setEmail] = useState('');
+  const handleSubmit = async () => {
+    await fetch('/api/login'); // 로직은 features/auth에서!
   };
-  return <button onClick={handleLogin}>로그인</button>;
 }
 ```
 
@@ -525,33 +528,50 @@ export default function LoginButton() {
 
 #### 2. `features/` - 도메인별 비즈니스 로직
 
-**역할**: 특정 도메인의 비즈니스 로직 (UI 제외)
+**역할**: 특정 도메인의 모든 로직을 중앙 집중식으로 관리. UI는 `components/`에서 담당
 
 **하위 구조**:
 ```
 features/
 └── {도메인}/
-    ├── api/        # API 라우트 핸들러
-    ├── hooks/      # 도메인 전용 훅
-    ├── services/   # 비즈니스 로직 함수
-    └── types.ts    # 도메인 타입 & Zod 스키마
+    ├── api/        # 도메인에서만 사용하는 API 라우트
+    ├── lib/        # 도메인 전용 헬퍼 함수
+    ├── hooks/      # 도메인 전용 커스텀 훅
+    ├── services/   # DB 연결, 비즈니스 로직, 데이터 처리
+    ├── types.ts    # 도메인 타입 & Zod 스키마
+    └── errors.ts   # 도메인 전용 에러 처리
 ```
 
+**각 폴더의 역할**:
+- `api/`: 도메인의 API 라우트 (Better-auth 콜백 등)
+- `lib/`: 도메인 전용 유틸리티 (비밀번호 검증, 에러 포맷팅 등)
+- `hooks/`: 도메인 전용 React 훅 (이 도메인에서만 사용)
+- `services/`: DB 쿼리, 비즈니스 로직 처리 (가장 핵심 로직)
+- `types.ts`: 도메인의 타입 정의와 Zod 스키마
+
 **규칙**:
-- ✅ 도메인별로 독립적인 폴더 생성
-- ✅ UI 컴포넌트는 `components/`에 위치
-- ✅ 비즈니스 로직만 포함
+- ✅ UI는 절대 `features/`에 위치하지 않음
+- ✅ 도메인의 모든 로직을 통합 관리
+- ✅ 다른 도메인의 기능과 독립적
 
 **예시**:
 ```typescript
 // features/auth/services/auth.service.ts
-export const handlePostSignup = async (userId: string, email: string) => {
-  // 회원가입 후처리 로직
-  console.log(`사용자 생성 완료: ${userId}`);
+// DB 연결, 비즈니스 로직 처리
+export const createUser = async (email: string, password: string) => {
+  const hashedPassword = await hashPassword(password);
+  return db.insert(users).values({ email, password: hashedPassword });
+};
+
+// features/auth/lib/password.ts
+// 도메인 전용 헬퍼
+export const validatePasswordStrength = (password: string) => {
+  return password.length >= 8;
 };
 
 // features/auth/types.ts
-export const loginSchema = z.object({
+// 도메인 타입 & 검증
+export const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
@@ -722,17 +742,23 @@ export default function CheckoutPage() {
 
 새로운 코드를 작성할 때 다음을 확인하세요:
 
-#### 컴포넌트를 만들 때
-- [ ] UI만 담당하는가? → `components/`
-- [ ] 비즈니스 로직이 포함되었는가? → `features/`로 분리
+#### UI 컴포넌트를 만들 때
+- [ ] 순수 UI 렌더링만 하는가? → `components/`에 배치
+- [ ] 로직이나 데이터 처리가 포함되었는가? → 로직은 `features/`로, UI는 `components/`로 분리
+
+#### 도메인 로직을 추가할 때
+- [ ] 특정 도메인에서만 사용하는가? → `features/{도메인}/`에 배치
+  - 도메인별 로직: `services/`, `hooks/`, `lib/`, `api/` 등 사용
+- [ ] 여러 도메인에서 사용하는가? → 앱 전체 `lib/`에 배치
 
 #### 함수를 만들 때
-- [ ] 특정 도메인 로직인가? → `features/{도메인}/services/`
-- [ ] 앱 전체에서 사용하는가? → `lib/`
+- [ ] 도메인 전용 비즈니스 로직인가? → `features/{도메인}/services/`
+- [ ] 도메인 전용 헬퍼인가? → `features/{도메인}/lib/`
+- [ ] 앱 전체에서 공통으로 사용하는 유틸인가? → `lib/`
 
 #### 훅을 만들 때
-- [ ] 특정 도메인 전용인가? → `features/{도메인}/hooks/`
-- [ ] 여러 곳에서 사용하는가? → `hooks/`
+- [ ] 도메인 전용인가? → `features/{도메인}/hooks/`
+- [ ] 여러 도메인에서 사용하는가? → `hooks/`
 
 ---
 
