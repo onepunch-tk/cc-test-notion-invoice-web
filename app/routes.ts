@@ -17,6 +17,9 @@ export default [
 	layout("routes/layouts/navgation.layout.tsx", [
 		// 공개 페이지
 		index("routes/home/home.tsx"),
+		route("privacy-policy", "routes/privacy-policy.tsx"),
+		route("terms", "routes/terms.tsx"),
+		route("support", "routes/support.tsx"),
 
 		// 인증 페이지
 		route("auth/signin", "routes/auth/sign-in.tsx"),

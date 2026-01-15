@@ -19,13 +19,13 @@ export default function FooterSection() {
 
 					{/* 링크 */}
 					<nav className="flex gap-6 text-sm text-muted-foreground">
-						<Link to="#" className="hover:text-foreground">
+						<Link to="/privacy-policy" className="hover:text-foreground">
 							개인정보처리방침
 						</Link>
-						<Link to="#" className="hover:text-foreground">
+						<Link to="/terms" className="hover:text-foreground">
 							이용약관
 						</Link>
-						<Link to="#" className="hover:text-foreground">
+						<Link to="/support" className="hover:text-foreground">
 							고객지원
 						</Link>
 					</nav>
