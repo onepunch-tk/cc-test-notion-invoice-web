@@ -5,6 +5,10 @@ description: |
   Playwright MCP로 웹 오류 자동 수집, Context7 MCP로 라이브러리 문서 학습.
   사용 시점: 웹 앱 에러 디버깅, UI 테스트 자동화, 반복적인 수정-검증 작업.
 argument-hint: [goal] [url] [max] [email] [password]
+allowed-tools: [
+  "mcp__playwright__*",
+  "mcp__context7__*"
+]
 ---
 
 # Ralph-Loop Playwright
@@ -88,7 +92,15 @@ LOOP_COUNT = 0
 
 ## PHASE 2: 원인 분석 (ultrathink)
 
+> **[필수]** 이 Phase는 반드시 `ultrathink` 확장 사고 모드로 실행해야 한다.
+> 일반 사고 모드로 진행하면 안 된다. 깊은 분석이 필요하다.
+
 **사고 모드**: `ultrathink` - 확장된 사고로 철저히 분석
+
+**ultrathink 실행 지침**:
+- 분석 시작 전 반드시 확장된 사고(extended thinking) 모드를 활성화할 것
+- 빠른 응답보다 정확한 근본 원인 파악이 우선
+- 모든 가능성을 체계적으로 검토하고 증거 기반으로 결론 도출
 
 **상세 프로세스**: [references/phase-2-analysis.md](references/phase-2-analysis.md) 참조
 
@@ -106,7 +118,15 @@ LOOP_COUNT = 0
 
 ## PHASE 3: 수정 계획 수립 (ultrathink)
 
+> **[필수]** 이 Phase는 반드시 `ultrathink` 확장 사고 모드로 실행해야 한다.
+> 일반 사고 모드로 진행하면 안 된다. 완벽한 계획이 필요하다.
+
 **사고 모드**: `ultrathink` - 확장된 사고로 완벽한 계획 수립
+
+**ultrathink 실행 지침**:
+- 계획 수립 전 반드시 확장된 사고(extended thinking) 모드를 활성화할 것
+- 모든 수정 사항의 영향 범위를 깊이 고려
+- 부작용과 회귀 버그 가능성을 철저히 검토한 후 계획 제시
 
 **상세 프로세스**: [references/phase-3-planning.md](references/phase-3-planning.md) 참조
 
