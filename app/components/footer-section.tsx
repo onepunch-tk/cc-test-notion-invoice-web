@@ -28,6 +28,9 @@ export default function FooterSection() {
 						<Link to="/support" className="hover:text-foreground">
 							고객지원
 						</Link>
+						<Link to="/usage" className="hover:text-foreground">
+							사용법
+						</Link>
 					</nav>
 				</div>
 			</div>
