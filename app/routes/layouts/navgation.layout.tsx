@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Await, Outlet } from "react-router";
-import FooterSection from "~/components/footer-section";
 import NavigationBar from "~/components/navigation-bar";
+import FooterSection from "~/components/sections/footer-section";
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { getOptionalAuth } from "~/middleware/auth.middleware";
 import type { Route } from "./+types/navgation.layout";
