@@ -1,7 +1,7 @@
 ---
 name: ralph-loop-playwright
 description: |
-  자동화된 디버깅 루프 스킬. 에러 및 목표 도달까지 [테스트→분석(ultrathink)→계획(ultrathink)→컨펌→수정] 사이클 반복.
+  자동화된 디버깅 루프 스킬. 에러 및 목표 도달까지 [테스트→심층분석→계획→컨펌→수정] 사이클 반복.
   Playwright MCP로 웹 오류 자동 수집, Context7 MCP로 라이브러리 문서 학습.
   사용 시점: 웹 앱 에러 디버깅, UI 테스트 자동화, 반복적인 수정-검증 작업.
 argument-hint: [goal] [url] [max] [email] [password]
@@ -9,6 +9,7 @@ allowed-tools: [
   "mcp__playwright__*",
   "mcp__context7__*"
 ]
+model: inherit
 ---
 
 # Ralph-Loop Playwright
@@ -47,8 +48,8 @@ LOOP_COUNT = 0
 
   [PHASE 0] credentials 존재 AND 첫 루프 → 인증
   [PHASE 1] 오류 수집 → Goal 달성시 종료
-  [PHASE 2] 원인 분석 (ultrathink)
-  [PHASE 3] 수정 계획 수립 (ultrathink) → 사용자 컨펌
+  [PHASE 2] 원인 심층 분석 → 결과 제시 → 사용자 컨펌
+  [PHASE 3] 수정 계획 수립 → 계획 제시 → 사용자 컨펌
   [PHASE 4] 코드 수정
   [PHASE 5] 테스트 검증 → PASS=종료, FAIL=다음 루프
 
@@ -90,17 +91,15 @@ LOOP_COUNT = 0
 
 ---
 
-## PHASE 2: 원인 분석 (ultrathink)
+## PHASE 2: 원인 심층 분석
 
-> **[필수]** 이 Phase는 반드시 `ultrathink` 확장 사고 모드로 실행해야 한다.
-> 일반 사고 모드로 진행하면 안 된다. 깊은 분석이 필요하다.
-
-**사고 모드**: `ultrathink` - 확장된 사고로 철저히 분석
-
-**ultrathink 실행 지침**:
-- 분석 시작 전 반드시 확장된 사고(extended thinking) 모드를 활성화할 것
-- 빠른 응답보다 정확한 근본 원인 파악이 우선
-- 모든 가능성을 체계적으로 검토하고 증거 기반으로 결론 도출
+> **[필수]** 이 Phase에서는 다음을 반드시 준수해야 합니다:
+> 1. 체계적이고 철저한 분석 수행
+> 2. 분석 결과를 사용자에게 상세히 제시
+> 3. 사용자 확인을 받은 후에만 다음 단계 진행
+>
+> 빠른 응답보다 정확한 분석이 우선입니다.
+> 모든 가능성을 검토하고 증거 기반으로 결론을 도출하세요.
 
 **상세 프로세스**: [references/phase-2-analysis.md](references/phase-2-analysis.md) 참조
 
@@ -114,19 +113,33 @@ LOOP_COUNT = 0
 
 **결과물**: 분석 리포트 (error_type, root_cause, target_files, fix_direction)
 
+**분석 완료 후 사용자 컨펌**:
+```
+AskUserQuestion({
+  questions: [{
+    question: "위 분석 결과가 정확합니까? 다음 단계(수정 계획 수립)로 진행할까요?",
+    header: "분석 확인",
+    options: [
+      { label: "확인", description: "분석 결과 승인, 계획 수립 진행" },
+      { label: "추가 분석", description: "더 깊은 분석 필요" },
+      { label: "종료", description: "루프 종료" }
+    ],
+    multiSelect: false
+  }]
+})
+```
+
 ---
 
-## PHASE 3: 수정 계획 수립 (ultrathink)
+## PHASE 3: 수정 계획 수립
 
-> **[필수]** 이 Phase는 반드시 `ultrathink` 확장 사고 모드로 실행해야 한다.
-> 일반 사고 모드로 진행하면 안 된다. 완벽한 계획이 필요하다.
-
-**사고 모드**: `ultrathink` - 확장된 사고로 완벽한 계획 수립
-
-**ultrathink 실행 지침**:
-- 계획 수립 전 반드시 확장된 사고(extended thinking) 모드를 활성화할 것
-- 모든 수정 사항의 영향 범위를 깊이 고려
-- 부작용과 회귀 버그 가능성을 철저히 검토한 후 계획 제시
+> **[필수]** 이 Phase에서는 다음을 반드시 준수해야 합니다:
+> 1. 철저하고 완벽한 계획 수립
+> 2. 계획을 사용자에게 상세히 제시
+> 3. 사용자 승인을 받은 후에만 코드 수정 진행
+>
+> 모든 수정 사항의 영향 범위를 깊이 고려하세요.
+> 부작용과 회귀 버그 가능성을 철저히 검토한 후 계획을 제시하세요.
 
 **상세 프로세스**: [references/phase-3-planning.md](references/phase-3-planning.md) 참조
 
@@ -221,8 +234,8 @@ Goal: <goal>
 **Phase 진행**:
 ```
 [1/5] 오류 수집 중...
-[2/5] 원인 분석 중... (ultrathink)
-[3/5] 수정 계획 수립 중... (ultrathink)
+[2/5] 원인 심층 분석 중...
+[3/5] 수정 계획 수립 중...
 [4/5] 코드 수정 중...
 [5/5] 테스트 검증 중...
 ```

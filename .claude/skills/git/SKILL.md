@@ -3,7 +3,7 @@ name: git
 description: |
   Git 자동화 스킬. /git 명령어 실행 시 작업 선택 UI 제공.
   commit, push, sync, merge 작업 중 선택 가능.
-model: haiku
+model: inherit
 allowed-tools:
   - Bash
   - Read
