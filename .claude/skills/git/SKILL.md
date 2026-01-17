@@ -110,30 +110,39 @@ allowed-tools:
 
 ## 공통 규칙
 
-### 커밋 메시지 형식
+### 커밋 메시지 형식 (Conventional Commits)
 
 ```
-접두사: 핵심 요약 (1줄)
+<emoji> <type>[scope][!]: <description>
 
-- [실제 작업 내용 1]
-- [실제 작업 내용 2]
+- [상세 변경 내용 1]
+- [상세 변경 내용 2]
 ```
 
-### 접두사 유형
+### 타입 & 이모지 맵
 
-| 접두사 | 용도 |
-|--------|------|
-| `feat:` | 새 기능 |
-| `fix:` | 버그 수정 |
-| `hotfix:` | 긴급 수정 |
-| `docs:` | 문서 변경 |
-| `style:` | 코드 스타일 |
-| `refactor:` | 리팩토링 |
-| `test:` | 테스트 |
-| `chore:` | 설정/빌드 |
-| `merge:` | 브랜치 병합 |
+| 타입 | 이모지 | 용도 |
+|------|--------|------|
+| `feat` | ✨ | 새 기능 |
+| `fix` | 🐛 | 버그 수정 |
+| `docs` | 📝 | 문서 변경 |
+| `style` | 💄 | 코드 스타일 |
+| `refactor` | ♻️ | 리팩토링 |
+| `perf` | ⚡ | 성능 개선 |
+| `test` | ✅ | 테스트 |
+| `chore` | 🔧 | 설정/빌드 |
+| `ci` | 🚀 | CI/CD |
+| `build` | 📦 | 빌드 시스템 |
+| `revert` | ⏪ | 되돌리기 |
 
 상세 규칙: [references/commit-prefix-rules.md](references/commit-prefix-rules.md)
+
+### 커밋 메시지 규칙
+
+- **제목 72자 미만** (이모지 + 타입 + scope 포함)
+- **명령형 어조** ("추가" not "추가됨")
+- **원자적 커밋** (단일 목적)
+- 관련 없는 변경사항 분할
 
 ### 언어 규칙
 
@@ -142,8 +151,11 @@ allowed-tools:
 
 ### 금지 사항 [중요]
 
-- **절대 `Co-Authored-By` 패턴을 커밋 메시지에 포함하지 않는다.**
-- 예: `Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>` ❌
+- ❌ **`Co-Authored-By` 패턴 사용 금지** (예: `Co-Authored-By: Claude ...`)
+- ❌ **비표준 타입 사용 금지** (위 표에 없는 타입)
+- ❌ **`hotfix:` 타입 금지** → `fix` 사용
+- ❌ **`merge:` 타입 금지** → Git 자동 생성 메시지 사용
+- ❌ **force push 금지**
 
 ## 참조 문서
 

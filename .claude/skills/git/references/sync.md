@@ -1,6 +1,6 @@
 # Git Sync
 
-변경사항을 스테이징, 커밋, push까지 한 번에 처리한다.
+변경사항을 스테이징, Conventional Commits 형식으로 커밋, push까지 한 번에 처리한다.
 
 ## 파라미터
 
@@ -15,7 +15,7 @@
        ↓
 [3] git add .
        ↓
-[4] git commit -m "..."
+[4] git commit -m "<emoji> <type>: ..."
        ↓
 [5] git push origin <현재브랜치>
        ↓
@@ -38,13 +38,13 @@ git branch --show-current
 [commit.md](commit.md)의 메시지 생성 규칙 적용:
 - $ARGUMENTS 존재 시 → 해당 메시지 사용
 - $ARGUMENTS 미존재 시 → 변경사항 기반 자동 생성
-- 접두사 추론: [commit-prefix-rules.md](commit-prefix-rules.md) 참조
+- 타입 & 이모지 추론: [commit-prefix-rules.md](commit-prefix-rules.md) 참조
 
 ### 3. 스테이징 및 커밋
 
 ```bash
 git add .
-git commit -m "접두사: 메시지 제목
+git commit -m "<emoji> <type>: 메시지 제목
 
 - 상세 변경 내용 1
 - 상세 변경 내용 2"
@@ -67,7 +67,8 @@ git push origin <현재브랜치>
       변경된 파일: N개
 
 [2/4] 커밋 메시지 생성...
-      접두사: feat
+      타입: feat
+      이모지: ✨
       제목: 새 기능 추가
 
 [3/4] 커밋 중...
@@ -86,16 +87,32 @@ git push origin <현재브랜치>
 
 ### 인자 제공 시
 
+입력:
 ```
 로그인 기능 구현
 ```
 
 결과:
 ```
-feat: 로그인 기능 구현
+✨ feat: 로그인 기능 구현
 
 - 로그인 폼 컴포넌트 추가
 - 인증 API 연동
+```
+
+### Scope 포함 예시
+
+입력:
+```
+인증 모듈 토큰 갱신 기능
+```
+
+결과:
+```
+✨ feat(auth): 인증 모듈 토큰 갱신 기능
+
+- 액세스 토큰 자동 갱신 구현
+- 리프레시 토큰 처리 로직 추가
 ```
 
 ### 인자 미제공 시
@@ -108,3 +125,4 @@ feat: 로그인 기능 구현
 - 커밋 후 push 실패 시 에러 보고
 - 민감한 파일 포함 시 경고
 - force push는 수행하지 않음
+- `Co-Authored-By` 패턴 절대 추가 금지

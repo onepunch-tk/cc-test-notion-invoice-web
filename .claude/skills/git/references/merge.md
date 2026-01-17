@@ -55,12 +55,14 @@ git pull origin main
 ### 4. Feature 브랜치 Merge
 
 ```bash
-git merge --no-ff <feature-branch> -m "merge: <feature-branch> 브랜치 병합
+git merge --no-ff <feature-branch> -m "🔀 merge: <feature-branch> → main
 
 - 기능 요약 (변경 내용 분석 기반)"
 ```
 
 **`--no-ff` 사용 이유**: merge commit을 생성하여 브랜치 히스토리 명확화
+
+**참고**: 머지 커밋은 Conventional Commits 표준 타입이 아니므로 이모지 + merge 형식을 사용한다.
 
 ### 5. Main Push
 
@@ -124,9 +126,18 @@ git push origin --delete <feature-branch>
 
 1. main 최신화
 2. main 체크아웃
-3. `git merge --no-ff feature/user-auth`
+3. `git merge --no-ff feature/user-auth -m "🔀 merge: feature/user-auth → main"`
 4. main push
 5. 브랜치 삭제 여부 질문
+
+### 머지 커밋 메시지 예시
+
+```
+🔀 merge: feature/user-auth → main
+
+- 사용자 인증 기능 구현
+- 로그인/회원가입 플로우 추가
+```
 
 ## 주의사항
 
@@ -134,3 +145,4 @@ git push origin --delete <feature-branch>
 - 커밋되지 않은 변경사항이 있으면 중단
 - merge conflict 발생 시 수동 해결 안내
 - force push는 수행하지 않음
+- `Co-Authored-By` 패턴 절대 추가 금지
