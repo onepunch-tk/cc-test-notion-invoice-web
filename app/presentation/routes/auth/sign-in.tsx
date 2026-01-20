@@ -22,9 +22,9 @@ import {
 import { Label } from "~/presentation/components/ui/label";
 import type { User } from "~/infrastructure/persistence/schema";
 import { type AuthActionResponse, loginSchema } from "~/domain/auth";
-import { getAuthErrorMessage } from "~/features/auth/lib/error-handler";
-import { signInWithCredentials, signInWithSocials } from "~/features/auth/lib/auth.server";
-import { validateFormData } from "~/lib/form-helpers";
+import { getAuthErrorMessage } from "~/shared/lib/error-handler";
+import { signInWithCredentials, signInWithSocials } from "~/infrastructure/external/better-auth";
+import { validateFormData } from "~/shared/lib/form-helpers";
 import type { Route } from "./+types/sign-in";
 
 /**

@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import { Input } from "~/presentation/components/ui/input";
 import { Label } from "~/presentation/components/ui/label";
-import { cn } from "~/lib/utils";
+import { cn } from "~/shared/lib/utils";
 
 /**
  * React Router Form을 위한 재사용 가능한 FormField 컴포넌트

@@ -22,9 +22,9 @@ import { Switch } from "~/presentation/components/ui/switch";
 import { Textarea } from "~/presentation/components/ui/textarea";
 import { FormField, SubmitButton } from "~/presentation/components/forms";
 import { changePasswordSchema } from "~/domain/auth";
-import { getAuthErrorMessage } from "~/features/auth/lib/error-handler";
-import { changePasswordWithCurrent } from "~/features/auth/lib/auth.server";
-import { validateFormData } from "~/lib/form-helpers";
+import { getAuthErrorMessage } from "~/shared/lib/error-handler";
+import { changePasswordWithCurrent } from "~/infrastructure/external/better-auth";
+import { validateFormData } from "~/shared/lib/form-helpers";
 import { toast } from "sonner";
 import type { Route } from "./+types/index";
 

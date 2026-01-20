@@ -12,7 +12,7 @@ export default [
 	route("sitemap.xml", "presentation/routes/resources/sitemap.ts"),
 
 	// Better-auth API 라우트 (catch-all)
-	route("auth/api/*", "features/auth/api/$.tsx"),
+	route("auth/api/*", "presentation/routes/auth/api/$.tsx"),
 
 	layout("presentation/routes/layouts/navgation.layout.tsx", [
 		// 공개 페이지

@@ -11,8 +11,8 @@ import {
 	CardTitle,
 } from "~/presentation/components/ui/card";
 import { type AuthActionResponse, forgotPasswordSchema } from "~/domain/auth";
-import { requestPasswordReset } from "~/features/auth/lib/auth.server";
-import { validateFormData } from "~/lib/form-helpers";
+import { requestPasswordReset } from "~/infrastructure/external/better-auth";
+import { validateFormData } from "~/shared/lib/form-helpers";
 import type { Route } from "./+types/forgot-password";
 
 /**

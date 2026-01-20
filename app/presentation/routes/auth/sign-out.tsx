@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { createClearSessionHeaders } from "~/features/auth/lib/auth.const";
-import { signOut } from "~/features/auth/lib/auth.server";
+import { createClearSessionHeaders } from "~/shared/lib/auth.const";
+import { signOut } from "~/infrastructure/external/better-auth";
 
 /**
  * 로그아웃 라우트

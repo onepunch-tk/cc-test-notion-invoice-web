@@ -9,8 +9,8 @@ import {
 } from "~/infrastructure/persistence/drizzle";
 import * as schema from "~/infrastructure/persistence/schema";
 import { COOKIE_PREFIX } from "~/infrastructure/external/better-auth";
-import { createUserProfile } from "~/features/auth/services/profile.server";
-import { sendPasswordResetEmail, sendVerificationEmail } from "~/lib/email.server";
+import { createUserProfile } from "~/infrastructure/persistence/drizzle/profile.service";
+import { sendPasswordResetEmail, sendVerificationEmail } from "~/shared/lib/email.server";
 
 /**
  * Better-auth 인스턴스 생성 (내부 함수)

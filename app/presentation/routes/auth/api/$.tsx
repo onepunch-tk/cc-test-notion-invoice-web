@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { createAuthFromContext } from "~/features/auth/lib/auth.server";
+import { createAuthFromContext } from "~/infrastructure/external/better-auth";
 
 /**
  * Better-auth API 핸들러 (Catch-all)

@@ -30,10 +30,10 @@ import {
 	DuplicateEmailError,
 	UserCreationError,
 } from "~/domain/auth";
-import { calculatePasswordStrength } from "~/features/auth/lib/password-strength";
-import { signUpWithCredentials } from "~/features/auth/lib/auth.server";
-import { validateFormData } from "~/lib/form-helpers";
-import { cn } from "~/lib/utils";
+import { calculatePasswordStrength } from "~/shared/lib/password-strength";
+import { signUpWithCredentials } from "~/infrastructure/external/better-auth";
+import { validateFormData } from "~/shared/lib/form-helpers";
+import { cn } from "~/shared/lib/utils";
 import type { Route } from "./+types/sign-up";
 
 /**

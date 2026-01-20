@@ -1,6 +1,6 @@
 import { Outlet, useOutletContext } from "react-router";
 import { AppSidebar } from "~/presentation/components/app-sidebar";
-import type { User } from "~/db/schema";
+import type { User } from "~/infrastructure/persistence/schema";
 
 /**
  * 앱 레이아웃
