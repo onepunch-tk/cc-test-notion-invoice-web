@@ -1,6 +1,6 @@
 import { ArrowRight, Zap } from "lucide-react";
 import { Link } from "react-router";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/presentation/components/ui/button";
 
 /**
  * 랜딩 페이지 Hero 섹션

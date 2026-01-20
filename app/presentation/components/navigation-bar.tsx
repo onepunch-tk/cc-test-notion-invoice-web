@@ -1,6 +1,6 @@
 import { LayoutDashboard, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { Form, Link, useLocation } from "react-router";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/presentation/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -8,8 +8,8 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { SidebarTrigger } from "~/components/ui/sidebar";
+} from "~/presentation/components/ui/dropdown-menu";
+import { SidebarTrigger } from "~/presentation/components/ui/sidebar";
 import type { User } from "~/infrastructure/persistence/schema";
 
 interface UserMenuProps {

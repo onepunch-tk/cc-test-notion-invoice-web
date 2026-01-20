@@ -1,5 +1,5 @@
 import { Outlet, useOutletContext } from "react-router";
-import { AppSidebar } from "~/components/app-sidebar";
+import { AppSidebar } from "~/presentation/components/app-sidebar";
 import type { User } from "~/db/schema";
 
 /**

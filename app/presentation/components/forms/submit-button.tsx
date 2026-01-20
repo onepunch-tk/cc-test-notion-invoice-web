@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 import { useNavigation } from "react-router";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/presentation/components/ui/button";
 
 /**
  * 로딩 상태를 자동으로 처리하는 Submit 버튼

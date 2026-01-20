@@ -12,7 +12,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarTrigger,
-} from "~/components/ui/sidebar";
+} from "~/presentation/components/ui/sidebar";
 
 /**
  * 메뉴 아이템 정의 (간소화)

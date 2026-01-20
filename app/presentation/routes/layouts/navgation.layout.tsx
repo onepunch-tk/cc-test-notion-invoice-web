@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { Await, Outlet } from "react-router";
-import NavigationBar from "~/components/navigation-bar";
-import FooterSection from "~/components/sections/footer-section";
-import { SidebarProvider } from "~/components/ui/sidebar";
+import NavigationBar from "~/presentation/components/navigation-bar";
+import FooterSection from "~/presentation/components/sections/footer-section";
+import { SidebarProvider } from "~/presentation/components/ui/sidebar";
 import { getOptionalAuth } from "~/infrastructure/web/middleware";
 import type { Route } from "./+types/navgation.layout";
 

@@ -8,9 +8,9 @@ import {
 	useOutletContext,
 	useSearchParams,
 } from "react-router";
-import { FormField, SubmitButton } from "~/components/forms";
-import { Alert, AlertDescription } from "~/components/ui/alert";
-import { Button } from "~/components/ui/button";
+import { FormField, SubmitButton } from "~/presentation/components/forms";
+import { Alert, AlertDescription } from "~/presentation/components/ui/alert";
+import { Button } from "~/presentation/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -18,8 +18,8 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "~/components/ui/card";
-import { Label } from "~/components/ui/label";
+} from "~/presentation/components/ui/card";
+import { Label } from "~/presentation/components/ui/label";
 import type { User } from "~/infrastructure/persistence/schema";
 import { type AuthActionResponse, loginSchema } from "~/domain/auth";
 import { getAuthErrorMessage } from "~/features/auth/lib/error-handler";

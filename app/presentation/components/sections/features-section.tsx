@@ -4,7 +4,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "~/components/ui/card";
+} from "~/presentation/components/ui/card";
 
 /**
  * 기능 소개 카드

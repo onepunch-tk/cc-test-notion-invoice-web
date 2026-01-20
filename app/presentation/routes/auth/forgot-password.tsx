@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs } from "react-router";
 import { Form, Link, useActionData } from "react-router";
-import { FormField, SubmitButton } from "~/components/forms";
-import { Alert, AlertDescription } from "~/components/ui/alert";
+import { FormField, SubmitButton } from "~/presentation/components/forms";
+import { Alert, AlertDescription } from "~/presentation/components/ui/alert";
 import {
 	Card,
 	CardContent,
@@ -9,7 +9,7 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "~/components/ui/card";
+} from "~/presentation/components/ui/card";
 import { type AuthActionResponse, forgotPasswordSchema } from "~/domain/auth";
 import { requestPasswordReset } from "~/features/auth/lib/auth.server";
 import { validateFormData } from "~/lib/form-helpers";

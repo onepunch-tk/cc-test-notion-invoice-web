@@ -8,8 +8,8 @@ import {
 } from "react-router";
 import "./app.css";
 import { ThemeProvider } from "next-themes";
-import { NotFound } from "~/components/not-found";
-import { Toaster } from "~/components/ui/sonner";
+import { NotFound } from "~/presentation/components/not-found";
+import { Toaster } from "~/presentation/components/ui/sonner";
 import type { Route } from "./+types/root";
 
 export const links: Route.LinksFunction = () => [

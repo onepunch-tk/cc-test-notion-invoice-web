@@ -1,13 +1,13 @@
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/presentation/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "~/components/ui/card";
+} from "~/presentation/components/ui/card";
 
 /**
  * 랜딩 페이지 CTA(Call to Action) 섹션

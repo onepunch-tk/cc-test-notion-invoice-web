@@ -1,26 +1,26 @@
 import { useEffect, useState } from "react";
 import { Form, useActionData, useNavigation } from "react-router";
 import { z } from "zod";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/presentation/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+} from "~/presentation/components/ui/card";
+import { Input } from "~/presentation/components/ui/input";
+import { Label } from "~/presentation/components/ui/label";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "~/components/ui/select";
-import { Switch } from "~/components/ui/switch";
-import { Textarea } from "~/components/ui/textarea";
-import { FormField, SubmitButton } from "~/components/forms";
+} from "~/presentation/components/ui/select";
+import { Switch } from "~/presentation/components/ui/switch";
+import { Textarea } from "~/presentation/components/ui/textarea";
+import { FormField, SubmitButton } from "~/presentation/components/forms";
 import { changePasswordSchema } from "~/domain/auth";
 import { getAuthErrorMessage } from "~/features/auth/lib/error-handler";
 import { changePasswordWithCurrent } from "~/features/auth/lib/auth.server";
