@@ -1,6 +1,6 @@
 import { Outlet, useOutletContext } from "react-router";
+import type { IUser } from "~/domain/user";
 import { AppSidebar } from "~/presentation/components/app-sidebar";
-import type { User } from "~/infrastructure/persistence/schema";
 
 /**
  * 앱 레이아웃
@@ -10,7 +10,7 @@ import type { User } from "~/infrastructure/persistence/schema";
  * - 모바일 토글 버튼은 NavigationBar에 통합
  */
 export default function AppLayout() {
-	const { user } = useOutletContext<{ user: User }>();
+	const { user } = useOutletContext<{ user: IUser }>();
 
 	return (
 		<div className="flex min-h-screen w-full pt-16">

@@ -1,6 +1,6 @@
 import type { IUser, IUserWithProfile, UpdateProfileDTO } from "~/domain/user";
 import { ProfileNotFoundError, UserNotFoundError } from "~/domain/user";
-import type { IProfileRepository, IUserRepository } from "./user.repository";
+import type { IProfileRepository, IUserRepository } from "./user.port";
 
 /**
  * User Service 타입

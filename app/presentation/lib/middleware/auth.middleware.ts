@@ -1,14 +1,13 @@
 import { redirect } from "react-router";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import type { User } from "~/infrastructure/persistence/schema";
-import { createContainer } from "~/infrastructure/config/container";
+import type { IUser } from "~/domain/user";
+import type { IContainer } from "~/application/shared/container.types";
 
 /**
  * 미들웨어 컨텍스트 타입
  */
 export interface MiddlewareContext {
 	request: Request;
-	context: LoaderFunctionArgs["context"] | ActionFunctionArgs["context"];
+	container: IContainer;
 }
 
 /**
@@ -23,9 +22,8 @@ export interface MiddlewareContext {
  */
 export const requireAuth = async ({
 	request,
-	context,
-}: MiddlewareContext): Promise<User> => {
-	const container = createContainer(context);
+	container,
+}: MiddlewareContext): Promise<IUser> => {
 	const user = await container.authService.getCurrentUser(request.headers);
 
 	if (!user) {
@@ -34,7 +32,7 @@ export const requireAuth = async ({
 		throw redirect(`/auth/signin?redirectTo=${redirectTo}`);
 	}
 
-	return user as User;
+	return user;
 };
 
 /**
@@ -48,13 +46,11 @@ export const requireAuth = async ({
  */
 export const getOptionalAuth = async ({
 	request,
-	context,
-}: MiddlewareContext): Promise<User | null> => {
+	container,
+}: MiddlewareContext): Promise<IUser | null> => {
 	try {
-		const container = createContainer(context);
 		const user = await container.authService.getCurrentUser(request.headers);
-
-		return user as User | null;
+		return user;
 	} catch {
 		return null;
 	}

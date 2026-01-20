@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import { requireAuth } from "~/infrastructure/web/middleware";
+import { requireAuth } from "~/presentation/lib/middleware";
 import type { Route } from "./+types/private.layout";
 
 /**
@@ -10,7 +10,7 @@ import type { Route } from "./+types/private.layout";
  * - user context를 통해 인증된 사용자 정보 전달
  */
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
-	const user = await requireAuth({ request, context });
+	const user = await requireAuth({ request, container: context.container });
 	return { user };
 };
 

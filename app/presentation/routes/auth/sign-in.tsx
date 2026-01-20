@@ -8,6 +8,8 @@ import {
 	useOutletContext,
 	useSearchParams,
 } from "react-router";
+import { type AuthActionResponse, loginSchema } from "~/domain/auth";
+import type { IUser } from "~/domain/user";
 import { FormField, SubmitButton } from "~/presentation/components/forms";
 import { Alert, AlertDescription } from "~/presentation/components/ui/alert";
 import { Button } from "~/presentation/components/ui/button";
@@ -20,11 +22,8 @@ import {
 	CardTitle,
 } from "~/presentation/components/ui/card";
 import { Label } from "~/presentation/components/ui/label";
-import type { User } from "~/infrastructure/persistence/schema";
-import { type AuthActionResponse, loginSchema } from "~/domain/auth";
-import { getAuthErrorMessage } from "~/shared/lib/error-handler";
-import { signInWithCredentials, signInWithSocials } from "~/infrastructure/external/better-auth";
-import { validateFormData } from "~/shared/lib/form-helpers";
+import { getAuthErrorMessage } from "~/presentation/lib/error-handler";
+import { validateFormData } from "~/presentation/lib/form-helpers";
 import type { Route } from "./+types/sign-in";
 
 /**
@@ -55,25 +54,23 @@ export const action = async ({
 
 	if (provider) {
 		try {
-			const {
-				headers: responseHeader,
-				response: { redirect: canRedirect, url },
-			} = await signInWithSocials({
-				request,
-				context,
-				provider: "github",
-			});
+			const { redirectUrl, setCookies } =
+				await context.container.authService.signInWithOAuth(
+					"github",
+					"/my/dashboard",
+					request.headers,
+				);
 
-			if (!canRedirect || !url) {
+			if (!redirectUrl) {
 				return { error: "소셜 로그인 URL을 생성할 수 없습니다." };
 			}
 
 			const headers = new Headers();
-			for (const cookie of responseHeader.getSetCookie()) {
+			for (const cookie of setCookies) {
 				headers.append("Set-Cookie", cookie);
 			}
 
-			return redirect(url, {
+			return redirect(redirectUrl, {
 				headers,
 			});
 		} catch (error) {
@@ -93,12 +90,11 @@ export const action = async ({
 
 	try {
 		// 로그인 및 Set-Cookie 헤더 받기
-		const { setCookie } = await signInWithCredentials({
-			request,
-			context,
-			email: validation.data.email,
-			password: validation.data.password,
-		});
+		const { setCookie } = await context.container.authService.signIn(
+			validation.data.email,
+			validation.data.password,
+			request.headers,
+		);
 
 		// redirectTo 파라미터 확인 (없으면 대시보드로)
 		const url = new URL(request.url);
@@ -123,7 +119,7 @@ export const action = async ({
 };
 
 export default function SignIn() {
-	const { user } = useOutletContext<{ user: User | null }>();
+	const { user } = useOutletContext<{ user: IUser | null }>();
 	const actionData = useActionData<typeof action>();
 	const [searchParams] = useSearchParams();
 

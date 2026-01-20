@@ -1,5 +1,9 @@
 import { eq } from "drizzle-orm";
 import type {
+	IProfileRepository,
+	IUserRepository,
+} from "~/application/user/user.port";
+import type {
 	CreateProfileDTO,
 	IProfile,
 	IUser,
@@ -7,12 +11,8 @@ import type {
 	UpdateProfileDTO,
 	UpdateUserDTO,
 } from "~/domain/user";
-import type {
-	IProfileRepository,
-	IUserRepository,
-} from "~/application/user/user.repository";
 import { profilesTable, userTable } from "../schema";
-import type { DrizzleClient } from "./drizzle.client";
+import type { DrizzleClient } from "./drizzle.server";
 
 /**
  * User Repository 구현체

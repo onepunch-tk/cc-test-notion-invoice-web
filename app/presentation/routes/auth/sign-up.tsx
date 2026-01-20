@@ -8,6 +8,14 @@ import {
 	useActionData,
 	useOutletContext,
 } from "react-router";
+import {
+	type AuthActionResponse,
+	AuthError,
+	DuplicateEmailError,
+	signupSchema,
+	UserCreationError,
+} from "~/domain/auth";
+import type { IUser } from "~/domain/user";
 import { FormField, SubmitButton } from "~/presentation/components/forms";
 import { Alert, AlertDescription } from "~/presentation/components/ui/alert";
 import { Button } from "~/presentation/components/ui/button";
@@ -22,18 +30,9 @@ import {
 import { Checkbox } from "~/presentation/components/ui/checkbox";
 import { Input } from "~/presentation/components/ui/input";
 import { Label } from "~/presentation/components/ui/label";
-import type { User } from "~/infrastructure/persistence/schema";
-import {
-	type AuthActionResponse,
-	signupSchema,
-	AuthError,
-	DuplicateEmailError,
-	UserCreationError,
-} from "~/domain/auth";
-import { calculatePasswordStrength } from "~/shared/lib/password-strength";
-import { signUpWithCredentials } from "~/infrastructure/external/better-auth";
-import { validateFormData } from "~/shared/lib/form-helpers";
-import { cn } from "~/shared/lib/utils";
+import { validateFormData } from "~/presentation/lib/form-helpers";
+import { calculatePasswordStrength } from "~/presentation/lib/password-strength";
+import { cn } from "~/presentation/lib/utils";
 import type { Route } from "./+types/sign-up";
 
 /**
@@ -64,13 +63,12 @@ export const action = async ({
 
 	try {
 		// 서버 사이드 회원가입
-		await signUpWithCredentials({
-			request,
-			context,
-			name: validation.data.name,
-			email: validation.data.email,
-			password: validation.data.password,
-		});
+		await context.container.authService.signUp(
+			validation.data.email,
+			validation.data.password,
+			validation.data.name,
+			request.headers,
+		);
 
 		// 회원가입 성공 → 페이지를 떠나지 않고 성공 메시지 표시
 		return {
@@ -102,7 +100,7 @@ export const action = async ({
 };
 
 export default function SignUp() {
-	const { user } = useOutletContext<{ user: User | null }>();
+	const { user } = useOutletContext<{ user: IUser | null }>();
 	const actionData = useActionData<typeof action>();
 	const [showPassword, setShowPassword] = useState(false);
 	const [password, setPassword] = useState("");

@@ -1,11 +1,11 @@
-import type { IUser, CreateProfileDTO } from "~/domain/user";
 import { DuplicateEmailError } from "~/domain/auth";
-import type { IProfileRepository, IUserRepository } from "../user/user.repository";
+import type { IUser } from "~/domain/user";
+import type { IUserRepository } from "../user/user.port";
 import type {
 	IAuthProvider,
 	OAuthSignInResult,
 	SignInResult,
-} from "./auth.provider";
+} from "./auth.port";
 
 /**
  * Auth Service 타입
@@ -19,12 +19,10 @@ export type AuthService = ReturnType<typeof createAuthService>;
  *
  * @param authProvider - 인증 프로바이더
  * @param userRepository - 사용자 저장소
- * @param profileRepository - 프로필 저장소
  */
 export const createAuthService = (
 	authProvider: IAuthProvider,
 	userRepository: IUserRepository,
-	profileRepository: IProfileRepository,
 ) => ({
 	/**
 	 * 현재 세션에서 사용자 정보 조회
@@ -49,8 +47,7 @@ export const createAuthService = (
 	 * 이메일/비밀번호 회원가입
 	 *
 	 * 1. 이메일 중복 체크
-	 * 2. Better-auth로 사용자 생성
-	 * 3. 프로필 자동 생성
+	 * 2. Better-auth로 사용자 생성 (프로필은 databaseHooks에서 자동 생성)
 	 */
 	async signUp(
 		email: string,
@@ -64,25 +61,13 @@ export const createAuthService = (
 			throw new DuplicateEmailError();
 		}
 
-		// 2. Better-auth로 사용자 생성
+		// 2. Better-auth로 사용자 생성 (프로필은 databaseHooks에서 자동 생성)
 		const result = await authProvider.signUpWithCredentials(
 			email,
 			password,
 			name,
 			headers,
 		);
-
-		// 3. 프로필 자동 생성 (실패해도 회원가입은 성공)
-		try {
-			await profileRepository.create({
-				userId: result.user.id,
-				fullName: name,
-				avatarUrl: null,
-				bio: null,
-			});
-		} catch (profileError) {
-			console.error("프로필 생성 실패:", profileError);
-		}
 
 		return result.user;
 	},

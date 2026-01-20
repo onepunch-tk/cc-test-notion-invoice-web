@@ -6,6 +6,7 @@ import {
 	useActionData,
 	useSearchParams,
 } from "react-router";
+import { type AuthActionResponse, resetPasswordSchema } from "~/domain/auth";
 import { FormField, SubmitButton } from "~/presentation/components/forms";
 import { Alert, AlertDescription } from "~/presentation/components/ui/alert";
 import {
@@ -16,10 +17,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/presentation/components/ui/card";
-import { getAuthErrorMessage } from "~/shared/lib/error-handler";
-import { type AuthActionResponse, resetPasswordSchema } from "~/domain/auth";
-import { resetPasswordWithToken } from "~/infrastructure/external/better-auth";
-import { validateFormData } from "~/shared/lib/form-helpers";
+import { getAuthErrorMessage } from "~/presentation/lib/error-handler";
+import { validateFormData } from "~/presentation/lib/form-helpers";
 import type { Route } from "./+types/reset-password";
 
 /**
@@ -53,12 +52,11 @@ export const action = async ({
 
 	try {
 		// 서버 사이드 비밀번호 재설정
-		await resetPasswordWithToken({
-			request,
-			context,
-			newPassword: validation.data.newPassword,
-			token: validation.data.token,
-		});
+		await context.container.authService.resetPassword(
+			validation.data.newPassword,
+			validation.data.token,
+			request.headers,
+		);
 
 		// 성공: 로그인 페이지로 리다이렉트 (성공 메시지 표시)
 		return redirect("/auth/signin?message=password-reset-success");

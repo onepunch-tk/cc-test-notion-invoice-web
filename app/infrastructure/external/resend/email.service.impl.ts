@@ -1,12 +1,11 @@
-import type { ReactElement } from "react";
 import { Resend } from "resend";
+import type {
+	IEmailService,
+	SendEmailOptions,
+} from "~/application/shared/email.port";
+import { EmailSendError, EmailServiceNotConfiguredError } from "~/domain/auth";
 import PasswordResetEmail from "~/presentation/components/email/password-reset-email";
 import VerificationEmail from "~/presentation/components/email/verification-email";
-import {
-	EmailSendError,
-	EmailServiceNotConfiguredError,
-} from "~/domain/auth";
-import type { IEmailService, SendEmailOptions } from "~/application/shared/email.service";
 
 /**
  * Email Service 구현체 (Resend)
@@ -36,6 +35,15 @@ export const createEmailServiceImpl = (
 				react: options.react,
 			});
 
+			// Resend API 에러 응답 확인
+			if (result.error) {
+				console.error("❌ 이메일 전송 실패:");
+				console.error(`  - 에러: ${result.error.message}`);
+				console.error(`  - To: ${options.to}`);
+				throw new EmailSendError(`이메일 전송 실패: ${result.error.message}`);
+			}
+
+			// 성공 시 로깅
 			if (process.env.NODE_ENV !== "production") {
 				console.log("✅ 이메일 전송 성공:");
 				console.log(`  - ID: ${result.data?.id}`);
@@ -43,6 +51,11 @@ export const createEmailServiceImpl = (
 				console.log(`  - Subject: ${options.subject}`);
 			}
 		} catch (error) {
+			// 이미 EmailSendError인 경우 그대로 전파
+			if (error instanceof EmailSendError) {
+				throw error;
+			}
+
 			console.error("❌ 이메일 전송 실패:", error);
 
 			if (error instanceof Error) {

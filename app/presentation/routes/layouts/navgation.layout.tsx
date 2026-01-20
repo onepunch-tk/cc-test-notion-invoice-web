@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { Await, Outlet } from "react-router";
+import { getOptionalAuth } from "~/presentation/lib/middleware";
 import NavigationBar from "~/presentation/components/navigation-bar";
 import FooterSection from "~/presentation/components/sections/footer-section";
 import { SidebarProvider } from "~/presentation/components/ui/sidebar";
-import { getOptionalAuth } from "~/infrastructure/web/middleware";
 import type { Route } from "./+types/navgation.layout";
 
 /**
@@ -14,7 +14,7 @@ import type { Route } from "./+types/navgation.layout";
  * - 로그인한 사용자는 NavigationBar에 UserMenu 표시
  */
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
-	const user = await getOptionalAuth({ request, context });
+	const user = await getOptionalAuth({ request, container: context.container });
 	return { user };
 };
 

@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Form, useActionData, useNavigation } from "react-router";
-import { z } from "zod";
+import { toast } from "sonner";
+import { changePasswordSchema } from "~/domain/auth";
+import { updateProfileSchema } from "~/domain/user";
+import { FormField, SubmitButton } from "~/presentation/components/forms";
 import { Button } from "~/presentation/components/ui/button";
 import {
 	Card,
@@ -20,26 +23,9 @@ import {
 } from "~/presentation/components/ui/select";
 import { Switch } from "~/presentation/components/ui/switch";
 import { Textarea } from "~/presentation/components/ui/textarea";
-import { FormField, SubmitButton } from "~/presentation/components/forms";
-import { changePasswordSchema } from "~/domain/auth";
-import { getAuthErrorMessage } from "~/shared/lib/error-handler";
-import { changePasswordWithCurrent } from "~/infrastructure/external/better-auth";
-import { validateFormData } from "~/shared/lib/form-helpers";
-import { toast } from "sonner";
+import { getAuthErrorMessage } from "~/presentation/lib/error-handler";
+import { validateFormData } from "~/presentation/lib/form-helpers";
 import type { Route } from "./+types/index";
-
-/**
- * 프로필 폼 스키마
- */
-const profileSchema = z.object({
-	fullName: z.string().min(1, "이름을 입력해주세요"),
-	email: z.string().email("올바른 이메일 형식이 아닙니다"),
-	bio: z.string().max(500, "자기소개는 500자 이내로 작성해주세요").optional(),
-	language: z.enum(["ko", "en", "ja"]),
-	notifications: z.boolean(),
-});
-
-type ProfileFormData = z.infer<typeof profileSchema>;
 
 /**
  * 설정 페이지 메타
@@ -59,13 +45,22 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
 
 	// 프로필 업데이트
 	if (actionType === "updateProfile") {
-		const validation = validateFormData(profileSchema, formData);
+		const validation = validateFormData(updateProfileSchema, formData);
 		if (!validation.success) {
 			return { profileErrors: validation.errors };
 		}
 
-		// TODO: 프로필 업데이트 로직 (DB 저장)
-		return { profileSuccess: "프로필이 성공적으로 업데이트되었습니다." };
+		try {
+			// TODO: 프로필 업데이트 로직 (DB 저장)
+			return { profileSuccess: "프로필이 성공적으로 업데이트되었습니다." };
+		} catch (error) {
+			console.error("프로필 업데이트 실패:", error);
+			const errorMessage = getAuthErrorMessage(
+				error,
+				"프로필 업데이트에 실패했습니다.",
+			);
+			return { profileError: errorMessage };
+		}
 	}
 
 	// 비밀번호 변경
@@ -76,13 +71,12 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
 		}
 
 		try {
-			await changePasswordWithCurrent({
-				request,
-				context,
-				currentPassword: validation.data.currentPassword,
-				newPassword: validation.data.newPassword,
-				revokeOtherSessions: true,
-			});
+			await context.container.authService.changePassword(
+				validation.data.currentPassword,
+				validation.data.newPassword,
+				true,
+				request.headers,
+			);
 
 			return { passwordSuccess: "비밀번호가 성공적으로 변경되었습니다." };
 		} catch (error) {
@@ -178,9 +172,7 @@ export default function Settings({ actionData }: Route.ComponentProps) {
 								onChange={(e) => setBio(e.target.value)}
 								maxLength={500}
 							/>
-							<p className="text-sm text-muted-foreground">
-								{bio.length}/500
-							</p>
+							<p className="text-sm text-muted-foreground">{bio.length}/500</p>
 							{actionData?.profileErrors?.bio?._errors && (
 								<p className="text-sm text-destructive">
 									{actionData.profileErrors.bio._errors[0]}
@@ -192,7 +184,12 @@ export default function Settings({ actionData }: Route.ComponentProps) {
 						<div className="space-y-2">
 							<Label htmlFor="language">언어</Label>
 							<input type="hidden" name="language" value={language} />
-							<Select value={language} onValueChange={(value) => setLanguage(value as "ko" | "en" | "ja")}>
+							<Select
+								value={language}
+								onValueChange={(value) =>
+									setLanguage(value as "ko" | "en" | "ja")
+								}
+							>
 								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>
@@ -271,9 +268,7 @@ export default function Settings({ actionData }: Route.ComponentProps) {
 							errors={actionData?.passwordErrors?.newPasswordConfirm?._errors}
 						/>
 
-						<SubmitButton loadingText="변경 중...">
-							비밀번호 변경
-						</SubmitButton>
+						<SubmitButton loadingText="변경 중...">비밀번호 변경</SubmitButton>
 					</Form>
 				</CardContent>
 			</Card>

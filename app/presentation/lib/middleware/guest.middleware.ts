@@ -13,9 +13,9 @@ import { getOptionalAuth } from "./auth.middleware";
  */
 export const requireGuest = async ({
 	request,
-	context,
+	container,
 }: MiddlewareContext): Promise<void> => {
-	const user = await getOptionalAuth({ request, context });
+	const user = await getOptionalAuth({ request, container });
 
 	if (user) {
 		throw redirect("/dashboard");

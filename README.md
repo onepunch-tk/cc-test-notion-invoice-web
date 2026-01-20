@@ -427,13 +427,33 @@ GitHub Actions 탭에서 배포 진행 상황을 확인할 수 있습니다.
 
 ---
 
-## 📁 프로젝트 구조 가이드
+## 📁 프로젝트 구조 가이드 (클린 아키텍처)
 
 ### 🎯 핵심 원칙
 
-1. **단순함**: 카테고리를 최소화하고 역할을 명확히
-2. **직관성**: 폴더명만 봐도 무엇이 들어가야 할지 알 수 있어야 함
-3. **확장성**: 새로운 기능 추가 시 어디에 넣을지 고민 없어야 함
+이 프로젝트는 **클린 아키텍처(Clean Architecture)** 를 따릅니다:
+
+1. **의존성 방향**: 외부 → 내부로만 의존 (Domain은 어떤 것에도 의존하지 않음)
+2. **관심사 분리**: 각 레이어는 자신의 책임만 담당
+3. **테스트 용이성**: 비즈니스 로직과 인프라를 분리하여 독립적 테스트 가능
+4. **유연한 확장**: 인터페이스 기반으로 구현체 교체 용이
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    📱 Presentation Layer                      │
+│              (routes, components, hooks, lib)                 │
+├──────────────────────────────────────────────────────────────┤
+│                    ⚙️ Application Layer                       │
+│                 (services, ports/interfaces)                  │
+├──────────────────────────────────────────────────────────────┤
+│                     💎 Domain Layer                           │
+│              (entities, types, errors, schemas)               │
+├──────────────────────────────────────────────────────────────┤
+│                   🔧 Infrastructure Layer                     │
+│         (DB implementations, external APIs, config)           │
+└──────────────────────────────────────────────────────────────┘
+          ↑ 의존성 방향: 바깥쪽에서 안쪽으로만
+```
 
 ---
 
@@ -441,249 +461,333 @@ GitHub Actions 탭에서 배포 진행 상황을 확인할 수 있습니다.
 
 ```
 app/
-├── components/          # 모든 React 컴포넌트 (UI만)
-│   ├── ui/             # shadcn/ui 기본 컴포넌트
-│   ├── forms/          # FormField, SubmitButton 등
-│   ├── email/          # 이메일 템플릿 컴포넌트
-│   │   ├── password-reset-email.tsx
-│   │   └── verification-email.tsx
-│   ├── app-sidebar.tsx
-│   ├── navigation-bar.tsx
-│   └── (기타 섹션 컴포넌트들)
+├── domain/                      # 1️⃣ Domain Layer (가장 안쪽)
+│   ├── auth/                   # 인증 도메인
+│   │   ├── auth.types.ts       # 타입 정의
+│   │   ├── auth.schemas.ts     # Zod 검증 스키마
+│   │   └── auth.errors.ts      # 에러 클래스
+│   ├── user/                   # 사용자 도메인
+│   │   ├── user.entity.ts      # IUser, IProfile 엔티티
+│   │   ├── user.types.ts       # DTO
+│   │   ├── user.schemas.ts     # Zod 검증 스키마
+│   │   └── user.errors.ts      # 에러 클래스
+│   └── shared/                 # 공통 타입
+│       └── common.types.ts     # BaseEntity 등
 │
-├── features/           # 도메인별 비즈니스 로직
+├── application/                 # 2️⃣ Application Layer
 │   ├── auth/
-│   │   ├── api/       # Better-auth API 라우트
-│   │   ├── lib/       # 인증 관련 모듈
-│   │   │   ├── auth.const.ts     # 쿠키 상수 및 헬퍼
-│   │   │   ├── auth.server.ts    # Better-auth 서버 + CLI용 인스턴스
-│   │   │   ├── auth.client.ts    # Better-auth 클라이언트
-│   │   │   ├── error-handler.ts  # 에러 메시지 처리
-│   │   │   └── password-strength.ts # 비밀번호 강도 검사
-│   │   ├── services/  # 비즈니스 로직 함수
-│   │   ├── errors.ts  # 에러 처리
-│   │   └── types.ts   # 타입 & Zod 스키마
-│   └── user/
-│       └── services/  # 사용자 관련 로직
+│   │   ├── auth.port.ts        # IAuthProvider 인터페이스
+│   │   └── auth.service.ts     # AuthService
+│   ├── user/
+│   │   ├── user.port.ts        # IUserRepository, IProfileRepository
+│   │   └── user.service.ts     # UserService
+│   └── shared/
+│       ├── email.port.ts       # IEmailService
+│       └── container.types.ts  # IContainer
 │
-├── lib/                 # 앱 전체 설정 & 유틸리티
-│   ├── email.server.ts  # Resend 이메일 서비스
-│   ├── form-helpers.ts  # Form 검증 유틸
-│   └── utils.ts         # 공통 유틸리티
+├── infrastructure/              # 3️⃣ Infrastructure Layer
+│   ├── config/
+│   │   ├── container.ts        # DI Container (Composition Root)
+│   │   └── env.ts              # 환경 변수 타입
+│   ├── persistence/
+│   │   ├── drizzle/            # Drizzle ORM 클라이언트
+│   │   │   ├── drizzle.server.ts
+│   │   │   └── user.repository.impl.ts
+│   │   └── schema/             # DB 스키마
+│   │       └── auth.schema.ts
+│   └── external/
+│       ├── better-auth/        # IAuthProvider 구현체
+│       │   ├── auth.config.ts
+│       │   ├── auth.const.ts
+│       │   ├── auth.provider.impl.ts
+│       │   └── auth.server.ts
+│       └── resend/             # IEmailService 구현체
+│           └── email.service.impl.ts
 │
-├── db/                 # 데이터베이스 계층
-│   ├── auth-schema.ts # Better-auth CLI 자동 생성 스키마
-│   ├── schema.ts      # 앱 전용 스키마 + auth-schema 재export
-│   ├── relations.ts   # 테이블 관계
-│   └── index.ts       # DB 클라이언트
+├── presentation/                # 4️⃣ Presentation Layer
+│   ├── routes/                 # React Router 페이지
+│   │   ├── layouts/            # Layout 컴포넌트
+│   │   ├── auth/               # 인증 페이지
+│   │   ├── dashboard/          # 대시보드 페이지
+│   │   └── settings/           # 설정 페이지
+│   ├── components/             # UI 컴포넌트
+│   │   ├── ui/                 # shadcn/ui 기본 컴포넌트
+│   │   ├── forms/              # FormField, SubmitButton
+│   │   ├── sections/           # 섹션 컴포넌트
+│   │   └── email/              # 이메일 템플릿
+│   ├── hooks/                  # React 커스텀 훅
+│   │   └── use-mobile.ts
+│   └── lib/                    # 유틸리티
+│       ├── middleware/         # auth, guest 미들웨어
+│       ├── error-handler.ts    # 에러 핸들러
+│       ├── form-helpers.ts     # Form 검증 유틸
+│       ├── password-strength.ts # 비밀번호 강도 검사
+│       └── utils.ts            # 공통 유틸리티
 │
-├── hooks/             # 전역 공유 커스텀 훅
-│   └── use-mobile.ts
+├── root.tsx                    # 루트 레이아웃
+├── routes.ts                   # 라우트 설정
+├── entry.server.tsx            # 서버 진입점
 │
-├── middleware/        # 요청 처리 미들웨어
-│   ├── auth.middleware.ts
-│   └── guest.middleware.ts
-│
-├── routes/            # React Router 페이지
-│   ├── auth/
-│   ├── dashboard/
-│   └── index.tsx
-│
-├── root.tsx           # 루트 레이아웃
-├── routes.ts          # 라우트 설정
-└── entry.server.tsx   # 서버 진입점
+└── workers/app.ts              # Composition Root (진입점)
 ```
 
 ---
 
-### 📋 폴더별 역할
+### 📋 레이어별 상세 설명
 
-#### 1. `components/` - React 컴포넌트 (UI 재사용 가능)
+#### 1️⃣ Domain Layer (`app/domain/`)
 
-**역할**: 모든 재사용 가능한 UI 컴포넌트. props만 받아서 화면에 표시하는 역할
+**역할**: 비즈니스의 핵심 규칙과 엔티티를 정의. **어떤 외부 의존성도 없음**
 
-**하위 폴더**:
-- `ui/`: shadcn/ui 기본 컴포넌트 (Button, Input, Card 등)
-- `forms/`: 폼 관련 컴포넌트 (FormField, SubmitButton)
-- 기타: 레이아웃 컴포넌트 (AppSidebar, NavigationBar), 섹션 컴포넌트
-
-**규칙**:
-- ✅ 순수 UI 렌더링만 담당
-- ✅ props를 받아서 화면에 표시
-- ❌ 비즈니스 로직 금지 (로직은 `features/`에서 담당)
-- ❌ API 호출, 데이터 처리 금지
-
-**예시**:
-```tsx
-// ✅ 좋은 예: 순수 UI 컴포넌트
-export default function LoginForm({ onSubmit, isLoading }: Props) {
-  return (
-    <FormField name="email" label="이메일" />
-  );
-}
-
-// ❌ 나쁜 예: 로직이 포함되면 안됨
-export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const handleSubmit = async () => {
-    await fetch('/api/login'); // 로직은 features/auth에서!
-  };
-}
-```
-
----
-
-#### 2. `features/` - 도메인별 비즈니스 로직
-
-**역할**: 특정 도메인의 모든 로직을 중앙 집중식으로 관리. UI는 `components/`에서 담당
-
-**하위 구조**:
-```
-features/
-└── {도메인}/
-    ├── api/        # 도메인에서만 사용하는 API 라우트
-    ├── lib/        # 도메인 전용 헬퍼 함수
-    ├── hooks/      # 도메인 전용 커스텀 훅
-    ├── services/   # DB 연결, 비즈니스 로직, 데이터 처리
-    ├── types.ts    # 도메인 타입 & Zod 스키마
-    └── errors.ts   # 도메인 전용 에러 처리
-```
-
-**각 폴더의 역할**:
-- `api/`: 도메인의 API 라우트 (Better-auth 콜백 등)
-- `lib/`: 도메인 전용 유틸리티 (비밀번호 검증, 에러 포맷팅 등)
-- `hooks/`: 도메인 전용 React 훅 (이 도메인에서만 사용)
-- `services/`: DB 쿼리, 비즈니스 로직 처리 (가장 핵심 로직)
-- `types.ts`: 도메인의 타입 정의와 Zod 스키마
-
-**규칙**:
-- ✅ UI는 절대 `features/`에 위치하지 않음
-- ✅ 도메인의 모든 로직을 통합 관리
-- ✅ 다른 도메인의 기능과 독립적
+**구성 요소**:
+- **Entity**: 핵심 비즈니스 객체 (IUser, IProfile)
+- **Types/DTO**: 데이터 전송 객체
+- **Errors**: 도메인 에러 클래스
+- **Schemas**: Zod 검증 스키마
 
 **예시**:
 ```typescript
-// features/auth/services/auth.service.ts
-// DB 연결, 비즈니스 로직 처리
-export const createUser = async (email: string, password: string) => {
-  const hashedPassword = await hashPassword(password);
-  return db.insert(users).values({ email, password: hashedPassword });
-};
+// domain/user/user.entity.ts
+export interface IUser extends BaseEntity {
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  image: string | null;
+}
 
-// features/auth/lib/password.ts
-// 도메인 전용 헬퍼
-export const validatePasswordStrength = (password: string) => {
-  return password.length >= 8;
-};
+// domain/user/user.errors.ts
+export class UserNotFoundError extends Error {
+  constructor() {
+    super("사용자를 찾을 수 없습니다.");
+  }
+}
+```
 
-// features/auth/types.ts
-// 도메인 타입 & 검증
-export const signupSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
+**규칙**:
+- ✅ 순수 TypeScript (프레임워크 독립적)
+- ✅ 외부 라이브러리 최소화 (Zod는 허용)
+- ❌ React, Drizzle, Better-auth 등 외부 의존성 금지
+- ❌ HTTP, DB 관련 코드 금지
+
+---
+
+#### 2️⃣ Application Layer (`app/application/`)
+
+**역할**: 비즈니스 로직 조율, Port(인터페이스) 정의, Service 구현
+
+**구성 요소**:
+- **Port**: 인터페이스 정의 (Repository, Provider)
+- **Service**: 비즈니스 로직 구현
+
+**Port & Adapter 패턴**:
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Application Layer                     │
+│  ┌─────────────┐         ┌─────────────────────────┐   │
+│  │   Service   │────────►│    Port (Interface)     │   │
+│  │ (비즈니스)   │         │  IUserRepository        │   │
+│  └─────────────┘         │  IAuthProvider          │   │
+│                          └────────────┬────────────┘   │
+└───────────────────────────────────────┼────────────────┘
+                                        │ 구현
+┌───────────────────────────────────────┼────────────────┐
+│                Infrastructure Layer   ▼                │
+│                     ┌─────────────────────────┐        │
+│                     │   Adapter (구현체)        │        │
+│                     │  UserRepositoryImpl      │        │
+│                     │  AuthProviderImpl        │        │
+│                     └─────────────────────────┘        │
+└────────────────────────────────────────────────────────┘
+```
+
+**예시**:
+```typescript
+// application/user/user.port.ts (인터페이스 정의)
+export interface IUserRepository {
+  findById(id: string): Promise<IUser | null>;
+  findByEmail(email: string): Promise<IUser | null>;
+  findWithProfile(userId: string): Promise<IUserWithProfile | null>;
+  update(id: string, data: UpdateUserDTO): Promise<IUser>;
+}
+
+// application/user/user.service.ts (비즈니스 로직)
+export const createUserService = (
+  userRepository: IUserRepository,
+  profileRepository: IProfileRepository,
+) => ({
+  async getUserById(id: string): Promise<IUser> {
+    const user = await userRepository.findById(id);
+    if (!user) throw new UserNotFoundError();
+    return user;
+  },
+  // ...
 });
 ```
 
+**규칙**:
+- ✅ Domain만 import 가능
+- ✅ 인터페이스(Port)로 Infrastructure와 분리
+- ❌ Infrastructure 직접 import 금지
+- ❌ Presentation 레이어 의존 금지
+
 ---
 
-#### 3. `lib/` - 앱 전체 설정 & 유틸리티
+#### 3️⃣ Infrastructure Layer (`app/infrastructure/`)
 
-**역할**: 여러 feature에서 공통으로 사용하는 설정 및 유틸리티
+**역할**: 외부 시스템과의 연결, Port 구현체 제공
 
-**파일 예시**:
-- `auth.server.ts`: Better-auth 서버 인스턴스 생성
-- `email.server.ts`: 이메일 전송 인프라
-- `utils.ts`: 공통 유틸리티 함수 (예: `cn()`)
+**구성 요소**:
+- **config/**: DI Container, 환경 변수
+- **persistence/**: DB 클라이언트, Repository 구현체
+- **external/**: 외부 서비스 연동 (Better-auth, Resend)
 
-**규칙**:
-- ✅ 앱 전체에서 사용되는 설정/인프라
-- ✅ 2개 이상의 feature에서 사용하는 유틸리티
-- ❌ 특정 도메인 전용 로직 금지 (→ `features/`로)
-
-**차이점**:
+**예시**:
 ```typescript
-// ✅ lib/ - 앱 전체 인프라
-lib/email.server.ts     // 이메일 전송 인프라 (여러 feature 사용)
+// infrastructure/persistence/drizzle/user.repository.impl.ts
+export const createUserRepositoryImpl = (db: DrizzleClient): IUserRepository => ({
+  async findById(id: string) {
+    const result = await db.query.user.findFirst({
+      where: eq(user.id, id),
+    });
+    return result ? mapToUser(result) : null;
+  },
+  // ...
+});
 
-// ✅ features/ - 도메인 비즈니스 로직
-features/auth/lib/      // 인증 관련 모듈 (auth.server.ts, auth.client.ts 등)
-features/auth/services/ // 인증 관련 비즈니스 로직
-features/user/services/ // 사용자 관련 비즈니스 로직
+// infrastructure/external/better-auth/auth.provider.impl.ts
+export const createAuthProviderImpl = (betterAuth: BetterAuth): IAuthProvider => ({
+  async getSession(headers: Headers) {
+    const session = await betterAuth.api.getSession({ headers });
+    return session ? { user: mapToUser(session.user) } : null;
+  },
+  // ...
+});
 ```
 
----
-
-#### 4. `db/` - 데이터베이스 계층
-
-**역할**: Drizzle ORM 스키마 및 DB 클라이언트 관리
-
-**파일 구성**:
-- `schema.ts`: 데이터베이스 테이블 스키마 정의
-- `relations.ts`: 테이블 간 관계 정의
-- `index.ts`: DB 클라이언트 생성 함수
-
 **규칙**:
-- ✅ Drizzle ORM 전용
-- ✅ DB 스키마 정의만
-- ❌ 비즈니스 로직 금지
+- ✅ Application의 Port 인터페이스를 구현
+- ✅ Domain 엔티티를 반환 타입으로 사용
+- ✅ 외부 라이브러리 사용 가능 (Drizzle, Better-auth 등)
+- ❌ Presentation 레이어 의존 금지
 
 ---
 
-#### 5. `hooks/` - 전역 공유 커스텀 훅
+#### 4️⃣ Presentation Layer (`app/presentation/`)
 
-**역할**: 앱 전체에서 사용하는 범용 React 훅
+**역할**: 사용자 인터페이스, 라우팅, 사용자 입력 처리
 
-**규칙**:
-- ✅ 2개 이상의 feature에서 사용하는 훅
-- ❌ 특정 도메인 전용 훅 금지 (→ `features/*/hooks/`로)
+**구성 요소**:
+- **routes/**: React Router 페이지
+- **components/**: UI 컴포넌트
+- **hooks/**: React 커스텀 훅
+- **lib/**: 유틸리티, 미들웨어
 
-**차이점**:
+**예시**:
 ```typescript
-// ✅ hooks/ - 전역 공유 훅
-hooks/use-mobile.ts      // 모든 페이지에서 사용 가능
+// presentation/routes/auth/sign-in.tsx
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { authService } = context.container;
+  const formData = await request.formData();
 
-// ✅ features/auth/hooks/ - auth 도메인 전용 훅
-features/auth/hooks/use-login.ts  // 로그인 기능 전용
-```
+  const validation = validateFormData(signInSchema, formData);
+  if (!validation.success) return { errors: validation.errors };
 
----
+  const result = await authService.signInWithCredentials(
+    validation.data.email,
+    validation.data.password,
+    request.headers,
+  );
 
-#### 6. `middleware/` - 요청 처리 미들웨어
-
-**역할**: React Router 라우트 보호
-
-**파일**:
-- `auth.middleware.ts`: 인증 확인 미들웨어
-
-**사용법**:
-```typescript
-// routes/dashboard/layout.tsx
-export const loader = async ({ request, context }: Route.LoaderArgs) => {
-  const user = await requireAuth({ request, context });
-  return { user };
+  return redirect("/my/dashboard", {
+    headers: { "Set-Cookie": result.setCookie ?? "" },
+  });
 };
 ```
 
+**규칙**:
+- ✅ Application Service를 context.container를 통해 사용
+- ✅ Domain 타입 사용 가능
+- ❌ Infrastructure 직접 import 금지 (container를 통해서만)
+- ❌ DB 직접 접근 금지
+
 ---
 
-#### 7. `routes/` - React Router 페이지
+### 🔧 DI Container 사용법
 
-**역할**: 애플리케이션 페이지 정의
+#### Composition Root (`workers/app.ts`)
 
-**구조**:
+모든 의존성이 조립되는 시작점:
+
+```typescript
+// workers/app.ts
+import { createContainer } from "~/infrastructure/config/container";
+
+export default {
+  async fetch(request, env, ctx) {
+    // Container 생성 (매 요청마다)
+    const container = createContainer(env);
+
+    return requestHandler(request, {
+      cloudflare: { env, ctx },
+      container,  // loader/action에서 사용 가능
+    });
+  },
+};
 ```
-routes/
-├── layouts/        # Layout 컴포넌트 (navgation, private, app)
-├── auth/           # 인증 관련 페이지
-├── dashboard/      # 대시보드 페이지
-├── settings/       # 설정 페이지
-└── index.tsx       # 홈 페이지
+
+#### Container 구조 (`infrastructure/config/container.ts`)
+
+```typescript
+export const createContainer = (env: CloudflareAuthEnv): IContainer => {
+  // 1. Infrastructure: DB 클라이언트
+  const db = createDrizzleClient(env.DATABASE_URL);
+
+  // 2. Infrastructure: Email Service
+  const emailService = createEmailServiceImpl(
+    env.RESEND_API_KEY,
+    env.RESEND_FROM_EMAIL,
+  );
+
+  // 3. Infrastructure: Repositories
+  const userRepository = createUserRepositoryImpl(db);
+  const profileRepository = createProfileRepositoryImpl(db);
+
+  // 4. Infrastructure: Better-auth
+  const betterAuth = createBetterAuth(db, env, emailService, profileRepository);
+  const authProvider = createAuthProviderImpl(betterAuth);
+
+  // 5. Application: Services
+  const userService = createUserService(userRepository, profileRepository);
+  const authService = createAuthService(authProvider, userRepository);
+
+  return {
+    authService,
+    userService,
+    emailService,
+    betterAuthHandler: (request) => betterAuth.handler(request),
+    createClearSessionHeaders,
+  };
+};
 ```
 
-**규칙**:
-- ✅ 페이지 컴포넌트만
-- ✅ loader, action 함수 포함 가능
-- ❌ 복잡한 비즈니스 로직 금지 (→ `features/`로)
+#### Route에서 사용하기
+
+```typescript
+// presentation/routes/settings/index.tsx
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  // Container에서 서비스 가져오기
+  const { authService, userService } = context.container;
+
+  // 인증 확인
+  const session = await authService.getSession(request.headers);
+  if (!session) return redirect("/auth/sign-in");
+
+  // 사용자 정보 조회
+  const userWithProfile = await userService.getUserWithProfile(session.user.id);
+
+  return { user: userWithProfile };
+};
+```
 
 ---
 
@@ -691,56 +795,123 @@ routes/
 
 #### 예시: "결제" 기능 추가
 
-**1단계: 도메인 폴더 생성**
+**1단계: Domain Layer - 엔티티, 타입, 에러 정의**
 ```bash
-mkdir -p app/features/payment/{api,hooks,services}
+mkdir -p app/domain/payment
 ```
 
-**2단계: 타입 정의**
 ```typescript
-// app/features/payment/types.ts
-import { z } from "zod";
+// domain/payment/payment.entity.ts
+export interface IPayment {
+  id: string;
+  userId: string;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  createdAt: Date;
+}
 
-export const checkoutSchema = z.object({
-  amount: z.number().positive(),
-  currency: z.string(),
+// domain/payment/payment.types.ts
+export type PaymentStatus = "pending" | "completed" | "failed";
+export interface CreatePaymentDTO {
+  userId: string;
+  amount: number;
+  currency: string;
+}
+
+// domain/payment/payment.errors.ts
+export class PaymentFailedError extends Error {
+  constructor(reason: string) {
+    super(`결제 실패: ${reason}`);
+  }
+}
+```
+
+**2단계: Application Layer - Port와 Service 정의**
+```bash
+mkdir -p app/application/payment
+```
+
+```typescript
+// application/payment/payment.port.ts
+export interface IPaymentRepository {
+  create(data: CreatePaymentDTO): Promise<IPayment>;
+  findById(id: string): Promise<IPayment | null>;
+  updateStatus(id: string, status: PaymentStatus): Promise<IPayment>;
+}
+
+export interface IPaymentGateway {
+  createPaymentIntent(amount: number, currency: string): Promise<{ clientSecret: string }>;
+  confirmPayment(paymentIntentId: string): Promise<boolean>;
+}
+
+// application/payment/payment.service.ts
+export const createPaymentService = (
+  paymentRepository: IPaymentRepository,
+  paymentGateway: IPaymentGateway,
+) => ({
+  async processPayment(userId: string, amount: number, currency: string) {
+    const payment = await paymentRepository.create({ userId, amount, currency });
+    const intent = await paymentGateway.createPaymentIntent(amount, currency);
+    return { payment, clientSecret: intent.clientSecret };
+  },
+});
+```
+
+**3단계: Infrastructure Layer - 구현체 작성**
+```bash
+mkdir -p app/infrastructure/external/stripe
+mkdir -p app/infrastructure/persistence/drizzle
+```
+
+```typescript
+// infrastructure/external/stripe/payment.gateway.impl.ts
+export const createPaymentGatewayImpl = (stripeApiKey: string): IPaymentGateway => ({
+  async createPaymentIntent(amount, currency) {
+    // Stripe API 호출
+    return { clientSecret: "..." };
+  },
 });
 
-export type CheckoutFormData = z.infer<typeof checkoutSchema>;
+// infrastructure/persistence/drizzle/payment.repository.impl.ts
+export const createPaymentRepositoryImpl = (db: DrizzleClient): IPaymentRepository => ({
+  async create(data) { /* ... */ },
+  async findById(id) { /* ... */ },
+});
 ```
 
-**3단계: 서비스 로직 작성**
+**4단계: Container에 등록**
 ```typescript
-// app/features/payment/services/stripe.service.ts
-export const createPaymentIntent = async (amount: number) => {
-  // Stripe 결제 로직
+// infrastructure/config/container.ts
+export const createContainer = (env): IContainer => {
+  // ... 기존 코드 ...
+
+  const paymentRepository = createPaymentRepositoryImpl(db);
+  const paymentGateway = createPaymentGatewayImpl(env.STRIPE_API_KEY);
+  const paymentService = createPaymentService(paymentRepository, paymentGateway);
+
+  return {
+    // ... 기존 서비스 ...
+    paymentService,
+  };
 };
 ```
 
-**4단계: API 핸들러 작성**
+**5단계: Presentation Layer - 라우트와 컴포넌트**
 ```typescript
-// app/features/payment/api/checkout.tsx
-export const action = async ({ request }: Route.ActionArgs) => {
-  // 결제 처리
+// presentation/routes/payment/checkout.tsx
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { paymentService } = context.container;
+  const formData = await request.formData();
+
+  const result = await paymentService.processPayment(
+    userId,
+    Number(formData.get("amount")),
+    "KRW",
+  );
+
+  return { clientSecret: result.clientSecret };
 };
-```
-
-**5단계: UI 컴포넌트 작성**
-```tsx
-// app/components/payment-card.tsx
-export default function PaymentCard({ amount }: Props) {
-  return <div>결제 카드 UI</div>;
-}
-```
-
-**6단계: 페이지 작성**
-```tsx
-// app/routes/payment/checkout.tsx
-import PaymentCard from "~/components/payment-card";
-
-export default function CheckoutPage() {
-  return <PaymentCard amount={1000} />;
-}
 ```
 
 ---
@@ -749,32 +920,32 @@ export default function CheckoutPage() {
 
 새로운 코드를 작성할 때 다음을 확인하세요:
 
-#### UI 컴포넌트를 만들 때
-- [ ] 순수 UI 렌더링만 하는가? → `components/`에 배치
-- [ ] 로직이나 데이터 처리가 포함되었는가? → 로직은 `features/`로, UI는 `components/`로 분리
+#### 의존성 방향 체크
+- [ ] Domain → 외부 의존성 없음?
+- [ ] Application → Domain만 import?
+- [ ] Infrastructure → Application Port 구현?
+- [ ] Presentation → Container를 통해 서비스 접근?
 
-#### 도메인 로직을 추가할 때
-- [ ] 특정 도메인에서만 사용하는가? → `features/{도메인}/`에 배치
-  - 도메인별 로직: `services/`, `hooks/`, `lib/`, `api/` 등 사용
-- [ ] 여러 도메인에서 사용하는가? → 앱 전체 `lib/`에 배치
+#### Port & Adapter 패턴 체크
+- [ ] 외부 시스템 연동 시 Port(인터페이스) 정의했는가?
+- [ ] Infrastructure에서 Port 구현체 작성했는가?
+- [ ] Container에서 의존성 주입했는가?
 
-#### 함수를 만들 때
-- [ ] 도메인 전용 비즈니스 로직인가? → `features/{도메인}/services/`
-- [ ] 도메인 전용 헬퍼인가? → `features/{도메인}/lib/`
-- [ ] 앱 전체에서 공통으로 사용하는 유틸인가? → `lib/`
-
-#### 훅을 만들 때
-- [ ] 도메인 전용인가? → `features/{도메인}/hooks/`
-- [ ] 여러 도메인에서 사용하는가? → `hooks/`
+#### 레이어별 체크
+- [ ] 비즈니스 엔티티 → `domain/`
+- [ ] 비즈니스 로직 → `application/`
+- [ ] DB/외부 서비스 연동 → `infrastructure/`
+- [ ] UI/라우팅 → `presentation/`
 
 ---
 
 ### 🎓 참고 원칙
 
 이 구조는 다음 원칙을 따릅니다:
-- **관심사의 분리 (Separation of Concerns)**: UI와 로직 분리
-- **도메인 주도 설계 (DDD)**: 도메인별 독립적 모듈화
-- **단일 책임 원칙 (SRP)**: 각 폴더는 하나의 역할만
+- **클린 아키텍처 (Clean Architecture)**: 의존성 역전, 레이어 분리
+- **Port & Adapter 패턴**: 외부 시스템 추상화
+- **의존성 주입 (DI)**: Container를 통한 의존성 관리
+- **단일 책임 원칙 (SRP)**: 각 레이어/모듈은 하나의 책임만
 
 ## 🗄️ 데이터베이스 스키마 관리
 
@@ -783,7 +954,7 @@ export default function CheckoutPage() {
 Drizzle ORM을 사용하여 TypeScript로 스키마를 정의합니다:
 
 ```typescript
-// app/db/schema.ts
+// app/infrastructure/persistence/schema/auth.schema.ts
 export const profilesTable = pgTable("profiles", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: uuid("user_id").notNull().unique(),
@@ -799,7 +970,7 @@ export type NewProfile = typeof profilesTable.$inferInsert;
 ### 마이그레이션 워크플로우
 
 ```bash
-# 1. schema.ts 수정 후 마이그레이션 생성
+# 1. schema 수정 후 마이그레이션 생성
 bun run db:generate
 
 # 2. 마이그레이션 적용
@@ -821,61 +992,35 @@ Better-auth CLI를 사용하여 인증 테이블 스키마를 자동 생성할 �
 bun run db:auth
 
 # 또는 직접 CLI 실행
-bunx @better-auth/cli generate --config app/features/auth/lib/auth.server.ts --output app/db/auth-schema.ts
+bunx @better-auth/cli generate --config app/infrastructure/external/better-auth/auth.server.ts --output app/infrastructure/persistence/schema/auth.schema.ts
 ```
 
-**스키마 분리 구조**:
+**스키마 분리 구조** (클린 아키텍처):
 ```
-app/db/
-├── auth-schema.ts  # Better-auth CLI가 자동 생성한 인증 테이블
-│   ├── user        # 사용자 테이블
-│   ├── session     # 세션 테이블
-│   ├── account     # OAuth 계정 테이블
-│   └── verification # 이메일 인증 토큰 테이블
+app/infrastructure/persistence/
+├── drizzle/
+│   ├── drizzle.server.ts      # DB 클라이언트 생성
+│   └── user.repository.impl.ts # Repository 구현체
 │
-└── schema.ts       # 앱 전용 테이블 + auth-schema 재export
-    ├── (auth-schema에서 import)
-    ├── twoFactorTable  # 2FA 테이블
-    └── profilesTable   # 프로필 테이블
+└── schema/
+    └── auth.schema.ts          # Better-auth CLI 자동 생성 + 앱 전용 테이블
+        ├── user                # 사용자 테이블
+        ├── session             # 세션 테이블
+        ├── account             # OAuth 계정 테이블
+        ├── verification        # 이메일 인증 토큰 테이블
+        ├── twoFactor           # 2FA 테이블
+        └── profiles            # 프로필 테이블
 ```
 
-**auth-schema.ts 특징**:
+**auth.schema.ts 특징**:
 - Better-auth CLI가 자동 생성하며, 수동 수정 불필요
 - 테이블 간 relations 자동 정의 (userRelations, sessionRelations, accountRelations)
 - 성능을 위한 인덱스 자동 추가 (session_userId_idx, account_userId_idx, verification_identifier_idx)
 
-**schema.ts에서 사용**:
-```typescript
-// app/db/schema.ts
-import {
-  user,
-  session,
-  account,
-  verification,
-  userRelations,
-  sessionRelations,
-  accountRelations,
-} from "./auth-schema";
-
-// 별칭으로 재export (기존 코드와의 호환성 유지)
-export {
-  user as userTable,
-  session as sessionTable,
-  account as accountTable,
-  verification as verificationTable,
-  userRelations,
-  sessionRelations,
-  accountRelations,
-};
-
-// 앱 전용 테이블 정의
-export const profilesTable = pgTable("profiles", { ... });
-```
-
-**CLI용 정적 auth 인스턴스** (`app/features/auth/lib/auth.server.ts`):
+**CLI용 정적 auth 인스턴스** (`app/infrastructure/external/better-auth/auth.server.ts`):
 ```typescript
 // CLI 스키마 생성 및 로컬 개발용 정적 인스턴스
-// Cloudflare Workers 환경에서는 createAuthFromContext 사용
+// Cloudflare Workers 환경에서는 createContainer()를 통해 생성
 export const auth = createAuth(
   process.env.DATABASE_URL!,
   process.env.BASE_URL!,
@@ -920,11 +1065,11 @@ export const auth = createAuth(
 
 기존 React Hook Form이 제거되고, React Router 7의 네이티브 Form을 사용합니다:
 
-**Form 컴포넌트들** (`app/components/forms/`)
+**Form 컴포넌트들** (`app/presentation/components/forms/`)
 - `FormField`: Label, Input, 에러 메시지를 통합한 재사용 컴포넌트
 - `SubmitButton`: `useNavigation`으로 자동 로딩 상태 관리
 
-**서버 사이드 검증** (`app/lib/form-helpers.ts`)
+**서버 사이드 검증** (`app/presentation/lib/form-helpers.ts`)
 ```typescript
 // Zod 스키마로 검증
 const validation = validateFormData(loginSchema, formData);
@@ -933,25 +1078,28 @@ if (!validation.success) {
 }
 ```
 
-**Action 함수 사용 예시**
+**Action 함수 사용 예시** (클린 아키텍처 방식)
 ```typescript
 export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { authService } = context.container;  // DI Container에서 서비스 가져오기
   const formData = await request.formData();
-  
+
   // Zod 검증
   const validation = validateFormData(loginSchema, formData);
   if (!validation.success) {
     return { errors: validation.errors };
   }
-  
-  // 서버 사이드 로그인
-  await signInWithCredentials({
-    request, context,
-    email: validation.data.email,
-    password: validation.data.password,
+
+  // 서버 사이드 로그인 (Application Service 사용)
+  const result = await authService.signInWithCredentials(
+    validation.data.email,
+    validation.data.password,
+    request.headers,
+  );
+
+  return redirect('/my/dashboard', {
+    headers: { "Set-Cookie": result.setCookie ?? "" },
   });
-  
-  return redirect('/dashboard');
 };
 ```
 
@@ -961,111 +1109,170 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
 이메일 기반 회원가입 및 비밀번호 재설정을 Resend로 구현합니다:
 
-**이메일 서비스** (`app/lib/email.server.ts`)
-```typescript
-// 이메일 인증 링크 전송
-export const sendVerificationEmail = async (
-  email: string,
-  verificationUrl: string,
-) => { ... };
+**이메일 서비스 (클린 아키텍처)**
 
-// 비밀번호 재설정 링크 전송
-export const sendPasswordResetEmail = async (
-  email: string,
-  resetUrl: string,
-) => { ... };
+Port 인터페이스 (`app/application/shared/email.port.ts`):
+```typescript
+export interface IEmailService {
+  sendVerificationEmail(email: string, verificationUrl: string): Promise<void>;
+  sendPasswordResetEmail(email: string, resetUrl: string): Promise<void>;
+}
 ```
 
-**이메일 템플릿** (`app/components/email/`)
+구현체 (`app/infrastructure/external/resend/email.service.impl.ts`):
+```typescript
+export const createEmailServiceImpl = (
+  apiKey: string,
+  fromEmail: string,
+): IEmailService => ({
+  async sendVerificationEmail(email, verificationUrl) {
+    // Resend를 사용한 이메일 전송
+  },
+  async sendPasswordResetEmail(email, resetUrl) {
+    // Resend를 사용한 이메일 전송
+  },
+});
+```
+
+**이메일 템플릿** (`app/presentation/components/email/`)
 - `verification-email.tsx`: 이메일 인증 템플릿
 - `password-reset-email.tsx`: 비밀번호 재설정 템플릿
-- `EmailLayout`: 공통 레이아웃
+- `email-layout.tsx`: 공통 레이아웃
 
-**Better-auth 콜백 설정** (`app/lib/auth.server.ts`)
+**Better-auth 콜백 설정** (`app/infrastructure/external/better-auth/auth.config.ts`)
 ```typescript
 emailVerification: {
   sendOnSignUp: true,
   sendVerificationEmail: async ({ user, url }) => {
-    await sendVerificationEmail(user.email, url);
+    await emailService.sendVerificationEmail(user.email, url);
   },
 },
 emailAndPassword: {
   sendResetPassword: async ({ user, url }) => {
-    await sendPasswordResetEmail(user.email, url);
+    await emailService.sendPasswordResetEmail(user.email, url);
   },
 }
 ```
 
 ---
 
-### Better-auth 구조
+### Better-auth 구조 (클린 아키텍처)
 
-#### 1. 서버 설정 (`app/features/auth/lib/auth.server.ts`)
+#### 아키텍처 개요
 
-모든 인증 로직이 이 파일에 집중되어 있습니다:
-
-```typescript
-// Better-auth 인스턴스 생성 (내부 함수)
-const createAuth = (...)
-
-// CLI용 정적 auth 인스턴스
-export const auth = createAuth(...)
-
-// Context 기반 인스턴스 생성
-export const createAuthFromContext = (context)
-
-// 서버 사이드 헬퍼 함수 (action에서 사용)
-export const signInWithCredentials = async (...)     // 이메일 로그인
-export const signUpWithCredentials = async (...)     // 이메일 회원가입
-export const signOut = async (...)                   // 로그아웃
-export const requestPasswordReset = async (...)      // 비밀번호 재설정 요청
-export const resetPasswordWithToken = async (...)    // 비밀번호 재설정 실행
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Presentation Layer                        │
+│  ┌────────────────────────────────────────────────────┐     │
+│  │ routes/auth/sign-in.tsx                            │     │
+│  │ routes/auth/api/$.tsx (Better-auth 엔드포인트)      │     │
+│  └────────────────────────────────────────────────────┘     │
+│                            │                                 │
+│                 context.container.authService                │
+│                            ↓                                 │
+├─────────────────────────────────────────────────────────────┤
+│                    Application Layer                         │
+│  ┌─────────────────┐     ┌─────────────────────────────┐   │
+│  │  AuthService    │────►│   IAuthProvider (Port)      │   │
+│  └─────────────────┘     └──────────────┬──────────────┘   │
+├─────────────────────────────────────────┼───────────────────┤
+│                 Infrastructure Layer    │                    │
+│                            ┌────────────▼──────────────┐    │
+│                            │  AuthProviderImpl         │    │
+│                            │  (Better-auth Adapter)    │    │
+│                            └───────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**특징**:
-- DrizzleAdapter를 통한 PostgreSQL 연결
-- OAuth 프로바이더 설정 (GitHub, Google)
-- 이메일 인증 및 비밀번호 재설정
-- 모든 헬퍼 함수는 **서버 사이드 action에서만 사용**
+#### 1. Application Service (`app/application/auth/auth.service.ts`)
 
-#### 2. 상수 설정 (`app/features/auth/lib/auth.const.ts`)
-
-쿠키 관련 상수를 중앙 집중화:
+비즈니스 로직 조율:
 
 ```typescript
-// 쿠키 접두사
-export const COOKIE_PREFIX = "cc-rr7";
+export const createAuthService = (
+  authProvider: IAuthProvider,
+  userRepository: IUserRepository,
+) => ({
+  async getSession(headers: Headers) {
+    return authProvider.getSession(headers);
+  },
 
-// 세션 쿠키 이름들
+  async signInWithCredentials(email: string, password: string, headers: Headers) {
+    return authProvider.signInWithCredentials(email, password, headers);
+  },
+
+  async signUpWithCredentials(email: string, password: string, name: string, headers: Headers) {
+    return authProvider.signUpWithCredentials(email, password, name, headers);
+  },
+  // ...
+});
+```
+
+#### 2. Port 인터페이스 (`app/application/auth/auth.port.ts`)
+
+인증 제공자 추상화:
+
+```typescript
+export interface IAuthProvider {
+  getSession(headers: Headers): Promise<{ user: IUser } | null>;
+  signInWithCredentials(email: string, password: string, headers: Headers): Promise<SignInResult>;
+  signUpWithCredentials(email: string, password: string, name: string, headers: Headers): Promise<SignUpResult>;
+  signInWithOAuth(provider: "github" | "google" | "kakao", callbackURL: string, headers: Headers): Promise<OAuthSignInResult>;
+  signOut(headers: Headers): Promise<void>;
+  // ...
+}
+```
+
+#### 3. Infrastructure 구현체 (`app/infrastructure/external/better-auth/`)
+
+**auth.provider.impl.ts**: IAuthProvider 구현체
+```typescript
+export const createAuthProviderImpl = (betterAuth: BetterAuth): IAuthProvider => ({
+  async getSession(headers) {
+    const session = await betterAuth.api.getSession({ headers });
+    return session ? { user: mapToUser(session.user) } : null;
+  },
+  // ...
+});
+```
+
+**auth.const.ts**: 쿠키 관련 상수
+```typescript
+export const COOKIE_PREFIX = "cc-rr7";
 export const SESSION_COOKIE_NAMES = [
   `${COOKIE_PREFIX}.session_token`,
   `${COOKIE_PREFIX}.session_data`,
 ] as const;
-
-// 세션 쿠키 클리어 헬퍼
-export const createClearSessionHeaders = (): HeadersInit => { ... };
+export const createClearSessionHeaders = (): Headers => { ... };
 ```
 
-#### 3. 클라이언트 설정 (`app/features/auth/lib/auth.client.ts`)
-
-브라우저에서 사용하는 인증 클라이언트:
-
+**auth.config.ts**: Better-auth 설정
 ```typescript
-// OAuth 로그인 (현재 사용 중인 것들)
-export const signInWithGitHub = async (...)
-export const signInWithGoogle = async (...)
-
-// 이메일 로그인/회원가입 (더 이상 사용하지 않음 - action으로 처리)
-// @deprecated use action + signInWithCredentials instead
+export const createBetterAuth = (
+  db: DrizzleClient,
+  config: AuthConfig,
+  sendVerificationEmail: (email: string, url: string) => Promise<void>,
+  sendPasswordResetEmail: (email: string, url: string) => Promise<void>,
+  profileRepository: IProfileRepository,
+) => betterAuth({
+  database: drizzleAdapter(db, { provider: "pg" }),
+  // ... 설정
+});
 ```
 
-**참고**: 이메일 로그인/회원가입은 이제 **서버 사이드 action**으로 처리됩니다.
-
-#### 4. API 라우트 (`app/features/auth/api/$.tsx`)
+#### 4. API 라우트 (`app/presentation/routes/auth/api/$.tsx`)
 
 Better-auth의 모든 엔드포인트를 처리하는 catch-all 라우트:
 
 ```typescript
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  return context.container.betterAuthHandler(request);
+};
+
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  return context.container.betterAuthHandler(request);
+};
+
 // Better-auth가 자동으로 다음 엔드포인트들을 처리:
 // POST /auth/api/sign-up
 // POST /auth/api/sign-in
@@ -1078,32 +1285,30 @@ Better-auth의 모든 엔드포인트를 처리하는 catch-all 라우트:
 // GET /auth/api/callback/google
 ```
 
-#### 5. 인증 페이지 구조 (개선된 패턴)
+#### 5. 인증 페이지 구조
 
-모든 인증 페이지는 **동일한 패턴**을 따릅니다:
+모든 인증 페이지는 **Container를 통한 의존성 주입**을 사용합니다:
 
 ```typescript
-// 1. auth/layout.tsx에서 getOptionalAuth로 user 로드
-export const loader = async (...) => {
-  const user = await getOptionalAuth({ request, context });
-  return { user };
-};
-
-// 2. 각 페이지에서 useOutletContext로 user 가져오기
-const { user } = useOutletContext<{ user: User | null }>();
-
-// 3. 로그인 여부에 따라 조건부 렌더링
-if (user) {
-  return <Card>이미 로그인됨</Card>;
-}
-return <Card>로그인 폼 + action</Card>;
-
-// 4. 폼 제출은 action 함수로 처리
+// presentation/routes/auth/sign-in.tsx
 export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { authService } = context.container;  // DI Container에서 서비스 가져오기
   const formData = await request.formData();
-  // ... 검증
-  await signInWithCredentials({ request, context, ... });
-  return redirect('/dashboard');
+
+  const validation = validateFormData(signInSchema, formData);
+  if (!validation.success) {
+    return { errors: validation.errors };
+  }
+
+  const result = await authService.signInWithCredentials(
+    validation.data.email,
+    validation.data.password,
+    request.headers,
+  );
+
+  return redirect('/my/dashboard', {
+    headers: { "Set-Cookie": result.setCookie ?? "" },
+  });
 };
 ```
 
@@ -1112,46 +1317,46 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 - 클라이언트가 우회할 수 없음
 - 세션 쿠키는 httpOnly, secure로 자동 설정
 - Progressive Enhancement 지원 (JS 비활성화 시에도 작동)
+- **테스트 용이성**: IAuthProvider를 Mock으로 교체 가능
 
 ---
 
 ### OAuth 소셜 로그인 (서버 사이드)
 
-OAuth 소셜 로그인이 서버 사이드 방식으로 개선되었습니다:
+OAuth 소셜 로그인이 클린 아키텍처 기반으로 구현되었습니다:
 
-**signInWithSocials 함수** (`app/features/auth/lib/auth.server.ts`):
+**AuthService를 통한 OAuth 로그인** (`app/application/auth/auth.service.ts`):
 ```typescript
-export const signInWithSocials = async ({
-  request,
-  context,
-  provider,  // "github" | "google" | "kakao"
-}: { ... }) => {
-  const auth = createAuthFromContext(context);
-
-  return await auth.api.signInSocial({
-    body: {
-      provider,
-      callbackURL: `/my/dashboard`,  // 로그인 후 이동할 경로
-    },
-    headers: request.headers,
-    returnHeaders: true,
-  });
-};
+// AuthService에서 IAuthProvider를 통해 OAuth 로그인 처리
+async signInWithOAuth(
+  provider: "github" | "google" | "kakao",
+  callbackURL: string,
+  headers: Headers,
+) {
+  return authProvider.signInWithOAuth(provider, callbackURL, headers);
+}
 ```
 
-**로그인 페이지에서 사용** (`app/routes/auth/sign-in.tsx`):
+**로그인 페이지에서 사용** (`app/presentation/routes/auth/sign-in.tsx`):
 ```tsx
 // Form action으로 소셜 로그인 처리
 export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { authService } = context.container;
   const formData = await request.formData();
   const provider = formData.get("provider");
 
   if (provider === "github" || provider === "google") {
-    const { url, headers } = await signInWithSocials({
-      request, context, provider,
-    });
-    // OAuth 프로바이더 페이지로 리다이렉트
-    return redirect(url, { headers });
+    const result = await authService.signInWithOAuth(
+      provider,
+      "/my/dashboard",
+      request.headers,
+    );
+
+    const headers = new Headers();
+    for (const cookie of result.setCookies) {
+      headers.append("Set-Cookie", cookie);
+    }
+    return redirect(result.redirectUrl, { headers });
   }
   // ... 이메일 로그인 처리
 };
@@ -1163,7 +1368,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 </Form>
 ```
 
-**OAuth 설정 개선** (`auth.server.ts`):
+**OAuth 설정** (`app/infrastructure/external/better-auth/auth.config.ts`):
 ```typescript
 // 신뢰할 수 있는 Origin 설정 (state_not_found 에러 방지)
 trustedOrigins: [baseURL],
@@ -1186,7 +1391,7 @@ advanced: {
 
 ### OAuth 에러 처리
 
-OAuth 관련 에러 메시지가 한글로 번역됩니다 (`app/features/auth/lib/error-handler.ts`):
+OAuth 관련 에러 메시지가 한글로 번역됩니다 (`app/presentation/lib/error-handler.ts`):
 
 ```typescript
 const OAUTH_ERROR_MESSAGES: Record<string, string> = {
@@ -1205,32 +1410,33 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
 
 로그아웃 시 세션 쿠키를 강제로 삭제하여 안정성을 높였습니다:
 
-**쿠키 클리어 헬퍼** (`app/features/auth/lib/auth.const.ts`):
+**쿠키 클리어 헬퍼** (`app/infrastructure/external/better-auth/auth.const.ts`):
 ```typescript
 export const SESSION_COOKIE_NAMES = [
   `${COOKIE_PREFIX}.session_token`,
   `${COOKIE_PREFIX}.session_data`,
 ] as const;
 
-export const createClearSessionHeaders = (): HeadersInit => {
-  return {
-    "Set-Cookie": SESSION_COOKIE_NAMES.map(
-      (name) => `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly`
-    ).join(", "),
-  };
+export const createClearSessionHeaders = (): Headers => {
+  const headers = new Headers();
+  for (const name of SESSION_COOKIE_NAMES) {
+    headers.append(
+      "Set-Cookie",
+      `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly`,
+    );
+  }
+  return headers;
 };
 ```
 
-**로그아웃 라우트** (`app/routes/auth/sign-out.tsx`):
+**로그아웃 라우트** (`app/presentation/routes/auth/sign-out.tsx`):
 ```typescript
-import { createClearSessionHeaders } from "~/features/auth/lib/auth.const";
-import { signOut } from "~/features/auth/lib/auth.server";
-
 export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { authService, createClearSessionHeaders } = context.container;
   const headers = createClearSessionHeaders();
 
   try {
-    await signOut({ request, context });
+    await authService.signOut(request.headers);
     return redirect("/", { headers });
   } catch (error) {
     // 실패해도 쿠키는 삭제하고 홈으로 리다이렉트
@@ -1244,6 +1450,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 - `cc-rr7.session_token`, `cc-rr7.session_data` 쿠키 명시적 만료
 - 서버 측 세션 삭제 실패 시에도 클라이언트 쿠키는 삭제
 - 세션 만료 상태에서 로그아웃 시도해도 정상 처리
+- **DI Container를 통한 의존성 주입**: `context.container`에서 서비스 및 유틸리티 접근
 
 ## 📚 주요 라이브러리
 

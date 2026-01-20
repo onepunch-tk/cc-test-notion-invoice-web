@@ -1,10 +1,10 @@
-import type { IUser } from "~/domain/user";
 import type {
 	IAuthProvider,
 	OAuthSignInResult,
 	SignInResult,
 	SignUpResult,
-} from "~/application/auth/auth.provider";
+} from "~/application/auth/auth.port";
+import type { IUser } from "~/domain/user";
 import type { BetterAuthInstance } from "./auth.config";
 
 /**

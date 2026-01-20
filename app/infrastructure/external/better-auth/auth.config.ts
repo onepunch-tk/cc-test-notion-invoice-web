@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import type { IProfileRepository } from "~/application/user/user.port";
+import type { DrizzleClient } from "~/infrastructure/persistence/drizzle/drizzle.server";
 import * as schema from "~/infrastructure/persistence/schema";
-import type { DrizzleClient } from "~/infrastructure/persistence/drizzle/drizzle.client";
 import { COOKIE_PREFIX } from "./auth.const";
 
 /**
@@ -28,12 +29,14 @@ export interface BetterAuthConfig {
  * @param config - Better-auth 설정
  * @param sendVerificationEmail - 이메일 인증 발송 함수
  * @param sendPasswordResetEmail - 비밀번호 재설정 이메일 발송 함수
+ * @param profileRepository - 프로필 저장소 (user 생성 후 프로필 자동 생성용)
  */
 export const createBetterAuth = (
 	db: DrizzleClient,
 	config: BetterAuthConfig,
 	sendVerificationEmail: (email: string, url: string) => Promise<void>,
 	sendPasswordResetEmail: (email: string, url: string) => Promise<void>,
+	profileRepository: IProfileRepository,
 ) => {
 	return betterAuth({
 		secret: config.secret,
@@ -107,6 +110,26 @@ export const createBetterAuth = (
 			accountLinking: {
 				enabled: true,
 				trustedProviders: ["github", "google", "kakao"],
+			},
+		},
+
+		databaseHooks: {
+			user: {
+				create: {
+					after: async (user) => {
+						// user 생성 직후 프로필 자동 생성
+						try {
+							await profileRepository.create({
+								userId: user.id,
+								fullName: user.name,
+								avatarUrl: user.image ?? null,
+								bio: null,
+							});
+						} catch (error) {
+							console.error("프로필 자동 생성 실패:", error);
+						}
+					},
+				},
 			},
 		},
 	});

@@ -1,5 +1,6 @@
 import { LayoutDashboard, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { Form, Link, useLocation } from "react-router";
+import type { IUser } from "~/domain/user";
 import { Button } from "~/presentation/components/ui/button";
 import {
 	DropdownMenu,
@@ -10,10 +11,9 @@ import {
 	DropdownMenuTrigger,
 } from "~/presentation/components/ui/dropdown-menu";
 import { SidebarTrigger } from "~/presentation/components/ui/sidebar";
-import type { User } from "~/infrastructure/persistence/schema";
 
 interface UserMenuProps {
-	user: User;
+	user: IUser;
 }
 
 /**
@@ -87,7 +87,7 @@ function AuthButtons() {
 }
 
 interface NavigationBarProps {
-	user?: User;
+	user?: IUser;
 	loading?: boolean;
 }
 

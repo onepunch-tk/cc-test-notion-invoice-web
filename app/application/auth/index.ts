@@ -1,2 +1,2 @@
-export * from "./auth.provider";
+export * from "./auth.port";
 export * from "./auth.service";

@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { createAuthFromContext } from "~/infrastructure/external/better-auth";
 
 /**
  * Better-auth API 핸들러 (Catch-all)
@@ -19,18 +18,10 @@ import { createAuthFromContext } from "~/infrastructure/external/better-auth";
  * - 기타 모든 Better-auth 엔드포인트
  */
 
-const handleAuth = async (
-	request: Request,
-	context: LoaderFunctionArgs["context"],
-) => {
-	const auth = createAuthFromContext(context);
-	return auth.handler(request);
-};
-
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
-	return handleAuth(request, context);
+	return context.container.betterAuthHandler(request);
 };
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
-	return handleAuth(request, context);
+	return context.container.betterAuthHandler(request);
 };

@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { Form, Link, useActionData } from "react-router";
+import { type AuthActionResponse, forgotPasswordSchema } from "~/domain/auth";
 import { FormField, SubmitButton } from "~/presentation/components/forms";
 import { Alert, AlertDescription } from "~/presentation/components/ui/alert";
 import {
@@ -10,9 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/presentation/components/ui/card";
-import { type AuthActionResponse, forgotPasswordSchema } from "~/domain/auth";
-import { requestPasswordReset } from "~/infrastructure/external/better-auth";
-import { validateFormData } from "~/shared/lib/form-helpers";
+import { validateFormData } from "~/presentation/lib/form-helpers";
 import type { Route } from "./+types/forgot-password";
 
 /**
@@ -46,11 +45,10 @@ export const action = async ({
 
 	try {
 		// 서버 사이드 비밀번호 재설정 요청
-		await requestPasswordReset({
-			request,
-			context,
-			email: validation.data.email,
-		});
+		await context.container.authService.requestPasswordReset(
+			validation.data.email,
+			request.headers,
+		);
 
 		// 성공: 성공 메시지 반환 (보안상 이메일 노출하지 않음)
 		return { success: true };

@@ -1,7 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { createClearSessionHeaders } from "~/shared/lib/auth.const";
-import { signOut } from "~/infrastructure/external/better-auth";
 
 /**
  * 로그아웃 라우트
@@ -16,10 +14,10 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 		throw new Response("Method not allowed", { status: 405 });
 	}
 
-	const headers = createClearSessionHeaders();
+	const headers = context.container.createClearSessionHeaders();
 
 	try {
-		await signOut({ request, context });
+		await context.container.authService.signOut(request.headers);
 		return redirect("/", { headers });
 	} catch (error) {
 		console.error("로그아웃 실패:", error);
