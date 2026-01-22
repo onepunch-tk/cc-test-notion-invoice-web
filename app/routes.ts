@@ -14,7 +14,7 @@ export default [
 	// Better-auth API 라우트 (catch-all)
 	route("auth/api/*", "presentation/routes/auth/api/$.tsx"),
 
-	layout("presentation/routes/layouts/navgation.layout.tsx", [
+	layout("presentation/routes/layouts/navigation.layout.tsx", [
 		// 공개 페이지
 		index("presentation/routes/home/home.tsx"),
 		route("privacy-policy", "presentation/routes/privacy-policy.tsx"),

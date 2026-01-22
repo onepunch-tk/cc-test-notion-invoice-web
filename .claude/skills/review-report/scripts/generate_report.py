@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-리뷰 리포트 JSON 파일 생성 스크립트
+리뷰 리포트 Markdown 파일 생성 스크립트
 
 사용법:
     # stdin 방식 (권장 - 특수 문자 이스케이프 문제 없음)
@@ -12,21 +12,21 @@
 
 예시:
     # stdin 방식 (권장)
-    echo '[{"file":"example.tsx","location":"23:5","severity":"high","category":"type-safety","problem":"any 타입 사용","suggestion":"unknown으로 변경"}]' | python generate_report.py --output reports/code-review
+    echo '[{"file":"example.tsx","location":"23:5","severity":"high","category":"type-safety","problem":"any 타입 사용","suggestion":"unknown으로 변경"}]' | python generate_report.py --output docs/reports/code-review
 
     # heredoc 사용
-    python generate_report.py --output reports/code-review << 'EOF'
+    python generate_report.py --output docs/reports/code-review << 'EOF'
     [{"file":"example.tsx","location":"23:5","severity":"high","category":"type-safety","problem":"any 타입 사용","suggestion":"unknown으로 변경"}]
     EOF
 
     # 파일에서 읽기
-    cat issues.json | python generate_report.py --output reports/code-review
+    cat issues.json | python generate_report.py --output docs/reports/code-review
 
     # CLI 인자 방식 (하위 호환)
-    python generate_report.py --output reports/code-review --issues '[...]'
+    python generate_report.py --output docs/reports/code-review --issues '[...]'
 
     # 이슈 없는 경우
-    echo '[]' | python generate_report.py --output reports/code-review
+    echo '[]' | python generate_report.py --output docs/reports/code-review
 """
 
 import argparse
@@ -68,6 +68,22 @@ class ReviewReport(TypedDict):
 
 VALID_SEVERITIES = {"critical", "high", "medium", "low"}
 
+SEVERITY_ORDER = ["critical", "high", "medium", "low"]
+
+SEVERITY_EMOJI = {
+    "critical": "🔴",
+    "high": "🟠",
+    "medium": "🟡",
+    "low": "🟢",
+}
+
+SEVERITY_LABEL = {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+}
+
 
 def read_issues_json(issues_arg: str | None) -> str:
     """
@@ -93,6 +109,11 @@ def generate_hash() -> str:
 def get_date_string() -> str:
     """YYYYMMDD 형식 날짜 문자열 반환"""
     return datetime.now(timezone.utc).strftime("%Y%m%d")
+
+
+def get_timestamp_string() -> str:
+    """YYYY-MM-DD HH:MM:SS 형식 타임스탬프 반환"""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def calculate_severity_count(issues: list[Issue]) -> SeverityCount:
@@ -139,46 +160,190 @@ def create_report(issues: list[Issue]) -> ReviewReport:
     }
 
 
+def detect_review_type(output_dir: str) -> str:
+    """출력 디렉토리 경로에서 리뷰 타입 감지"""
+    if "security" in output_dir.lower():
+        return "Security Review"
+    return "Code Review"
+
+
+def escape_markdown_table(text: str) -> str:
+    """마크다운 테이블 셀 내용 이스케이프"""
+    if not text:
+        return ""
+    # 파이프 문자와 줄바꿈 이스케이프
+    return text.replace("|", "\\|").replace("\n", " ")
+
+
+def generate_issues_table(issues: list[Issue], severity: str) -> str:
+    """특정 심각도의 이슈 테이블 생성"""
+    filtered = [i for i in issues if i.get("severity", "").lower() == severity]
+    if not filtered:
+        return ""
+
+    emoji = SEVERITY_EMOJI[severity]
+    label = SEVERITY_LABEL[severity]
+
+    lines = [
+        f"\n### {emoji} {label} Issues\n",
+        "| # | File | Location | Category | Problem | Suggestion |",
+        "|---|------|----------|----------|---------|------------|",
+    ]
+
+    for idx, issue in enumerate(filtered, 1):
+        file_path = escape_markdown_table(issue.get("file", ""))
+        location = escape_markdown_table(issue.get("location", ""))
+        category = escape_markdown_table(issue.get("category", ""))
+        problem = escape_markdown_table(issue.get("problem", ""))
+        suggestion = escape_markdown_table(issue.get("suggestion", ""))
+
+        lines.append(f"| {idx} | {file_path} | {location} | {category} | {problem} | {suggestion} |")
+
+    return "\n".join(lines)
+
+
+def generate_checklist(issues: list[Issue]) -> str:
+    """이슈 수정 체크리스트 생성"""
+    if not issues:
+        return ""
+
+    lines = [
+        "\n## ✅ Fix Checklist\n",
+        "**⚠️ MANDATORY**: Check each box (`- [x]`) immediately after fixing the issue.\n",
+        "Track your progress by checking off fixed issues:\n",
+    ]
+
+    issue_num = 1
+    for severity in SEVERITY_ORDER:
+        for issue in issues:
+            if issue.get("severity", "").lower() == severity:
+                file_path = issue.get("file", "")
+                location = issue.get("location", "").split(":")[0]  # 라인 번호만
+                problem = issue.get("problem", "")[:50]  # 50자로 제한
+                if len(issue.get("problem", "")) > 50:
+                    problem += "..."
+                label = SEVERITY_LABEL[severity]
+                lines.append(f"- [ ] #{issue_num} [{label}] {file_path}:{location} - {problem}")
+                issue_num += 1
+
+    lines.append("")
+    lines.append("**Completion Rule**: When all checkboxes are checked, update the Status at the top to `✅ Complete`.")
+
+    return "\n".join(lines)
+
+
+def generate_markdown(report: ReviewReport, review_type: str) -> str:
+    """리포트 데이터를 Markdown 형식으로 변환"""
+    metadata = report["metadata"]
+    issues = report["issues"]
+    severity_count = metadata["severityCount"]
+    total_issues = metadata["totalIssues"]
+
+    # 상태 결정
+    status = "✅ Complete" if total_issues == 0 else "🔄 In Progress"
+
+    lines = [
+        f"# {review_type} Report\n",
+        f"**Status**: {status}",
+        f"**Generated**: {get_timestamp_string()} (UTC)",
+        f"**Total Issues**: {total_issues}\n",
+        "---\n",
+    ]
+
+    # Critical Instructions 추가 (이슈가 있는 경우에만)
+    if total_issues > 0:
+        lines.extend([
+            "**⚠️ CRITICAL INSTRUCTIONS**: For AI agents fixing issues:",
+            "1. ✅ After fixing each issue, check off its checkbox below (`- [ ]` → `- [x]`)",
+            "2. 📅 Update the status above when all issues are resolved",
+            "3. ⛔ DO NOT leave this report without checking completed items\n",
+            "---\n",
+        ])
+
+    lines.extend([
+        "## 📊 Summary\n",
+        "| Severity | Count |",
+        "|----------|-------|",
+        f"| {SEVERITY_EMOJI['critical']} Critical | {severity_count['critical']} |",
+        f"| {SEVERITY_EMOJI['high']} High | {severity_count['high']} |",
+        f"| {SEVERITY_EMOJI['medium']} Medium | {severity_count['medium']} |",
+        f"| {SEVERITY_EMOJI['low']} Low | {severity_count['low']} |",
+    ])
+
+    # 이슈 섹션
+    if total_issues > 0:
+        lines.append("\n---\n")
+        lines.append("## 🔍 Issues")
+
+        for severity in SEVERITY_ORDER:
+            table = generate_issues_table(issues, severity)
+            if table:
+                lines.append(table)
+
+        # 체크리스트
+        checklist = generate_checklist(issues)
+        if checklist:
+            lines.append("\n---")
+            lines.append(checklist)
+
+    # 노트 섹션
+    lines.append("\n---\n")
+    lines.append("## 📝 Notes\n")
+    if total_issues == 0:
+        lines.append("No issues were found during the review. Great job! 🎉\n")
+    else:
+        lines.append("Please address the issues above in order of severity (Critical → Low).\n")
+
+    lines.append("---\n")
+    lines.append("*Generated by review-report skill*")
+
+    return "\n".join(lines)
+
+
 def save_report(report: ReviewReport, output_dir: str) -> str:
-    """리포트를 JSON 파일로 저장하고 파일 경로 반환"""
+    """리포트를 Markdown 파일로 저장하고 파일 경로 반환"""
     output_path = Path(output_dir)
 
     # 디렉토리 존재 확인 및 생성
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # 파일명 생성: {8자리_해시}_{YYYYMMDD}.json
-    filename = f"{generate_hash()}_{get_date_string()}.json"
+    # 파일명 생성: {8자리_해시}_{YYYYMMDD}.md
+    filename = f"{generate_hash()}_{get_date_string()}.md"
     file_path = output_path / filename
 
-    # JSON 파일 저장 (한국어 지원을 위해 ensure_ascii=False)
+    # 리뷰 타입 감지
+    review_type = detect_review_type(output_dir)
+
+    # Markdown 파일 저장
+    markdown_content = generate_markdown(report, review_type)
     with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, ensure_ascii=False, indent=2)
+        f.write(markdown_content)
 
     return str(file_path)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="리뷰 리포트 JSON 파일 생성",
+        description="리뷰 리포트 Markdown 파일 생성",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 예시:
     # stdin 방식 (권장)
-    echo '[{"file":"example.tsx",...}]' | python generate_report.py --output reports/code-review
+    echo '[{"file":"example.tsx",...}]' | python generate_report.py --output docs/reports/code-review
 
     # heredoc 사용
-    python generate_report.py --output reports/code-review << 'EOF'
+    python generate_report.py --output docs/reports/code-review << 'EOF'
     [{"file":"example.tsx","location":"23:5","severity":"high",...}]
     EOF
 
     # CLI 인자 방식 (하위 호환)
-    python generate_report.py --output reports/code-review --issues '[...]'
+    python generate_report.py --output docs/reports/code-review --issues '[...]'
         """,
     )
     parser.add_argument(
         "--output",
         required=True,
-        help="출력 디렉토리 경로 (예: reports/code-review, reports/security-review)",
+        help="출력 디렉토리 경로 (예: docs/reports/code-review, docs/reports/security-review)",
     )
     parser.add_argument(
         "--issues",

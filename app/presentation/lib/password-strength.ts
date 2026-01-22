@@ -21,7 +21,7 @@ import type { PasswordStrength, PasswordStrengthLevel } from "~/domain/auth";
  * - 70-100: 강함 (strong)
  *
  * @param password - 검사할 비밀번호
- * @returns 비밀번호 강도 결과 (점수, 레벨, 메시지)
+ * @returns 비밀번호 강도 결과 (점수, 레벨, 레이블, 색상 클래스)
  */
 export const calculatePasswordStrength = (
 	password: string,
@@ -39,30 +39,29 @@ export const calculatePasswordStrength = (
 	if (/[0-9]/.test(password)) score += 20; // 숫자
 	if (/[^A-Za-z0-9]/.test(password)) score += 10; // 특수문자
 
-	// 레벨 및 메시지 결정
+	// 레벨 및 레이블 결정
 	let level: PasswordStrengthLevel;
-	let message: string;
+	let label: string;
 	let colorClass: string;
 
 	if (score < 40) {
 		level = "weak";
-		message = "약함";
+		label = "약함";
 		colorClass = "bg-red-600";
 	} else if (score < 70) {
 		level = "medium";
-		message = "보통";
+		label = "보통";
 		colorClass = "bg-yellow-600";
 	} else {
 		level = "strong";
-		message = "강함";
+		label = "강함";
 		colorClass = "bg-green-600";
 	}
 
 	return {
 		score,
 		level,
-		message,
-		label: message,
+		label,
 		colorClass,
 	};
 };

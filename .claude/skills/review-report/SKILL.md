@@ -1,6 +1,6 @@
 ---
 name: review-report
-description: "A universal report skill for saving code review and security review results as JSON files. Differentiates review types by directory (reports/code-review/, reports/security-review/). Generates JSON files via automatic script invocation. Used by code-reviewer and security-reviewer agents after review completion."
+description: "A universal report skill for saving code review and security review results as Markdown files with checklist-based progress tracking. Differentiates review types by directory (docs/reports/code-review/, docs/reports/security-review/). Generates Markdown files via automatic script invocation. Used by code-reviewer and security-reviewer agents after review completion."
 allowed-tools:
   - Read
   - Glob
@@ -10,13 +10,14 @@ allowed-tools:
 
 # Review Report
 
-A universal skill for saving review results as structured JSON files.
+A universal skill for saving review results as structured Markdown files with fix checklists for progress tracking.
 
 ## Core Features
 
-1. **JSON format report generation**: Saves structured issue lists
+1. **Markdown format report generation**: Saves structured issue lists with visual formatting
 2. **Directory-based classification**: Automatic classification by review type
 3. **Automatic script invocation**: Uses Python script for token efficiency
+4. **Fix checklist generation**: Enables progress tracking for issue resolution
 
 ---
 
@@ -52,31 +53,57 @@ python .claude/skills/review-report/scripts/generate_report.py \
 ```
 
 **Output directories:**
-- Code review: `reports/code-review`
-- Security review: `reports/security-review`
+- Code review: `docs/reports/code-review`
+- Security review: `docs/reports/security-review`
 
 **Example (code review):**
 ```bash
 python .claude/skills/review-report/scripts/generate_report.py \
-  --output reports/code-review \
+  --output docs/reports/code-review \
   --issues '[{"file":"app/components/Button.tsx","location":"15:3","severity":"high","category":"type-safety","problem":"any type usage","suggestion":"Use unknown instead"}]'
 ```
 
 **If no issues found:**
 ```bash
 python .claude/skills/review-report/scripts/generate_report.py \
-  --output reports/code-review \
+  --output docs/reports/code-review \
   --issues '[]'
 ```
 
 ### Step 3: Verify Results
 
-After execution, confirm the "Report generated successfully" message and file path.
+After execution, confirm the "리포트 생성 완료" message and file path.
 
 Additionally, verify file creation:
 ```bash
-ls -la reports/code-review/*.json | tail -1
+ls -la docs/reports/code-review/*.md | tail -1
 ```
+
+### Step 4: Track Fixes via Checklist
+
+**⚠️ MANDATORY**: After fixing issues, agents MUST update the report checkboxes.
+
+The generated Markdown report includes a **Fix Checklist** section:
+
+```markdown
+## ✅ Fix Checklist
+
+**⚠️ MANDATORY**: Check each box (`- [x]`) immediately after fixing the issue.
+
+Track your progress by checking off fixed issues:
+
+- [ ] #1 [Critical] path/to/file.ts:23 - Brief problem description
+```
+
+**Checklist Update Protocol**:
+1. **Fix the issue** in source code
+2. **Open the generated `.md` report file** using Read tool
+3. **Change checkbox**: `- [ ]` → `- [x]` for the fixed issue
+4. **Save changes** using Edit tool
+5. Track overall progress by reviewing completed items
+6. When all items are checked, update report status to `✅ Complete`
+
+⛔ **CRITICAL**: Checkboxes MUST be checked immediately after each fix. Do NOT batch checkbox updates.
 
 ---
 
@@ -105,7 +132,7 @@ ls -la reports/code-review/*.json | tail -1
 
 ## Categories by Review Type
 
-### Code Review (reports/code-review/)
+### Code Review (docs/reports/code-review/)
 
 - `type-safety`: Type safety (any usage, missing generic constraints, etc.)
 - `convention`: Code conventions (function declaration style, naming, etc.)
@@ -113,7 +140,7 @@ ls -la reports/code-review/*.json | tail -1
 - `deprecated-api`: Deprecated APIs
 - `code-quality`: Code quality (duplication, complexity, etc.)
 
-### Security Review (reports/security-review/)
+### Security Review (docs/reports/security-review/)
 
 - `injection`: Injection vulnerabilities (SQL, XSS, Command, etc.)
 - `access-control`: Access control issues
@@ -125,9 +152,59 @@ ls -la reports/code-review/*.json | tail -1
 
 ## Filename Convention
 
-`{8-char_random_hash}_{YYYYMMDD}.json`
+`{8-char_random_hash}_{YYYYMMDD}.md`
 
-Example: `a1b2c3d4_20260119.json`
+Example: `a1b2c3d4_20260119.md`
+
+---
+
+## Generated Report Structure
+
+The generated Markdown report includes:
+
+1. **Header**: Review type, status, generation timestamp, total issues
+2. **Summary Table**: Issue count by severity with visual indicators
+3. **Issues Section**: Organized by severity (Critical → Low) with detailed tables
+4. **Fix Checklist**: Checkbox items for tracking progress
+5. **Notes Section**: Additional context and recommendations
+
+Example output:
+```markdown
+# Code Review Report
+
+**Status**: 🔄 In Progress
+**Generated**: 2026-01-22 10:30:00 (UTC)
+**Total Issues**: 5
+
+---
+
+## 📊 Summary
+
+| Severity | Count |
+|----------|-------|
+| 🔴 Critical | 1 |
+| 🟠 High | 2 |
+| 🟡 Medium | 1 |
+| 🟢 Low | 1 |
+
+---
+
+## 🔍 Issues
+
+### 🔴 Critical Issues
+
+| # | File | Location | Category | Problem | Suggestion |
+|---|------|----------|----------|---------|------------|
+| 1 | ... | ... | ... | ... | ... |
+
+---
+
+## ✅ Fix Checklist
+
+- [ ] #1 [Critical] file.ts:10 - Problem description
+- [ ] #2 [High] file.ts:20 - Problem description
+...
+```
 
 ---
 
@@ -141,5 +218,5 @@ Example: `a1b2c3d4_20260119.json`
 
 ## References
 
-- JSON schema details: `references/json-schema.md`
+- Markdown template details: `references/report-template.md`
 - Security review reference: `.claude/skills/owasp-top10-2025/references/`

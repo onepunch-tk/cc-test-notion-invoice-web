@@ -37,11 +37,17 @@ export interface UpdateProfileDTO {
 }
 
 /**
- * DB에서 추론된 User 타입 (스키마와 호환)
+ * User 타입 별칭
+ *
+ * 애플리케이션 레이어에서 사용하는 User 타입.
+ * IUser는 도메인 엔티티 정의, User는 일반적인 사용을 위한 별칭.
  */
 export type User = IUser;
 
 /**
- * DB에서 추론된 Profile 타입 (스키마와 호환)
+ * Profile 타입 별칭
+ *
+ * 애플리케이션 레이어에서 사용하는 Profile 타입.
+ * IProfile은 도메인 엔티티 정의, Profile은 일반적인 사용을 위한 별칭.
  */
 export type Profile = IProfile;

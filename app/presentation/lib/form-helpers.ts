@@ -1,4 +1,4 @@
-import type { ZodSchema } from "zod";
+import { z } from "zod";
 
 /**
  * FormData를 객체로 변환
@@ -34,18 +34,19 @@ export const parseFormData = (formData: FormData) => {
  * // validation.data는 타입 안전하게 사용 가능
  */
 export const validateFormData = <T>(
-	schema: ZodSchema<T>,
+	schema: z.ZodType<T>,
 	formData: FormData,
 ):
 	| { success: true; data: T }
-	| { success: false; errors: Record<string, { _errors: string[] }> } => {
+	| { success: false; errors: z.core.$ZodFormattedError<T> } => {
 	const data = parseFormData(formData);
 	const result = schema.safeParse(data);
 
 	if (!result.success) {
 		return {
 			success: false,
-			errors: result.error.format() as Record<string, { _errors: string[] }>,
+			// Zod v4: .format() deprecated, z.formatError() 사용
+			errors: z.formatError(result.error),
 		};
 	}
 
@@ -65,5 +66,5 @@ export type ActionResponse<T = unknown> =
 	| {
 			success: false;
 			error?: string;
-			errors?: Record<string, { _errors: string[] }>;
+			errors?: z.core.$ZodFormattedError<unknown>;
 	  };

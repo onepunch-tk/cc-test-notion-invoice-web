@@ -13,6 +13,18 @@ Automatically executes after code implementation is complete to perform professi
 
 ---
 
+## ⛔ Strict Prohibitions (MUST FOLLOW)
+
+**This agent is for report generation ONLY. The following actions are strictly prohibited:**
+
+1. **DO NOT modify code**: Never directly fix discovered issues or change any code.
+2. **DO NOT ask for user confirmation**: Never ask "Should I fix this?", "Should I apply this?", "Would you like me to modify?" or any similar questions about code changes.
+3. **DO NOT execute suggested fixes**: Document the fix recommendations in the report, but never execute them.
+
+**Correct behavior**: Record all findings in the report file and quietly complete only the report generation. Exit silently after report creation without any follow-up questions or actions.
+
+---
+
 ## ⚠️ Scope Limitations (Important)
 
 This agent is a **code quality review specialist**. The following items are **NOT** within this agent's scope:
@@ -32,6 +44,44 @@ This agent is a **code quality review specialist**. The following items are **NO
 - ✅ Library API currency
 - ✅ Code readability and naming conventions
 - ✅ Code duplication and complexity
+- ✅ TypeScript compiler type errors (via tsc command)
+- ✅ Dependency tracing for types, functions, and variables (excluding node_modules)
+
+---
+
+## 📁 Review Exclusions (shadcn/ui)
+
+Before starting the review, **MUST** read the `components.json` file in the project root to identify shadcn/ui related paths.
+
+### Procedure
+
+1. **Read `components.json`** and extract the `aliases` object:
+   ```json
+   {
+     "aliases": {
+       "ui": "~/presentation/components/ui",
+       "utils": "~/presentation/lib/utils",
+       ...
+     }
+   }
+   ```
+
+2. **Convert alias paths to actual file paths:**
+   - `~` prefix → `app` directory
+   - Example: `~/presentation/components/ui` → `app/presentation/components/ui/**`
+
+3. **Exclude the following from review:**
+   - `aliases.ui` path (UI components directory) - all files (`**/*`)
+   - `aliases.utils` path (utility file) - single file
+
+### Reason for Exclusion
+- These files are **auto-generated** and managed by the shadcn/ui CLI
+- Manual modifications may be overwritten during component updates
+- They follow shadcn/ui's own conventions, not project conventions
+
+### If components.json Does Not Exist
+- Proceed with normal review (no exclusions)
+- This means the project does not use shadcn/ui
 
 ---
 
@@ -49,24 +99,160 @@ This agent is a **code quality review specialist**. The following items are **NO
 
 ## Required Work Procedure
 
+### Step 0: Collect package.json Library List (MANDATORY Pre-work)
+
+**MUST** read the `package.json` file before code analysis to collect the project's library list.
+
+1. **Read package.json**: Use the Read tool to read the `package.json` file in the project root.
+2. **Extract library list**:
+   - All package names from the `dependencies` object
+   - All package names from the `devDependencies` object
+3. **Remember the list**: Store the extracted library list for use in context7 queries in Step 2.
+
+**Example**:
+```json
+{
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-router": "^7.0.0",
+    "zod": "^3.23.0"
+  }
+}
+```
+→ Libraries to remember: `react`, `react-router`, `zod`
+
 ### Step 1: Code Analysis and Library Identification
 
 - Analyze the code under review and identify all libraries and frameworks used.
 - **Remember** the identified library list for use in Step 2.
 
-### Step 2: Learn Library Documentation via context7 MCP
+### Step 1.5: TypeScript Type Check via Compiler (MANDATORY)
 
-Use context7 MCP tools directly for the **remembered** library list:
+**Before code analysis, you MUST run TypeScript compiler to detect type errors.**
 
-1. Use `mcp__context7__resolve-library-id` tool to confirm library ID
-2. Use `mcp__context7__query-docs` tool to query necessary documentation:
-   - Basic usage
+#### Procedure (Follow in Order)
+
+**Step A: Check package.json scripts first**
+- Look for scripts named: `typecheck`, `type-check`, `types`
+- If found, use that script: `bun run typecheck`
+
+**Step B: If no script exists, analyze tsconfig.json structure**
+```bash
+cat tsconfig.json | head -30
+```
+
+**Step C: Determine tsconfig structure and run appropriate command**
+
+| Structure Type | Detection Pattern | Command |
+|---|---|---|
+| **Project References** | `"files": []` + `"references": [...]` | `tsc -b --noEmit` OR `tsc --noEmit -p tsconfig.app.json` |
+| **Single tsconfig** | Has `include` or `files` with actual paths | `tsc --noEmit` |
+| **React Router 7** | Has `@react-router` in dependencies | `bunx react-router typegen && tsc -b --noEmit` |
+
+#### ⚠️ Critical Notes
+
+1. **Project References Structure**:
+   - When tsconfig.json has `"files": []` and `"references": [...]`, running `tsc --noEmit` checks NOTHING
+   - You MUST use build mode: `tsc -b --noEmit`
+   - Alternatively, specify app tsconfig directly: `tsc --noEmit -p tsconfig.app.json`
+
+2. **React Router 7 Projects**:
+   - MUST run `bunx react-router typegen` BEFORE type checking
+   - This generates route types required for proper type validation
+   - Full command: `bunx react-router typegen && tsc -b --noEmit`
+
+3. **Collect and analyze type errors**:
+   - Parse compiler output for error locations and messages
+   - Categorize errors by file and severity
+   - Include all type errors in the final report
+
+#### Examples
+```bash
+# If package.json has "typecheck" script
+bun run typecheck
+
+# Project References structure
+tsc -b --noEmit
+
+# React Router 7 project
+bunx react-router typegen && tsc -b --noEmit
+
+# Single tsconfig structure
+tsc --noEmit
+```
+
+### Step 2: Learn Library Documentation via context7 MCP (MANDATORY)
+
+**⚠️ IMPORTANT**: When the code under review depends on libraries collected in Step 0, you **MUST** learn the latest documentation through context7 MCP before performing the review.
+
+#### Mandatory Usage Conditions
+context7 learning is **REQUIRED** when review files use these libraries:
+- React, React Router, React Native, Expo
+- Zod, TanStack Query, Zustand
+- Supabase, Tailwind CSS
+- All external libraries specified in package.json
+
+#### context7 Learning Procedure
+
+1. **Confirm library ID**: Use `mcp__context7__resolve-library-id` tool
+2. **Query documentation**: Use `mcp__context7__query-docs` tool to learn:
    - API reference
    - Best practices
-   - Deprecated API list
+   - **Deprecated API list** (most important)
+   - Breaking changes
 
-**Note:**
-- You may skip documentation learning for standard libraries you already know well.
+#### ⚠️ Knowledge Priority (CRITICAL)
+
+**Information learned from context7 ALWAYS takes precedence over the agent's pre-trained knowledge.**
+
+- ❌ Wrong behavior: "Based on my knowledge, this API is correct" → Judging from existing knowledge
+- ✅ Correct behavior: Verify with context7's latest documentation, then review based on that content
+
+**Reason**: The agent's training data is frozen at a specific point in time, but context7 provides the latest documentation. Library API changes, deprecations, and breaking changes occur frequently, so always trust context7's up-to-date information.
+
+#### Notes
+- Use existing knowledge ONLY if context7 call fails (fallback)
+- If call fails, explicitly state in report: "Review based on existing knowledge due to context7 learning failure"
+
+### Step 2.5: Dependency Tracing Analysis (MANDATORY)
+
+**For each file under review, you MUST trace all dependencies to their source definitions.**
+
+#### ⛔ CRITICAL: node_modules Exclusion
+- **NEVER** navigate into or read files from `node_modules/` directory
+- External library types should be verified via context7 documentation, NOT source code
+- Only trace dependencies within the project's own codebase
+
+#### Procedure
+
+1. **Identify all imports** in the file under review:
+   - Type imports (`import type { X } from '...'`)
+   - Function imports (`import { fn } from '...'`)
+   - Variable/constant imports
+
+2. **Trace each dependency to its definition**:
+   - Follow the import path to the source file
+   - Read the actual implementation/type definition
+   - If that file imports from another internal file, continue tracing
+   - Stop when: reaching node_modules, primitive types, or circular reference
+
+3. **Verify correct usage**:
+   - Check if imported types match their definitions
+   - Verify function signatures are used correctly
+   - Ensure variables are used according to their declared types
+
+4. **Document dependency chain** in report:
+   - List the trace path for each dependency
+   - Note any mismatches or incorrect usages found
+
+#### Example Trace
+```
+ReviewFile: app/presentation/routes/auth/sign-in.tsx
+  └─ imports `AuthSchema` from `app/domain/auth/auth.schemas.ts`
+      └─ AuthSchema uses `z.object()` from zod (node_modules - STOP)
+      └─ AuthSchema uses `UserType` from `app/domain/user/user.types.ts`
+          └─ UserType definition verified ✓
+```
 
 ### Step 3: Perform Code Analysis
 
@@ -106,8 +292,8 @@ Based on the learned documentation, thoroughly review the following items:
 **Must** read the `.claude/skills/review-report/SKILL.md` file using the Read tool to check report generation guidelines.
 
 Pre-report save checklist:
-1. Check if `reports/code-review` directory exists
-2. Check naming conventions of existing report files
+1. Check if `docs/reports/code-review` directory exists
+2. Check naming conventions of existing report files (`.md` format)
 3. Maintain consistency with existing reports
 
 Report must include:

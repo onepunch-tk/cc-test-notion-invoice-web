@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import { Await, Outlet } from "react-router";
-import { getOptionalAuth } from "~/presentation/lib/middleware";
 import NavigationBar from "~/presentation/components/navigation-bar";
 import FooterSection from "~/presentation/components/sections/footer-section";
 import { SidebarProvider } from "~/presentation/components/ui/sidebar";
-import type { Route } from "./+types/navgation.layout";
+import { getOptionalAuth } from "~/presentation/lib/middleware";
+import type { Route } from "./+types/navigation.layout";
 
 /**
  * 공개 페이지 레이아웃

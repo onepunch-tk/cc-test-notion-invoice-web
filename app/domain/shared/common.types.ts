@@ -20,7 +20,7 @@ export interface BaseEntity {
  *
  * 성공/실패를 명시적으로 표현하는 Result 패턴
  */
-export type Result<T, E = Error> =
+export type Result<T, E extends Error = Error> =
 	| { success: true; data: T }
 	| { success: false; error: E };
 

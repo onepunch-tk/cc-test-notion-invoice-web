@@ -21,7 +21,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/presentation/components/ui/card";
-import { Label } from "~/presentation/components/ui/label";
 import { getAuthErrorMessage } from "~/presentation/lib/error-handler";
 import { validateFormData } from "~/presentation/lib/form-helpers";
 import type { Route } from "./+types/sign-in";
@@ -249,9 +248,14 @@ export default function SignIn() {
 					</CardFooter>
 				</Form>
 
+				{/*
+				 * OAuth 로그인 Form 분리 설명:
+				 * - 이메일/비밀번호 로그인과 OAuth 로그인은 서로 다른 hidden input(provider)을 사용
+				 * - 단일 Form으로 통합 시 hidden input 값 충돌 가능성이 있어 별도 Form으로 분리
+				 * - action 함수에서 provider 값 유무로 로그인 방식을 구분하여 처리
+				 */}
 				<Form method="post">
 					<CardContent className="space-y-4">
-						{/* GitHub OAuth 로그인 */}
 						<input type="hidden" name="provider" defaultValue="github" />
 						<Button type="submit" variant="outline" className="w-full">
 							<Github className="mr-2 h-4 w-4" />

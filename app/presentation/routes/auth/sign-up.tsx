@@ -252,24 +252,36 @@ export default function SignUp() {
 							{passwordStrength && (
 								<div className="space-y-1">
 									<div className="flex items-center gap-1">
-										{[...Array(4)].map((_, i) => (
-											<div
-												key={i.toString()}
-												className={cn(
-													"h-1.5 flex-1 rounded-full transition-colors",
-													i < passwordStrength.score
-														? passwordStrength.colorClass
-														: "bg-muted",
-												)}
-											/>
-										))}
+										{[...Array(4)].map((_, i) => {
+											// score(0-100)를 4단계 바 개수로 변환
+											const barCount =
+												passwordStrength.score < 40
+													? 1
+													: passwordStrength.score < 70
+														? 2
+														: passwordStrength.score < 90
+															? 3
+															: 4;
+											return (
+												<div
+													key={i.toString()}
+													className={cn(
+														"h-1.5 flex-1 rounded-full transition-colors",
+														i < barCount
+															? passwordStrength.colorClass
+															: "bg-muted",
+													)}
+												/>
+											);
+										})}
 									</div>
 									<p
 										className={cn(
 											"text-xs",
-											passwordStrength.score >= 3
+											// score(0-100) 기준: 70 이상 green, 40 이상 yellow, 그 외 destructive
+											passwordStrength.score >= 70
 												? "text-green-600"
-												: passwordStrength.score >= 2
+												: passwordStrength.score >= 40
 													? "text-yellow-600"
 													: "text-destructive",
 										)}
