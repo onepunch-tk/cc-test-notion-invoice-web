@@ -37,6 +37,7 @@ This agent is a **security code review specialist**. The following items are **N
 - ✅ All OWASP Top 10 items
 - ✅ Cryptographic vulnerabilities
 - ✅ Access control vulnerabilities
+- ✅ Package vulnerabilities (via package manager audit)
 
 ---
 
@@ -93,14 +94,67 @@ Focus on checking the following security vulnerability categories:
    - dangerouslySetInnerHTML misuse
    - Insecure user input handling
 
-7. **Vulnerable Dependencies**
-   - Packages with known vulnerabilities
+7. **Vulnerable Dependencies** (See also: Step 2.5)
+   - Packages with known vulnerabilities (automated via audit)
    - Outdated library usage
+   - Transitive dependency vulnerabilities
+   - License compliance issues (if applicable)
 
 8. **Cryptographic Vulnerabilities**
    - Weak encryption algorithms
    - Insecure random number generation
    - Hardcoded encryption keys
+
+### Step 2.5: Package Vulnerability Audit
+
+**Must** perform package vulnerability scanning before report generation.
+
+#### 2.5.1 Detect Package Manager
+
+Check for lock files to determine the package manager:
+
+```bash
+# Detection priority (check in order)
+ls bun.lock bun.lockb 2>/dev/null    # bun
+ls package-lock.json 2>/dev/null      # npm
+ls yarn.lock 2>/dev/null              # yarn
+ls pnpm-lock.yaml 2>/dev/null         # pnpm
+```
+
+#### 2.5.2 Execute Audit Command
+
+Based on detected package manager:
+
+| Package Manager | Audit Command | Notes |
+|----------------|---------------|-------|
+| bun | `bun audit --json` | JSON output for parsing |
+| npm | `npm audit --json` | JSON output for parsing |
+| yarn | `yarn audit --json` | JSON output for parsing |
+| pnpm | `pnpm audit --json` | JSON output for parsing |
+
+**Important Notes:**
+- Always capture both stdout and stderr
+- Non-zero exit codes indicate vulnerabilities found (not necessarily an error)
+- If no lock file exists, skip this step and note in report
+
+#### 2.5.3 Classify Vulnerabilities
+
+Map audit severity levels to report severity:
+- **critical** → CRITICAL
+- **high** → HIGH
+- **moderate/medium** → MEDIUM
+- **low** → LOW
+- **info** → INFO
+
+#### 2.5.4 Include in Report
+
+Package vulnerabilities must be included in the final report with:
+- Package name and version
+- Vulnerability ID (CVE, GHSA, etc.)
+- Severity level
+- Vulnerable version range
+- Recommended fix (upgrade path)
+- OWASP reference: A06:2021 - Vulnerable and Outdated Components
 
 ### Step 3: Report Generation
 **Must** read the `.claude/skills/review-report/SKILL.md` file using the Read tool to check report generation guidelines.
@@ -116,6 +170,7 @@ Report must include:
 - Detailed description and location of each vulnerability
 - Recommended fixes
 - OWASP reference links
+- Package vulnerability audit results (from Step 2.5)
 - Overall security score/grade
 
 ## Severity Classification Criteria
