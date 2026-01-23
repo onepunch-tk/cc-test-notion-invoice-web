@@ -625,12 +625,15 @@ app/
 │   │   ├── user.schemas.ts     # Zod 검증 스키마
 │   │   └── user.errors.ts      # 에러 클래스
 │   └── shared/                 # 공통 타입
-│       └── common.types.ts     # BaseEntity 등
+│       ├── common.types.ts     # BaseEntity 인터페이스
+│       ├── common.schemas.ts   # BaseEntity Zod 스키마
+│       └── index.ts            # 배럴 export
 │
 ├── application/                 # 2️⃣ Application Layer
 │   ├── auth/
+│   │   ├── auth.const.ts       # 세션 쿠키 상수
 │   │   ├── auth.port.ts        # IAuthProvider 인터페이스
-│   │   └── auth.service.ts     # AuthService
+│   │   └── auth.service.ts     # AuthService (clearSessionHeaders 포함)
 │   ├── user/
 │   │   ├── user.port.ts        # IUserRepository, IProfileRepository
 │   │   └── user.service.ts     # UserService
@@ -641,7 +644,7 @@ app/
 ├── infrastructure/              # 3️⃣ Infrastructure Layer
 │   ├── config/
 │   │   ├── container.ts        # DI Container (Composition Root)
-│   │   └── env.ts              # 환경 변수 타입
+│   │   └── index.ts            # 배럴 export
 │   ├── persistence/
 │   │   ├── drizzle/            # Drizzle ORM 클라이언트
 │   │   │   ├── drizzle.server.ts
@@ -650,10 +653,10 @@ app/
 │   │       └── auth.schema.ts
 │   └── external/
 │       ├── better-auth/        # IAuthProvider 구현체
-│       │   ├── auth.config.ts
-│       │   ├── auth.const.ts
-│       │   ├── auth.provider.impl.ts
-│       │   └── auth.server.ts
+│       │   ├── auth.cli.ts            # CLI 전용 auth 인스턴스
+│       │   ├── auth.config.ts         # 런타임 auth 설정
+│       │   ├── auth.provider.impl.ts  # IAuthProvider 구현체
+│       │   └── index.ts               # 배럴 export
 │       └── resend/             # IEmailService 구현체
 │           └── email.service.impl.ts
 │
@@ -683,9 +686,8 @@ app/
 
 adapters/                        # 🆕 플랫폼별 어댑터
 ├── shared/                     # 공통 인터페이스
-│   ├── env.interface.ts       # AppEnv 타입
-│   ├── context.interface.ts   # 플랫폼별 컨텍스트
-│   ├── node.env.adapter.ts    # Node.js 환경 변수 추출
+│   ├── context.ts             # 플랫폼 타입 및 CloudflareContext
+│   ├── env.ts                 # Zod 스키마 기반 환경 변수 (Single Source of Truth)
 │   └── react-router.d.ts      # React Router 타입 확장
 ├── cloudflare/                 # Cloudflare Workers 어댑터
 │   ├── env.adapter.ts
@@ -897,14 +899,14 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 **Cloudflare Workers** (`adapters/cloudflare/app.ts`):
 ```typescript
 import { createContainer } from "~/infrastructure/config/container";
-import { extractEnvFromCloudflare } from "./env.adapter";
+import { extractCloudflareEnv } from "./env.adapter";
 
 export default {
   async fetch(request, env, ctx) {
     // Cloudflare 환경에서 AppEnv 추출
-    const appEnv = extractEnvFromCloudflare(env);
+    const env = extractCloudflareEnv(env);
     // Container 생성 (매 요청마다)
-    const container = createContainer(appEnv);
+    const container = createContainer(env);
 
     return requestHandler(request, {
       cloudflare: { env, ctx },
@@ -917,12 +919,12 @@ export default {
 **Express/Fastify** (`adapters/express/server.ts`, `adapters/fastify/server.ts`):
 ```typescript
 import { createContainer } from "~/infrastructure/config/container";
-import { extractEnvFromNode } from "../shared/node.env.adapter";
+import { extractNodeEnv } from "adapters/shared/env";
 
 // Node.js 환경에서 AppEnv 추출
-const appEnv = extractEnvFromNode();
+const env = extractNodeEnv();
 // Container 생성 (서버 시작 시 1회)
-const container = createContainer(appEnv);
+const container = createContainer(env);
 ```
 
 #### Container 구조 (`infrastructure/config/container.ts`)
@@ -955,7 +957,6 @@ export const createContainer = (env: CloudflareAuthEnv): IContainer => {
     userService,
     emailService,
     betterAuthHandler: (request) => betterAuth.handler(request),
-    createClearSessionHeaders,
   };
 };
 ```
@@ -1182,7 +1183,7 @@ Better-auth CLI를 사용하여 인증 테이블 스키마를 자동 생성할 �
 bun run db:auth
 
 # 또는 직접 CLI 실행
-bunx @better-auth/cli generate --config app/infrastructure/external/better-auth/auth.server.ts --output app/infrastructure/persistence/schema/auth.schema.ts
+bunx @better-auth/cli generate --config app/infrastructure/external/better-auth/auth.cli.ts --output app/infrastructure/persistence/schema/auth.schema.ts
 ```
 
 **스키마 분리 구조** (클린 아키텍처):
@@ -1207,15 +1208,36 @@ app/infrastructure/persistence/
 - 테이블 간 relations 자동 정의 (userRelations, sessionRelations, accountRelations)
 - 성능을 위한 인덱스 자동 추가 (session_userId_idx, account_userId_idx, verification_identifier_idx)
 
-**CLI용 정적 auth 인스턴스** (`app/infrastructure/external/better-auth/auth.server.ts`):
+**CLI용 auth 인스턴스** (`app/infrastructure/external/better-auth/auth.cli.ts`):
 ```typescript
-// CLI 스키마 생성 및 로컬 개발용 정적 인스턴스
-// Cloudflare Workers 환경에서는 createContainer()를 통해 생성
-export const auth = createAuth(
-  process.env.DATABASE_URL!,
-  process.env.BASE_URL!,
-  // ... OAuth 설정
-);
+/**
+ * CLI 전용 auth 인스턴스
+ *
+ * 스키마 생성에 필요한 최소 설정만 포함합니다.
+ * 실제 DB 연결은 하지 않으며, 타입 생성 목적으로만 사용됩니다.
+ */
+export const auth = betterAuth({
+  secret: "cli-only-secret",
+  baseURL: "http://localhost:5173",
+  basePath: "/auth/api",
+
+  // CLI는 실제 DB 연결 없이 스키마 구조만 분석
+  database: drizzleAdapter(null as never, {
+    provider: "pg",
+    schema: {
+      user: schema.userTable,
+      session: schema.sessionTable,
+      account: schema.accountTable,
+      verification: schema.verificationTable,
+    },
+  }),
+
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+  },
+  // ...
+});
 ```
 
 ## 🔐 인증 시스템
@@ -1426,16 +1448,6 @@ export const createAuthProviderImpl = (betterAuth: BetterAuth): IAuthProvider =>
 });
 ```
 
-**auth.const.ts**: 쿠키 관련 상수
-```typescript
-export const COOKIE_PREFIX = "cc-rr7";
-export const SESSION_COOKIE_NAMES = [
-  `${COOKIE_PREFIX}.session_token`,
-  `${COOKIE_PREFIX}.session_data`,
-] as const;
-export const createClearSessionHeaders = (): Headers => { ... };
-```
-
 **auth.config.ts**: Better-auth 설정
 ```typescript
 export const createBetterAuth = (
@@ -1600,14 +1612,19 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
 
 로그아웃 시 세션 쿠키를 강제로 삭제하여 안정성을 높였습니다:
 
-**쿠키 클리어 헬퍼** (`app/infrastructure/external/better-auth/auth.const.ts`):
+**세션 쿠키 상수** (`app/application/auth/auth.const.ts`):
 ```typescript
+export const COOKIE_PREFIX = "cc-rr7";
 export const SESSION_COOKIE_NAMES = [
   `${COOKIE_PREFIX}.session_token`,
   `${COOKIE_PREFIX}.session_data`,
 ] as const;
+```
 
-export const createClearSessionHeaders = (): Headers => {
+**AuthService 메서드** (`app/application/auth/auth.service.ts`):
+```typescript
+// clearSessionHeaders 메서드가 AuthService에 통합되어 있음
+clearSessionHeaders(): Headers {
   const headers = new Headers();
   for (const name of SESSION_COOKIE_NAMES) {
     headers.append(
@@ -1616,14 +1633,14 @@ export const createClearSessionHeaders = (): Headers => {
     );
   }
   return headers;
-};
+}
 ```
 
 **로그아웃 라우트** (`app/presentation/routes/auth/sign-out.tsx`):
 ```typescript
 export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const { authService, createClearSessionHeaders } = context.container;
-  const headers = createClearSessionHeaders();
+  const { authService } = context.container;
+  const headers = authService.clearSessionHeaders();
 
   try {
     await authService.signOut(request.headers);
@@ -1636,11 +1653,12 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 ```
 
 **개선 사항**:
-- 쿠키 상수가 `auth.const.ts`에 중앙 집중화
+- 쿠키 상수가 `app/application/auth/auth.const.ts`에 중앙 집중화
+- `clearSessionHeaders`가 `AuthService` 메서드로 통합
 - `cc-rr7.session_token`, `cc-rr7.session_data` 쿠키 명시적 만료
 - 서버 측 세션 삭제 실패 시에도 클라이언트 쿠키는 삭제
 - 세션 만료 상태에서 로그아웃 시도해도 정상 처리
-- **DI Container를 통한 의존성 주입**: `context.container`에서 서비스 및 유틸리티 접근
+- **DI Container를 통한 의존성 주입**: `context.container.authService`에서 메서드 접근
 
 ## 📚 주요 라이브러리
 
