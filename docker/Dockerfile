@@ -31,7 +31,6 @@ WORKDIR /app
 # 필요한 파일만 복사
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/build ./build
-COPY --from=builder /app/server.js ./
 COPY --from=production-deps /app/node_modules ./node_modules
 
 # 환경 변수 및 포트 설정
@@ -40,4 +39,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # 서버 시작
-CMD ["node", "server.js"]
+CMD ["node", "./build/server/index.js"]
