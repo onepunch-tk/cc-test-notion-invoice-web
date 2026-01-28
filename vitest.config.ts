@@ -13,6 +13,9 @@ export default defineConfig({
 		// describe, it, expect 등 import 없이 사용
 		globals: true,
 
+		// 테스트 설정 파일
+		setupFiles: ["./__tests__/setup.ts"],
+
 		// 테스트 파일 패턴
 		include: ["__tests__/**/*.test.{ts,tsx}"],
 
