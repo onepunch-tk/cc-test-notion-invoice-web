@@ -49,39 +49,11 @@ This agent is a **code quality review specialist**. The following items are **NO
 
 ---
 
-## 📁 Review Exclusions (shadcn/ui)
-
+## 📁 Review Exclusions
+### shadcn/ui
 Before starting the review, **MUST** read the `components.json` file in the project root to identify shadcn/ui related paths.
 
-### Procedure
-
-1. **Read `components.json`** and extract the `aliases` object:
-   ```json
-   {
-     "aliases": {
-       "ui": "~/presentation/components/ui",
-       "utils": "~/presentation/lib/utils",
-       ...
-     }
-   }
-   ```
-
-2. **Convert alias paths to actual file paths:**
-   - `~` prefix → `app` directory
-   - Example: `~/presentation/components/ui` → `app/presentation/components/ui/**`
-
-3. **Exclude the following from review:**
-   - `aliases.ui` path (UI components directory) - all files (`**/*`)
-   - `aliases.utils` path (utility file) - single file
-
-### Reason for Exclusion
-- These files are **auto-generated** and managed by the shadcn/ui CLI
-- Manual modifications may be overwritten during component updates
-- They follow shadcn/ui's own conventions, not project conventions
-
-### If components.json Does Not Exist
-- Proceed with normal review (no exclusions)
-- This means the project does not use shadcn/ui
+### test code directory `__tests__`
 
 ---
 
