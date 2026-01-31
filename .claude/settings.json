@@ -3,6 +3,46 @@
 		"typescript-lsp@claude-plugins-official": true
 	},
 	"env": {
-		"CLAUDE_CODE_TASK_LIST_ID": "cc_rr7_starterkit"
+		"CLAUDE_CODE_TASK_LIST_ID": "cc_rr7_starterkit",
+		"ENABLE_TOOL_SEARCH": "true",
+		"MAX_MCP_OUTPUT_TOKENS": "50000"
+	},
+	"hooks": {
+		"Notification": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/slack-notify.sh",
+						"timeout": 10
+					}
+				]
+			}
+		],
+		"PermissionRequest": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/slack-notify.sh",
+						"timeout": 10
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/slack-notify.sh",
+						"timeout": 10
+					}
+				]
+			}
+		]
 	}
 }
