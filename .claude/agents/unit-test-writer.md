@@ -99,10 +99,9 @@ bun run test __tests__/path/to/file.test.ts
 
 # Run all tests
 bun run test
-
-# Type check
-bun run typecheck
 ```
+
+> **Note**: Type check is automatically performed by PostToolUse hook after file modifications.
 
 ---
 

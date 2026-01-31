@@ -101,6 +101,7 @@
 		"drizzle-kit": "^0.31.8",
 		"jsdom": "^27.4.0",
 		"msw": "^2.12.7",
+		"shadcn": "^3.8.0",
 		"tailwindcss": "^4.1.18",
 		"tsconfig-paths": "^4.2.0",
 		"tsx": "^4.21.0",

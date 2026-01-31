@@ -135,4 +135,3 @@ Before completing tests:
 - [ ] No `any` type in test code
 - [ ] Shared helpers in `__tests__/fixtures/` or `__tests__/utils/`
 - [ ] All tests pass
-- [ ] Type check passes
