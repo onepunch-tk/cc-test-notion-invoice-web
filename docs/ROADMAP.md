@@ -83,11 +83,12 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
 
 ### Phase 2: UI/UX Completion (Using Dummy Data)
 
-- **Task 004: Common Component Library Implementation**
+- **Task 004: Common Component Library Implementation** - ✅ Complete
   - See: `/tasks/004-component-library.md`
   - shadcn/ui 기반 공통 컴포넌트 구현 (Button, Card, Table, Badge, Skeleton)
-  - 인보이스 관련 UI 컴포넌트 스켈레톤 (InvoiceCard, InvoiceTable, InvoiceHeader)
-  - 디자인 시스템 및 스타일 가이드 적용
+  - 인보이스 관련 UI 컴포넌트 (InvoiceCard, InvoiceTable, InvoiceHeader, InvoiceSummary)
+  - format utilities (formatCurrency, formatDate) 및 invoice-utils (getStatusBadgeVariant)
+  - 132개 테스트 통과, 코드/보안 리뷰 완료
   - Related: F005
 
 - **Task 005: Invoice List Page UI**
