@@ -29,6 +29,7 @@ export default function InvoiceCard({ invoice, className }: InvoiceCardProps) {
 		<Link
 			to={`/invoices/${invoice.invoice_id}`}
 			className={cn("block", className)}
+			data-testid="invoice-card"
 		>
 			<Card className="hover:shadow-md transition-shadow">
 				<CardHeader className="pb-2">

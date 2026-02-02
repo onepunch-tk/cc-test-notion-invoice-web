@@ -91,12 +91,13 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - 132개 테스트 통과, 코드/보안 리뷰 완료
   - Related: F005
 
-- **Task 005: Invoice List Page UI**
+- **Task 005: Invoice List Page UI** - ✅ Complete
   - See: `/tasks/005-invoice-list-ui.md`
   - 인보이스 목록 페이지 UI 구현 (하드코딩된 더미 데이터 사용)
-  - InvoiceCard 그리드 레이아웃
-  - 로딩 스켈레톤 및 빈 상태 UI
-  - 반응형 디자인 적용
+  - InvoiceCard 그리드 레이아웃 (반응형: 1/2/3열)
+  - 로딩 스켈레톤 (InvoiceListSkeleton) 및 빈 상태 UI (EmptyInvoiceList)
+  - 8개 더미 Invoice 데이터 (Draft 2, Sent 2, Paid 3, Overdue 1, KRW/USD 혼합)
+  - 185개 테스트 통과, 코드/보안 리뷰 완료
   - Related: F004, F005, F008, F009
 
 - **Task 006: Invoice Detail Page UI**

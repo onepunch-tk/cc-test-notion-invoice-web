@@ -389,3 +389,97 @@ Tests (parallel) → Implementations (parallel where possible) → Reviews (para
 ```
 
 **Takeaway**: Identify independent units and parallelize TDD phases when components don't have dependencies on each other
+
+---
+
+## Task 005: Invoice List Page UI
+
+### Lesson 18: Testing Responsive Grid Classes with Tailwind
+
+**Problem**: Tests expecting `md:grid-cols-2` failed when implementation used `sm:grid-cols-2`. The breakpoint naming convention can vary based on design requirements.
+
+**Solution**: Align test expectations with actual design requirements (PRD/plan). In this case, the plan specified:
+- Mobile (`< 640px`): 1 column → `grid-cols-1`
+- Tablet (`640px - 1023px`): 2 columns → `sm:grid-cols-2`
+- Desktop (`>= 1024px`): 3 columns → `lg:grid-cols-3`
+
+```tsx
+// Correct classes based on plan
+className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+```
+
+**Takeaway**: When writing tests for responsive layouts, verify the breakpoint conventions with the design specification before writing test assertions.
+
+---
+
+### Lesson 19: Skeleton Component Key with Index
+
+**Pattern**: Using array index as key is acceptable for skeleton/placeholder components because they:
+1. Are static and don't reorder
+2. Don't have meaningful unique identifiers
+3. Are purely presentational
+
+```tsx
+// Acceptable for skeletons
+{Array.from({ length: count }).map((_, index) => (
+  <Card key={`skeleton-${index}`} data-testid="invoice-skeleton-card">
+    ...
+  </Card>
+))}
+```
+
+**Takeaway**: React's key warning about index-based keys applies to dynamic lists that can reorder. Static placeholder lists can safely use index with a descriptive prefix.
+
+---
+
+### Lesson 20: Accessibility for Empty State Components
+
+**Pattern**: Empty state components should include ARIA attributes for screen reader accessibility:
+
+```tsx
+<div
+  data-testid="empty-invoice-list"
+  role="status"
+  aria-live="polite"
+  className="flex flex-col items-center justify-center"
+>
+  <h3>인보이스가 없습니다</h3>
+  <p>Notion 데이터베이스에 인보이스를 추가해주세요.</p>
+</div>
+```
+
+**Key Points**:
+- `role="status"` identifies the element as a status message
+- `aria-live="polite"` announces changes without interrupting the user
+- Important for WCAG compliance and screen reader users
+
+**Takeaway**: Always consider accessibility when creating state-based UI components (empty, loading, error states).
+
+---
+
+### Lesson 21: Development-Only UI Toggle Pattern
+
+**Pattern**: For testing UI states during development, use `process.env.NODE_ENV` conditionally:
+
+```tsx
+const isDev = process.env.NODE_ENV === "development";
+
+return (
+  <div>
+    {isDev && (
+      <div className="mb-6 flex gap-2">
+        <Button onClick={() => setIsLoading(!isLoading)}>Toggle Loading</Button>
+        <Button onClick={() => setIsEmpty(!isEmpty)}>Toggle Empty</Button>
+      </div>
+    )}
+    {/* Main content */}
+  </div>
+);
+```
+
+**Considerations**:
+- This is acceptable for dummy data implementations
+- For production, replace with React Router's loader pattern and useLoaderData
+- Be aware of potential SSR hydration mismatch in some edge cases
+
+**Takeaway**: Use dev-only toggles for prototyping UI states, but plan to replace with proper data fetching patterns during API integration phase
