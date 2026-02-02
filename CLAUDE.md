@@ -47,44 +47,68 @@ Execute these steps SEQUENTIALLY. Each step MUST complete before proceeding.
 | **3** | Create detailed step-by-step plan | Comprehensive plan covering edge cases | - |
 | **4** | Call `TaskCreate` tool | Granular tasks and subtasks (maximize decomposition) | - |
 | **5** | **STOP** - Call `TaskList` tool to display tasks | Task list shown to user | **WAIT for user instruction** |
-| **6** | **MUST** Run `unit-test-writer` sub-agent | Failing tests written (TDD Red phase) | User approval from Step 5 |
-| **7** | Implement code to pass tests | All tests pass (TDD Green phase) | Step 6 complete |
-| **8** | **MUST** Run background agents in parallel: `code-reviewer` + `security-code-reviewer` | Review reports generated | Step 7 complete |
-| **9** | Read `/docs/reports/*`, fix all non-complete issues | All issues resolved | Step 8 complete |
-| **10** | Run `e2e-tester` sub-agent | E2E test results | Step 9 complete |
-| **11** | Fix bugs/issues discovered in E2E tests | All E2E tests pass | Step 10 complete |
-| **12** | Update `/docs/NOTE.md` with lessons learned | Knowledge documented | Step 11 complete |
+| **6** | Switch to `development` branch (create if not exists) | On development branch | User approval from Step 5 |
+| **7** | Create feature branch from `development` | Feature branch created (e.g., `feat/task-description`) | Step 6 complete |
+| **8** | **MUST** Run `unit-test-writer` sub-agent | Failing tests written (TDD Red phase) | Step 7 complete |
+| **9** | Implement code to pass tests | All tests pass (TDD Green phase) | Step 8 complete |
+| **10** | **MUST** Run background agents in parallel: `code-reviewer` + `security-code-reviewer` | Review reports generated | Step 9 complete |
+| **11** | Read `/docs/reports/*`, fix all non-complete issues | All issues resolved | Step 10 complete |
+| **12** | Run `e2e-tester` sub-agent | E2E test results | Step 11 complete |
+| **13** | Fix bugs/issues discovered in E2E tests | All E2E tests pass | Step 12 complete |
+| **14** | Update `/docs/NOTE.md` with lessons learned | Knowledge documented | Step 13 complete |
+| **15** | Commit changes, merge feature branch to `development` | Branch merged, feature branch deleted | Step 14 complete |
 
 ### Critical Checkpoints
 
 ```
+CHECKPOINT 0: Before ANY Work (CRITICAL - Branch Safety)
+  → NEVER work directly on `main` or `master` branch
+  → Verify current branch is NOT main/master before any code changes
+  → If on main/master → Switch to development immediately
+  → All development MUST happen on feature branches
+
 CHECKPOINT 1: After Step 5 (TaskList)
   → MUST call `TaskList` tool to display all tasks
   → MUST wait for explicit user instruction (e.g., "proceed", "start", "go")
   → DO NOT auto-execute any task without user approval
 
-CHECKPOINT 2: After Step 6 (TDD Red Phase)
+CHECKPOINT 2: After Step 7 (Branch Setup)
+  → Verify on feature branch (NOT main/master/development)
+  → If development doesn't exist → Create from main
+  → Feature branch naming convention:
+    - `feat/` for new features
+    - `fix/` for bug fixes
+    - `refactor/` for refactoring
+    - Example: `feat/add-invoice-pdf-export`
+
+CHECKPOINT 3: After Step 8 (TDD Red Phase)
   → Verify tests are written and FAILING (Red state)
   → If tests pass immediately → Review test logic (may not be testing correctly)
-  → Proceed to Step 7 only when failing tests exist
+  → Proceed to Step 9 only when failing tests exist
 
-CHECKPOINT 3: After Step 7 (TDD Green Phase)
+CHECKPOINT 4: After Step 9 (TDD Green Phase)
   → Run `bun test` to verify ALL unit tests pass
   → If any test fails → Fix implementation before proceeding
   → DO NOT proceed to code review with failing tests
 
-CHECKPOINT 4: After Step 9 (Code Review Fixes)
+CHECKPOINT 5: After Step 11 (Code Review Fixes)
   → MUST read all report files in /docs/reports/
   → MUST fix ALL issues where status != "complete"
   → Re-run reviewers if significant changes were made
-  → THEN proceed to Step 10
+  → THEN proceed to Step 12
 
-CHECKPOINT 5: After Step 10 (E2E Testing)
-  → If E2E tests fail → Proceed to Step 11 (bug fixing)
-  → If E2E tests pass → Skip Step 11, proceed to Step 12
+CHECKPOINT 6: After Step 12 (E2E Testing)
+  → If E2E tests fail → Proceed to Step 13 (bug fixing)
+  → If E2E tests pass → Skip Step 13, proceed to Step 14
   → Document all discovered issues before fixing
 
-CHECKPOINT 6: Failure Recovery
+CHECKPOINT 7: After Step 15 (Merge - FINAL)
+  → Verify all changes are committed with descriptive message
+  → Merge feature branch to development using `--no-ff` (preserve branch history)
+  → Delete feature branch after successful merge
+  → NEVER merge directly to main/master (requires PR review)
+
+CHECKPOINT 8: Failure Recovery
   → IF any step fails: STOP execution immediately
   → Report failure details to user
   → WAIT for user instruction before retrying
