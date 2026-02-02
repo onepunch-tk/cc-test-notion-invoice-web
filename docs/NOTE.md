@@ -483,3 +483,117 @@ return (
 - Be aware of potential SSR hydration mismatch in some edge cases
 
 **Takeaway**: Use dev-only toggles for prototyping UI states, but plan to replace with proper data fetching patterns during API integration phase
+
+---
+
+## Task 006: Invoice Detail Page UI
+
+### Lesson 22: Sonner Toast vs Window Alert
+
+**Problem**: `window.alert()` is a blocking browser API with poor UX - it interrupts user flow and looks dated.
+
+**Solution**: Use the `sonner` toast library (already in project dependencies) for non-blocking notifications:
+
+```tsx
+// Instead of:
+window.alert("PDF 다운로드 기능은 추후 구현 예정입니다.");
+
+// Use:
+import { toast } from "sonner";
+toast.info("PDF 다운로드 기능은 추후 구현 예정입니다.");
+```
+
+**Key Points**:
+- `sonner` provides `toast.info()`, `toast.success()`, `toast.error()`, `toast.warning()`
+- Non-blocking - users can continue interacting with the page
+- Consistent styling with the design system
+- Accessible by default
+
+**Takeaway**: Prefer toast notifications over browser alerts for placeholder messages and user feedback.
+
+---
+
+### Lesson 23: Testing Multiple Elements with Same Pattern
+
+**Problem**: Tests using `screen.getByText(/inv-/i)` failed when multiple elements matched the pattern (e.g., "inv-unknown" in page header and "INV-2024-DETAIL-001" in invoice content).
+
+**Solution**: Be more specific with test selectors:
+
+```tsx
+// Instead of:
+expect(screen.getByText(/inv-/i)).toBeInTheDocument();
+
+// Use specific text or getAllBy:
+expect(screen.getByText("INV-2024-DETAIL-001")).toBeInTheDocument();
+// Or
+expect(screen.getByText(/인보이스 ID:/i)).toBeInTheDocument();
+```
+
+**Takeaway**: When UI contains multiple similar patterns, use exact text matches or query by more specific selectors to avoid "multiple elements found" errors.
+
+---
+
+### Lesson 24: Print Optimization CSS Classes
+
+**Pattern**: Use dedicated CSS classes for print-specific styling:
+
+```css
+@media print {
+  /* Hide non-printable elements */
+  .no-print {
+    display: none !important;
+  }
+
+  /* A4 page configuration */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* Prevent page breaks inside elements */
+  .print-avoid-break {
+    break-inside: avoid;
+  }
+
+  /* Ensure colors print correctly */
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+```
+
+**Usage**:
+- `no-print`: Navigation, action buttons
+- `print-avoid-break`: Cards, tables, summaries
+- `print-optimized`: Container element
+
+**Takeaway**: Separate print styles into utility classes for reusable print optimization across components.
+
+---
+
+### Lesson 25: Mocking Sonner Toast in Tests
+
+**Pattern**: When testing components that use `sonner` toast, mock the entire module:
+
+```tsx
+import { toast } from "sonner";
+import { vi } from "vitest";
+
+// Mock the module
+vi.mock("sonner", () => ({
+  toast: {
+    info: vi.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+// In test
+it("shows toast on button click", async () => {
+  await user.click(button);
+  expect(toast.info).toHaveBeenCalledWith(expect.stringContaining("PDF"));
+});
+```
+
+**Takeaway**: When mocking external modules like `sonner`, ensure all used methods are included in the mock object.

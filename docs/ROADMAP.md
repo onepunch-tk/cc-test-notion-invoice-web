@@ -104,15 +104,16 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - 185개 테스트 통과, 코드/보안 리뷰 완료
   - Related: F004, F005, F008, F009
 
-- **Task 006: Invoice Detail Page UI**
-  - See: `/tasks/006-invoice-detail-ui.md`
-  - 인보이스 상세 페이지 UI 구현 (하드코딩된 더미 데이터 사용)
-  - 회사 정보, 고객 정보, 라인 아이템 테이블, 합계 섹션
-  - 인쇄 최적화 레이아웃 (A4 사이즈)
-  - PDF 다운로드 버튼 플레이스홀더
+- **Task 006: Invoice Detail Page UI** - ✅ Complete
+  - **Must** Read: [006-invoice-detail-ui.md](/tasks/006-invoice-detail-ui.md)
+  - ✅ 인보이스 상세 페이지 UI 구현 (하드코딩된 더미 데이터 사용)
+  - ✅ 회사 정보, 고객 정보, 라인 아이템 테이블, 합계 섹션
+  - ✅ 인쇄 최적화 레이아웃 (A4 사이즈)
+  - ✅ PDF 다운로드 버튼 플레이스홀더
+  - 271개 테스트 통과, E2E 10/10 통과, 코드/보안 리뷰 완료
   - Related: F001, F005, F006, F008, F009
 
-- **Task 007: Error Pages and States UI**
+- **Task 007: Error Pages and States UI** - Priority
   - See: `/tasks/007-error-pages-ui.md`
   - 404 Not Found 페이지 UI
   - 일반 에러 상태 컴포넌트
@@ -192,10 +193,25 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Rate limiting 구현 (선택적)
   - Related: F006, F007
 
-- **Task 017: Final QA and Deployment**
-  - See: `/tasks/017-final-qa.md`
+- **Task 017: Accessibility Audit and Fixes**
+  - See: `/tasks/017-accessibility.md`
+  - 키보드 네비게이션 검증 및 개선
+  - 스크린 리더 호환성 확인
+  - 색상 대비 WCAG 2.1 AA 준수
+  - ARIA 라벨 및 시맨틱 마크업 검증
+  - Related: F005
+
+- **Task 018: Final QA and Testing**
+  - See: `/tasks/018-final-qa.md`
   - 전체 기능 통합 테스트
-  - 크로스 브라우저 테스트
-  - 모바일 반응형 테스트
-  - Cloudflare Workers 배포 검증
+  - 크로스 브라우저 테스트 (Chrome, Firefox, Safari, Edge)
+  - 모바일 반응형 테스트 (iOS Safari, Android Chrome)
+  - Related: All Features
+
+- **Task 019: Production Deployment**
+  - See: `/tasks/019-deployment.md`
+  - Cloudflare Workers 배포 설정
+  - 환경 변수 및 시크릿 설정
+  - 도메인 및 DNS 구성
+  - 배포 검증 및 모니터링 설정
   - Related: All Features
