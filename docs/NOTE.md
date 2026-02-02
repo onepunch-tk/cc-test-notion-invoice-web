@@ -278,3 +278,114 @@ interface Env {
 - Always run `cf:typegen` after modifying `wrangler.toml`
 - The generated types ensure type safety when accessing KV, D1, R2, etc.
 - Placeholder IDs work for type generation but need real IDs for deployment
+
+---
+
+## Task 004: Common Component Library Implementation
+
+### Lesson 13: formatCurrency Locale Auto-Detection
+
+**Problem**: When calling `formatCurrency(100, "USD")` in tests vs `formatCurrency(100, "USD", "en-US")` in components, different locales produced different output (e.g., "US$100.00" vs "$100.00").
+
+**Solution**: Make locale optional and auto-detect based on currency:
+
+```ts
+const currencyLocaleMap: Record<string, string> = {
+  KRW: "ko-KR",
+  USD: "en-US",
+  EUR: "de-DE",
+};
+
+export const formatCurrency = (
+  amount: number,
+  currency = "KRW",
+  locale?: string,  // Optional - auto-detected if not provided
+): string => {
+  const resolvedLocale = locale ?? currencyLocaleMap[currency] ?? "en-US";
+  return new Intl.NumberFormat(resolvedLocale, { /* ... */ }).format(amount);
+};
+```
+
+**Takeaway**: When creating format utilities, consider making locale/region settings optional with smart defaults based on the primary parameter (currency in this case).
+
+---
+
+### Lesson 14: React Testing Library - Text Split Across Elements
+
+**Problem**: `screen.getByText("2024-01-15")` failed when the text was part of a larger string like "Issue Date: 2024-01-15" in a single `<p>` element.
+
+**Solution**: Separate dynamic values into their own elements for testability:
+
+```tsx
+// Instead of:
+<p>Issue Date: {formatDate(date)}</p>
+
+// Use:
+<p>
+  <span>Issue Date: </span>
+  <span>{formatDate(date)}</span>
+</p>
+```
+
+**Takeaway**: When testing specific dynamic values, wrap them in separate elements (like `<span>`) so `getByText` can find them precisely.
+
+---
+
+### Lesson 15: Vitest Mock Module - Export All Required Functions
+
+**Problem**: When using `vi.mock("~/presentation/lib/format", () => ({ formatDate: vi.fn() }))`, only `formatDate` was exported, causing errors if other exports like `formatCurrency` were used.
+
+**Solution**: When mocking a module, either:
+1. Mock all used exports, or
+2. Use `vi.mock` with `importOriginal` to preserve other exports:
+
+```ts
+vi.mock("~/presentation/lib/format", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    formatDate: vi.fn((date: Date) => "2024-01-15"),
+  };
+});
+```
+
+**Takeaway**: Be aware that `vi.mock` replaces the entire module. Either mock all needed exports or use `importOriginal` to preserve unmocked functions.
+
+---
+
+### Lesson 16: Badge Variant Class Testing
+
+**Problem**: Testing Badge component variants by checking CSS classes like `bg-primary` or `bg-secondary` is brittle if the underlying component library changes.
+
+**Best Practice**: For production code, prefer testing:
+1. The `variant` prop passed to the Badge component
+2. The visible text/content
+3. Accessibility attributes
+
+However, when verifying visual styling is critical (like status colors), checking specific classes is acceptable:
+
+```tsx
+const badge = screen.getByText("Draft");
+expect(badge).toHaveClass("bg-secondary");
+```
+
+**Takeaway**: Balance between testing implementation details (CSS classes) and behavior. For critical visual states (like status indicators), class testing may be appropriate.
+
+---
+
+### Lesson 17: Parallel TDD with Multiple Components
+
+**Pattern**: When implementing multiple independent components with TDD:
+
+1. Write all failing tests in parallel (spawn multiple test-writer agents)
+2. Implement all components
+3. Run tests to verify
+4. Run code review and security review in parallel (background)
+
+This approach significantly reduces development time for independent component implementations.
+
+```
+Tests (parallel) → Implementations (parallel where possible) → Reviews (parallel)
+```
+
+**Takeaway**: Identify independent units and parallelize TDD phases when components don't have dependencies on each other
