@@ -71,6 +71,13 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Wrangler 설정 업데이트
   - Related: F003
 
+- **Task 003-A: Notion Database Setup** - Priority
+  - See: `/tasks/003-A-notion-database-setup.md`
+  - Notion API를 통한 Invoice, Line Item 데이터베이스 자동 생성
+  - Company 데이터베이스 검증
+  - `scripts/setup-notion-databases.ts` 스크립트 제공
+  - Related: F003
+
 ### Phase 2: UI/UX Completion (Using Dummy Data)
 
 - **Task 004: Common Component Library Implementation**
