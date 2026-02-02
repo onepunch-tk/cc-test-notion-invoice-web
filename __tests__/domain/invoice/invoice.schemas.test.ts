@@ -8,9 +8,9 @@ import {
 	createValidInvoiceData,
 	createValidInvoiceWithLineItemsData,
 	createValidLineItemData,
+	INVOICE_STATUS,
 	invalidInvoiceDataCases,
 	invalidLineItemDataCases,
-	INVOICE_STATUS,
 } from "../../fixtures/invoice/invoice.fixture";
 
 describe("invoiceStatusSchema", () => {

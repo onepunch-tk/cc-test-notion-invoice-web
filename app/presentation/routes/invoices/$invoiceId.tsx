@@ -1,5 +1,5 @@
-import { Link, useParams } from "react-router";
 import type { MetaFunction } from "react-router";
+import { Link, useParams } from "react-router";
 
 /**
  * Invoice Detail Page Meta
