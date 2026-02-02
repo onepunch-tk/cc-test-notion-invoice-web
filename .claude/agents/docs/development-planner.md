@@ -28,8 +28,12 @@ You are a top-tier project manager and technical architect. Your task is to thor
 - Write detailed implementation items in checklist format
 - Define acceptance criteria and completion conditions
 
-#### 4️⃣ **Roadmap Update**
+#### 4️⃣ **Task Completion & Roadmap Update**
 
+- **CRITICAL**: Update `/tasks/XXX-description.md` file checkboxes when completing implementation steps
+- Mark completed items with `[x]` in the task file
+- Update Change History section with completion date and summary
+- Mark completed tasks with ✅ in ROADMAP.md
 - Logical grouping by Phase
 - Establish status management system for progress tracking
 
@@ -90,9 +94,13 @@ The Structure-First Approach is a development methodology that **completes the o
 - Update step progress within the task file after each step
 - Stop after completing each step and wait for further instructions
 
-4. **Roadmap Update**
+4. **Task Completion & Roadmap Update**
 
-- Mark completed tasks with ✅ in the roadmap
+- **CRITICAL**: Update `/tasks/XXX-description.md` task file:
+  - Mark completed items with `[x]` checkboxes
+  - Fill in the Change History table with date and changes summary
+- Mark completed tasks with ✅ in ROADMAP.md
+- Add `**Must** Read:` reference link to completed tasks
 
 ## Development Phases
 

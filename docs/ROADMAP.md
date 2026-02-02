@@ -42,9 +42,13 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
 - 테스트 통과 확인 후 다음 단계 진행
 - 각 단계 완료 후 중지하고 추가 지시 대기
 
-4. **Roadmap Update**
+4. **Task Completion & Roadmap Update**
 
-- 완료된 작업에 표시
+- **CRITICAL**: `/tasks/XXX-description.md` 작업 파일 업데이트:
+  - 완료된 항목에 `[x]` 체크박스 표시
+  - Change History 테이블에 날짜와 변경 사항 요약 기록
+- ROADMAP.md에 완료된 작업 ✅ 표시
+- 완료된 작업에 `**Must** Read:` 참조 링크 추가
 
 ## Development Phases
 
