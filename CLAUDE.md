@@ -49,11 +49,11 @@ Execute these steps SEQUENTIALLY. Each step MUST complete before proceeding.
 | **5** | **STOP** - Call `TaskList` tool to display tasks | Task list shown to user | **WAIT for user instruction** |
 | **6** | Switch to `development` branch (create if not exists) | On development branch | User approval from Step 5 |
 | **7** | Create feature branch from `development` | Feature branch created (e.g., `feat/task-description`) | Step 6 complete |
-| **8** | **MUST** Run `unit-test-writer` sub-agent | Failing tests written (TDD Red phase) | Step 7 complete |
+| **8** | **MUST** Call `Task` tool with `subagent_type="unit-test-writer"` | Failing tests written (TDD Red phase) | Step 7 complete |
 | **9** | Implement code to pass tests | All tests pass (TDD Green phase) | Step 8 complete |
-| **10** | **MUST** Run background agents in parallel: `code-reviewer` + `security-code-reviewer` | Review reports generated | Step 9 complete |
+| **10** | **MUST** Call `Task` tool in parallel: `subagent_type="code-reviewer"` + `subagent_type="security-code-reviewer"` (use `run_in_background: true`) | Review reports generated | Step 9 complete |
 | **11** | Read `/docs/reports/*`, fix all non-complete issues | All issues resolved | Step 10 complete |
-| **12** | Run `e2e-tester` sub-agent | E2E test results | Step 11 complete |
+| **12** | **MUST** Call `Task` tool with `subagent_type="e2e-tester"` | E2E test results | Step 11 complete |
 | **13** | Fix bugs/issues discovered in E2E tests | All E2E tests pass | Step 12 complete |
 | **14** | Update `/docs/NOTE.md` with lessons learned | Knowledge documented | Step 13 complete |
 | **15** | Commit changes, merge feature branch to `development` | Branch merged, feature branch deleted | Step 14 complete |
