@@ -3,7 +3,7 @@
 		"typescript-lsp@claude-plugins-official": true
 	},
 	"env": {
-		"CLAUDE_CODE_TASK_LIST_ID": "cc_rr7_starterkit",
+		"CLAUDE_CODE_TASK_LIST_ID": "INVOICE-WEB",
 		"ENABLE_TOOL_SEARCH": "true",
 		"MAX_MCP_OUTPUT_TOKENS": "50000"
 	},

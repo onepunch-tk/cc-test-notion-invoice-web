@@ -1,4 +1,4 @@
-name = "claude-rr7-starterkit"
+name = "invoice-web"
 main = "./workers/app.ts"
 compatibility_date = "2025-04-04"
 compatibility_flags = ["nodejs_compat"]
@@ -21,11 +21,11 @@ binding = "ASSETS"
 # ============================================
 
 # KV Namespace
-# bunx wrangler kv namespace create <NAME> 으로 생성 후 id 입력
-# [[kv_namespaces]]
-# binding = "MY_KV"
-# id = "<KV_NAMESPACE_ID>"
-# preview_id = "<KV_PREVIEW_ID>"  # 선택사항
+# bunx wrangler kv namespace create INVOICE_CACHE 으로 생성 후 id 입력
+[[kv_namespaces]]
+binding = "INVOICE_CACHE"
+id = "<YOUR_KV_NAMESPACE_ID>"
+preview_id = "<YOUR_KV_PREVIEW_NAMESPACE_ID>"
 
 # D1 Database
 # bunx wrangler d1 create <NAME> 으로 생성 후 database_id 입력

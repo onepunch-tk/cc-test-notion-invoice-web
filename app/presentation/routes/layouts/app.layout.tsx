@@ -1,23 +1,35 @@
-import { Outlet, useOutletContext } from "react-router";
-import type { IUser } from "~/domain/user";
-import { AppSidebar } from "~/presentation/components/app-sidebar";
+import { Link, Outlet } from "react-router";
 
 /**
- * 앱 레이아웃
- * - Dashboard와 Settings가 공유하는 사이드바 레이아웃
- * - private.layout에서 인증 처리됨
- * - SidebarProvider는 navigation.layout에서 제공
- * - 모바일 토글 버튼은 NavigationBar에 통합
+ * App Layout Component
+ *
+ * Common layout wrapper for all app routes including:
+ * - Header with Invoice-Web branding
+ * - Main content area with Outlet for child routes
+ * - Footer section
  */
 export default function AppLayout() {
-	const { user } = useOutletContext<{ user: IUser }>();
-
 	return (
-		<div className="flex min-h-screen w-full pt-16">
-			<AppSidebar />
-			<main className="flex-1 p-6">
-				<Outlet context={{ user }} />
+		<div className="min-h-dvh flex flex-col">
+			<header className="border-b bg-background">
+				<div className="container mx-auto px-4 py-4">
+					<Link to="/" className="text-xl font-bold text-foreground">
+						Invoice-Web
+					</Link>
+				</div>
+			</header>
+
+			<main className="flex-1">
+				<Outlet />
 			</main>
+
+			<footer className="border-t bg-muted/50">
+				<div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+					<p>
+						&copy; {new Date().getFullYear()} Invoice-Web. All rights reserved.
+					</p>
+				</div>
+			</footer>
 		</div>
 	);
 }

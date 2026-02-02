@@ -1,3 +1,2 @@
 export * from "./config";
-export * from "./external";
-export * from "./persistence";
+// external module will export Notion client when implemented

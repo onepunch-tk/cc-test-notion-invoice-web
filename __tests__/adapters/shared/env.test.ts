@@ -1,267 +1,302 @@
 import { ZodError } from "zod";
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
+	ENV_KEY_LIST,
+	createEnvWithEmpty,
+	createEnvWithExtraKeys,
+	createPartialEnv,
+	validEnvFixture,
+} from "../../fixtures/env/env.fixture";
+import {
+	ENV_KEYS,
+	envSchema,
 	extractEnvFromSource,
 	parseEnv,
-	extractNodeEnv,
-	ENV_KEYS,
-} from "adapters/shared/env";
+} from "../../../adapters/shared/env";
 
-/**
- * adapters/shared/env.ts 유닛 테스트
- *
- * 테스트 대상:
- * - extractEnvFromSource: 환경 변수 소스에서 AppEnv 추출
- * - parseEnv: 환경 변수 검증 및 파싱
- * - extractNodeEnv: Node.js process.env에서 AppEnv 추출
- */
-
-describe("adapters/shared/env", () => {
-	// 필수 환경 변수 Mock 데이터
-	const requiredEnvVars = {
-		DATABASE_URL: "postgresql://localhost:5432/test",
-		BASE_URL: "http://localhost:3000",
-		BETTER_AUTH_SECRET: "test-secret-key-12345",
-	};
-
-	// 선택적 환경 변수 Mock 데이터
-	const optionalEnvVars = {
-		GITHUB_CLIENT_ID: "github-client-id",
-		GITHUB_CLIENT_SECRET: "github-client-secret",
-		GOOGLE_CLIENT_ID: "google-client-id",
-		GOOGLE_CLIENT_SECRET: "google-client-secret",
-		KAKAO_CLIENT_ID: "kakao-client-id",
-		KAKAO_CLIENT_SECRET: "kakao-client-secret",
-		RESEND_API_KEY: "resend-api-key",
-		RESEND_FROM_EMAIL: "noreply@example.com",
-	};
-
-	describe("extractEnvFromSource", () => {
-		it("유효한 환경 변수만 추출한다", () => {
+describe("envSchema", () => {
+	describe("유효한 환경 변수 파싱", () => {
+		it("모든 필수 환경 변수가 있을 때 성공적으로 파싱한다", () => {
 			// Arrange
-			const source = {
-				...requiredEnvVars,
-				UNKNOWN_VAR: "should-be-ignored",
-			};
+			const validEnv = validEnvFixture;
 
 			// Act
-			const result = extractEnvFromSource(source);
+			const result = envSchema.safeParse(validEnv);
 
 			// Assert
-			expect(result).toEqual(requiredEnvVars);
-			expect(result).not.toHaveProperty("UNKNOWN_VAR");
-		});
-
-		it("스키마에 정의된 키만 추출한다", () => {
-			// Arrange
-			const source = {
-				...requiredEnvVars,
-				...optionalEnvVars,
-				EXTRA_KEY: "extra-value",
-				ANOTHER_EXTRA: "another-value",
-			};
-
-			// Act
-			const result = extractEnvFromSource(source);
-
-			// Assert
-			const resultKeys = Object.keys(result);
-			for (const key of resultKeys) {
-				expect(ENV_KEYS).toContain(key);
+			expect(result.success).toBe(true);
+			if (result.success) {
+				expect(result.data.NOTION_API_KEY).toBe(validEnv.NOTION_API_KEY);
+				expect(result.data.NOTION_INVOICE_DATABASE_ID).toBe(
+					validEnv.NOTION_INVOICE_DATABASE_ID,
+				);
+				expect(result.data.NOTION_LINE_ITEM_DATABASE_ID).toBe(
+					validEnv.NOTION_LINE_ITEM_DATABASE_ID,
+				);
+				expect(result.data.NOTION_COMPANY_DATABASE_ID).toBe(
+					validEnv.NOTION_COMPANY_DATABASE_ID,
+				);
 			}
-			expect(result).not.toHaveProperty("EXTRA_KEY");
-			expect(result).not.toHaveProperty("ANOTHER_EXTRA");
-		});
-
-		it("문자열이 아닌 값은 무시한다", () => {
-			// Arrange
-			const source = {
-				DATABASE_URL: "postgresql://localhost:5432/test",
-				BASE_URL: 12345, // number
-				BETTER_AUTH_SECRET: null, // null
-				GITHUB_CLIENT_ID: undefined, // undefined
-				GOOGLE_CLIENT_ID: { nested: "object" }, // object
-				KAKAO_CLIENT_ID: ["array"], // array
-			};
-
-			// Act
-			const result = extractEnvFromSource(source);
-
-			// Assert
-			expect(result).toEqual({
-				DATABASE_URL: "postgresql://localhost:5432/test",
-			});
-		});
-
-		it("빈 소스에서 빈 객체를 반환한다", () => {
-			// Arrange
-			const source = {};
-
-			// Act
-			const result = extractEnvFromSource(source);
-
-			// Assert
-			expect(result).toEqual({});
-		});
-
-		it("모든 환경 변수가 있으면 모두 추출한다", () => {
-			// Arrange
-			const source = {
-				...requiredEnvVars,
-				...optionalEnvVars,
-			};
-
-			// Act
-			const result = extractEnvFromSource(source);
-
-			// Assert
-			expect(result).toEqual({
-				...requiredEnvVars,
-				...optionalEnvVars,
-			});
 		});
 	});
 
-	describe("parseEnv", () => {
-		it("필수 환경 변수가 모두 있으면 성공한다", () => {
+	describe("필수 환경 변수 누락 시 에러", () => {
+		it("NOTION_API_KEY가 누락되면 ZodError를 발생시킨다", () => {
 			// Arrange
-			const source = { ...requiredEnvVars };
+			const envWithoutApiKey = createPartialEnv(["NOTION_API_KEY"]);
 
 			// Act
-			const result = parseEnv(source);
+			const result = envSchema.safeParse(envWithoutApiKey);
 
 			// Assert
-			expect(result.DATABASE_URL).toBe(requiredEnvVars.DATABASE_URL);
-			expect(result.BASE_URL).toBe(requiredEnvVars.BASE_URL);
-			expect(result.BETTER_AUTH_SECRET).toBe(requiredEnvVars.BETTER_AUTH_SECRET);
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error).toBeInstanceOf(ZodError);
+				const apiKeyError = result.error.issues.find(
+					(issue) => issue.path[0] === "NOTION_API_KEY",
+				);
+				expect(apiKeyError).toBeDefined();
+			}
 		});
 
-		it("선택적 환경 변수는 없어도 성공한다", () => {
+		it("NOTION_INVOICE_DATABASE_ID가 누락되면 ZodError를 발생시킨다", () => {
 			// Arrange
-			const source = { ...requiredEnvVars };
+			const envWithoutInvoiceDb = createPartialEnv([
+				"NOTION_INVOICE_DATABASE_ID",
+			]);
 
 			// Act
-			const result = parseEnv(source);
+			const result = envSchema.safeParse(envWithoutInvoiceDb);
 
 			// Assert
-			expect(result.GITHUB_CLIENT_ID).toBeUndefined();
-			expect(result.GOOGLE_CLIENT_ID).toBeUndefined();
-			expect(result.RESEND_API_KEY).toBeUndefined();
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error).toBeInstanceOf(ZodError);
+				const invoiceDbError = result.error.issues.find(
+					(issue) => issue.path[0] === "NOTION_INVOICE_DATABASE_ID",
+				);
+				expect(invoiceDbError).toBeDefined();
+			}
 		});
 
-		it("선택적 환경 변수가 있으면 포함한다", () => {
+		it("NOTION_LINE_ITEM_DATABASE_ID가 누락되면 ZodError를 발생시킨다", () => {
 			// Arrange
-			const source = {
-				...requiredEnvVars,
-				GITHUB_CLIENT_ID: "github-id",
-				RESEND_API_KEY: "resend-key",
-			};
+			const envWithoutLineItemDb = createPartialEnv([
+				"NOTION_LINE_ITEM_DATABASE_ID",
+			]);
 
 			// Act
-			const result = parseEnv(source);
+			const result = envSchema.safeParse(envWithoutLineItemDb);
 
 			// Assert
-			expect(result.GITHUB_CLIENT_ID).toBe("github-id");
-			expect(result.RESEND_API_KEY).toBe("resend-key");
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error).toBeInstanceOf(ZodError);
+				const lineItemDbError = result.error.issues.find(
+					(issue) => issue.path[0] === "NOTION_LINE_ITEM_DATABASE_ID",
+				);
+				expect(lineItemDbError).toBeDefined();
+			}
 		});
 
-		it("필수 환경 변수가 없으면 ZodError를 던진다", () => {
+		it("NOTION_COMPANY_DATABASE_ID가 누락되면 ZodError를 발생시킨다", () => {
 			// Arrange
-			const source = {
-				DATABASE_URL: "postgresql://localhost:5432/test",
-				// BASE_URL 누락
-				// BETTER_AUTH_SECRET 누락
-			};
+			const envWithoutCompanyDb = createPartialEnv([
+				"NOTION_COMPANY_DATABASE_ID",
+			]);
 
-			// Act & Assert
-			expect(() => parseEnv(source)).toThrow(ZodError);
-		});
+			// Act
+			const result = envSchema.safeParse(envWithoutCompanyDb);
 
-		it("DATABASE_URL이 없으면 ZodError를 던진다", () => {
-			// Arrange
-			const source = {
-				BASE_URL: "http://localhost:3000",
-				BETTER_AUTH_SECRET: "secret",
-			};
-
-			// Act & Assert
-			expect(() => parseEnv(source)).toThrow(ZodError);
-		});
-
-		it("BASE_URL이 없으면 ZodError를 던진다", () => {
-			// Arrange
-			const source = {
-				DATABASE_URL: "postgresql://localhost:5432/test",
-				BETTER_AUTH_SECRET: "secret",
-			};
-
-			// Act & Assert
-			expect(() => parseEnv(source)).toThrow(ZodError);
-		});
-
-		it("BETTER_AUTH_SECRET이 없으면 ZodError를 던진다", () => {
-			// Arrange
-			const source = {
-				DATABASE_URL: "postgresql://localhost:5432/test",
-				BASE_URL: "http://localhost:3000",
-			};
-
-			// Act & Assert
-			expect(() => parseEnv(source)).toThrow(ZodError);
+			// Assert
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error).toBeInstanceOf(ZodError);
+				const companyDbError = result.error.issues.find(
+					(issue) => issue.path[0] === "NOTION_COMPANY_DATABASE_ID",
+				);
+				expect(companyDbError).toBeDefined();
+			}
 		});
 	});
 
-	describe("extractNodeEnv", () => {
-		beforeEach(() => {
-			// 필수 환경 변수 설정
-			vi.stubEnv("DATABASE_URL", requiredEnvVars.DATABASE_URL);
-			vi.stubEnv("BASE_URL", requiredEnvVars.BASE_URL);
-			vi.stubEnv("BETTER_AUTH_SECRET", requiredEnvVars.BETTER_AUTH_SECRET);
-		});
-
-		afterEach(() => {
-			vi.unstubAllEnvs();
-		});
-
-		it("process.env에서 환경 변수를 추출한다", () => {
-			// Act
-			const result = extractNodeEnv();
-
-			// Assert
-			expect(result.DATABASE_URL).toBe(requiredEnvVars.DATABASE_URL);
-			expect(result.BASE_URL).toBe(requiredEnvVars.BASE_URL);
-			expect(result.BETTER_AUTH_SECRET).toBe(requiredEnvVars.BETTER_AUTH_SECRET);
-		});
-
-		it("선택적 환경 변수도 추출한다", () => {
+	describe("빈 문자열 환경 변수 거부", () => {
+		it("NOTION_API_KEY가 빈 문자열이면 ZodError를 발생시킨다", () => {
 			// Arrange
-			vi.stubEnv("GITHUB_CLIENT_ID", "github-id");
-			vi.stubEnv("RESEND_API_KEY", "resend-key");
+			const envWithEmptyApiKey = createEnvWithEmpty("NOTION_API_KEY");
 
 			// Act
-			const result = extractNodeEnv();
+			const result = envSchema.safeParse(envWithEmptyApiKey);
 
 			// Assert
-			expect(result.GITHUB_CLIENT_ID).toBe("github-id");
-			expect(result.RESEND_API_KEY).toBe("resend-key");
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error).toBeInstanceOf(ZodError);
+				const apiKeyError = result.error.issues.find(
+					(issue) => issue.path[0] === "NOTION_API_KEY",
+				);
+				expect(apiKeyError).toBeDefined();
+			}
 		});
 
-		it("필수 환경 변수 누락 시 ZodError를 던진다", () => {
+		it("NOTION_INVOICE_DATABASE_ID가 빈 문자열이면 ZodError를 발생시킨다", () => {
 			// Arrange
-			vi.unstubAllEnvs(); // 모든 환경 변수 제거
+			const envWithEmptyInvoiceDb = createEnvWithEmpty(
+				"NOTION_INVOICE_DATABASE_ID",
+			);
 
-			// Act & Assert
-			expect(() => extractNodeEnv()).toThrow(ZodError);
+			// Act
+			const result = envSchema.safeParse(envWithEmptyInvoiceDb);
+
+			// Assert
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error).toBeInstanceOf(ZodError);
+				const invoiceDbError = result.error.issues.find(
+					(issue) => issue.path[0] === "NOTION_INVOICE_DATABASE_ID",
+				);
+				expect(invoiceDbError).toBeDefined();
+			}
 		});
 
-		it("DATABASE_URL 누락 시 ZodError를 던진다", () => {
+		it("NOTION_LINE_ITEM_DATABASE_ID가 빈 문자열이면 ZodError를 발생시킨다", () => {
 			// Arrange
-			vi.unstubAllEnvs();
-			vi.stubEnv("BASE_URL", requiredEnvVars.BASE_URL);
-			vi.stubEnv("BETTER_AUTH_SECRET", requiredEnvVars.BETTER_AUTH_SECRET);
+			const envWithEmptyLineItemDb = createEnvWithEmpty(
+				"NOTION_LINE_ITEM_DATABASE_ID",
+			);
 
-			// Act & Assert
-			expect(() => extractNodeEnv()).toThrow(ZodError);
+			// Act
+			const result = envSchema.safeParse(envWithEmptyLineItemDb);
+
+			// Assert
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error).toBeInstanceOf(ZodError);
+				const lineItemDbError = result.error.issues.find(
+					(issue) => issue.path[0] === "NOTION_LINE_ITEM_DATABASE_ID",
+				);
+				expect(lineItemDbError).toBeDefined();
+			}
 		});
+
+		it("NOTION_COMPANY_DATABASE_ID가 빈 문자열이면 ZodError를 발생시킨다", () => {
+			// Arrange
+			const envWithEmptyCompanyDb = createEnvWithEmpty(
+				"NOTION_COMPANY_DATABASE_ID",
+			);
+
+			// Act
+			const result = envSchema.safeParse(envWithEmptyCompanyDb);
+
+			// Assert
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error).toBeInstanceOf(ZodError);
+				const companyDbError = result.error.issues.find(
+					(issue) => issue.path[0] === "NOTION_COMPANY_DATABASE_ID",
+				);
+				expect(companyDbError).toBeDefined();
+			}
+		});
+	});
+});
+
+describe("extractEnvFromSource", () => {
+	it("스키마에 정의된 키만 추출한다", () => {
+		// Arrange
+		const sourceWithExtraKeys = createEnvWithExtraKeys({
+			EXTRA_KEY: "extra-value",
+			ANOTHER_EXTRA: "another-value",
+		});
+
+		// Act
+		const result = extractEnvFromSource(sourceWithExtraKeys);
+
+		// Assert
+		expect(result).toHaveProperty("NOTION_API_KEY");
+		expect(result).toHaveProperty("NOTION_INVOICE_DATABASE_ID");
+		expect(result).toHaveProperty("NOTION_LINE_ITEM_DATABASE_ID");
+		expect(result).toHaveProperty("NOTION_COMPANY_DATABASE_ID");
+		expect(result).not.toHaveProperty("EXTRA_KEY");
+		expect(result).not.toHaveProperty("ANOTHER_EXTRA");
+	});
+
+	it("문자열이 아닌 값은 무시한다", () => {
+		// Arrange
+		const sourceWithNonStringValues = {
+			NOTION_API_KEY: "valid-key",
+			NOTION_INVOICE_DATABASE_ID: 12345, // number
+			NOTION_LINE_ITEM_DATABASE_ID: null, // null
+			NOTION_COMPANY_DATABASE_ID: undefined, // undefined
+		};
+
+		// Act
+		const result = extractEnvFromSource(sourceWithNonStringValues);
+
+		// Assert
+		expect(result).toHaveProperty("NOTION_API_KEY", "valid-key");
+		expect(result).not.toHaveProperty("NOTION_INVOICE_DATABASE_ID");
+		expect(result).not.toHaveProperty("NOTION_LINE_ITEM_DATABASE_ID");
+		expect(result).not.toHaveProperty("NOTION_COMPANY_DATABASE_ID");
+	});
+});
+
+describe("parseEnv", () => {
+	it("유효한 소스에서 환경 변수를 파싱한다", () => {
+		// Arrange
+		const validSource = validEnvFixture;
+
+		// Act
+		const result = parseEnv(validSource);
+
+		// Assert
+		expect(result.NOTION_API_KEY).toBe(validEnvFixture.NOTION_API_KEY);
+		expect(result.NOTION_INVOICE_DATABASE_ID).toBe(
+			validEnvFixture.NOTION_INVOICE_DATABASE_ID,
+		);
+		expect(result.NOTION_LINE_ITEM_DATABASE_ID).toBe(
+			validEnvFixture.NOTION_LINE_ITEM_DATABASE_ID,
+		);
+		expect(result.NOTION_COMPANY_DATABASE_ID).toBe(
+			validEnvFixture.NOTION_COMPANY_DATABASE_ID,
+		);
+	});
+
+	it("필수 환경 변수가 누락되면 ZodError를 발생시킨다", () => {
+		// Arrange
+		const invalidSource = createPartialEnv(["NOTION_API_KEY"]);
+
+		// Act & Assert
+		expect(() => parseEnv(invalidSource)).toThrow(ZodError);
+	});
+
+	it("추가 키는 무시하고 스키마 키만 반환한다", () => {
+		// Arrange
+		const sourceWithExtraKeys = createEnvWithExtraKeys({
+			EXTRA_KEY: "extra-value",
+		});
+
+		// Act
+		const result = parseEnv(sourceWithExtraKeys);
+
+		// Assert
+		expect(result).not.toHaveProperty("EXTRA_KEY");
+		expect(Object.keys(result)).toHaveLength(4);
+	});
+});
+
+describe("ENV_KEYS", () => {
+	it("모든 Notion 환경 변수 키를 포함한다", () => {
+		// Arrange
+		const expectedKeys = ENV_KEY_LIST;
+
+		// Act & Assert
+		for (const key of expectedKeys) {
+			expect(ENV_KEYS).toContain(key);
+		}
+	});
+
+	it("정확히 4개의 키를 포함한다", () => {
+		// Arrange & Act & Assert
+		expect(ENV_KEYS).toHaveLength(4);
 	});
 });

@@ -1,2 +1,2 @@
-export * from "./better-auth";
-export * from "./resend";
+// Placeholder for external service integrations (Notion API client will be added here)
+export {};
