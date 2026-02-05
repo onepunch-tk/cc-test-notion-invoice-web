@@ -39,6 +39,7 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
 - 각 단계 완료 후 작업 파일 내 진행 상황 업데이트
 - **테스트는 CLAUDE.md Development Workflow 준수**
 - **필수**: "## Mandatory Workflow (CRITICAL)" 섹션의 모든 체크박스 완료
+- **필수**: 테스트 커버리지 90% 이상 달성 (`bun run test:coverage:check`)
 - 테스트 통과 확인 후 다음 단계 진행
 - 각 단계 완료 후 중지하고 추가 지시 대기
 
@@ -49,6 +50,22 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Change History 테이블에 날짜와 변경 사항 요약 기록
 - ROADMAP.md에 완료된 작업 ✅ 표시
 - 완료된 작업에 `**Must** Read:` 참조 링크 추가
+
+## Infrastructure & Tooling
+
+### Test Coverage Infrastructure - ✅ Complete (2026-02-05)
+
+테스트 커버리지 측정 및 검증 기능 추가:
+
+- **Modified Files**:
+  - `package.json`: `test:coverage`, `test:coverage:check` 스크립트 추가
+  - `vitest.config.ts`: 커버리지 임계값 설정 (90% statements/branches/functions/lines)
+  - `.claude/agents/dev/unit-test-writer.md`: Step 6에 커버리지 검증 단계 추가
+  - `CLAUDE.md`: 워크플로우 간소화 (NOTE.md 단계 제거), Test Commands 섹션 추가
+
+- **Test Commands**:
+  - `bun run test:coverage`: 커버리지 리포트 생성
+  - `bun run test:coverage:check`: 유연한 임계값으로 커버리지 검증
 
 ## Development Phases
 
@@ -125,7 +142,7 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
 
 ### Phase 3: Core Feature Implementation
 
-- **Task 008: Notion API Integration Service**
+- **Task 008: Notion API Integration Service** - ✅ Complete
   - See: `/tasks/008-notion-api-service.md`
   - Notion API 클라이언트 설정 (@notionhq/client)
   - Invoice, LineItem, CompanyInfo 데이터 fetching 서비스 구현
@@ -133,12 +150,16 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Zod 스키마로 응답 검증
   - Related: F003, F007
 
-- **Task 009: Cloudflare KV Caching Layer**
-  - See: `/tasks/009-kv-caching.md`
-  - Cloudflare KV 캐싱 서비스 구현
-  - TTL 설정 (5-15분)
-  - Rate Limit 대응 (3 req/sec)
-  - 캐시 무효화 전략
+- **Task 009: Cloudflare KV Caching Layer** - ✅ Complete
+  - **Must** Read: [009-kv-caching.md](/tasks/009-kv-caching.md)
+  - ✅ Cloudflare KV 캐싱 서비스 구현 (CacheService 인터페이스, KVCacheService 구현체)
+  - ✅ TTL 설정 (Invoice List: 5분, Invoice Detail: 10분, Company Info: 15분)
+  - ✅ Rate Limiting 구현 (Sliding Window 알고리즘, Notion API 3 req/sec 준수)
+  - ✅ Circuit Breaker 패턴 구현 (CLOSED/OPEN/HALF-OPEN 상태 관리)
+  - ✅ Cached Repository 구현 (CachedInvoiceRepository, CachedCompanyRepository)
+  - ✅ Null Services 구현 (로컬 개발/테스트용 투명 폴백)
+  - ✅ **[Security]** Cache key 입력 검증 (인젝션 방지)
+  - ✅ 539개 테스트 통과 (42개 신규 캐싱 레이어 테스트 포함)
   - Related: F003
 
 - **Task 010: Invoice List Page Data Integration**
@@ -193,7 +214,9 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - See: `/tasks/016-security.md`
   - invoice_id 형식 검증 (인젝션 방지)
   - Notion 데이터 sanitization (XSS 방지)
-  - Rate limiting 구현 (선택적)
+  - **[Security]** NoSQL Injection 방지: 라우트 파라미터 (`invoiceId`) Zod 검증
+  - **[Security]** Security Headers 설정: CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy
+  - **[Security]** CORS 설정 (필요시)
   - Related: F006, F007
 
 - **Task 017: Accessibility Audit and Fixes**
