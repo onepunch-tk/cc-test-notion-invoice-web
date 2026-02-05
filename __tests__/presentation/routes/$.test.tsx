@@ -8,7 +8,7 @@ describe("404 Catch-all 라우트", () => {
 		return renderWithRouter(<CatchAll />);
 	};
 
-	it("NotFound 컴포넌트를 렌더링해야 한다", () => {
+	it("NotFoundState 컴포넌트를 렌더링해야 한다", () => {
 		// Arrange & Act
 		renderCatchAll();
 
@@ -16,21 +16,30 @@ describe("404 Catch-all 라우트", () => {
 		expect(screen.getByText(/404/i)).toBeInTheDocument();
 	});
 
-	it("404 메시지를 표시해야 한다", () => {
+	it("404 제목을 표시해야 한다", () => {
 		// Arrange & Act
 		renderCatchAll();
 
 		// Assert
-		expect(screen.getByText(/찾을 수 없습니다/i)).toBeInTheDocument();
+		expect(screen.getByText("Page Not Found")).toBeInTheDocument();
 	});
 
-	it("인보이스를 찾을 수 없다는 메시지를 표시해야 한다", () => {
+	it("페이지를 찾을 수 없다는 메시지를 표시해야 한다", () => {
 		// Arrange & Act
 		renderCatchAll();
 
 		// Assert
 		expect(
-			screen.getByText(/인보이스를 찾을 수 없습니다/i),
+			screen.getByText("The page you're looking for doesn't exist."),
 		).toBeInTheDocument();
+	});
+
+	it("인보이스 목록 링크가 있어야 한다", () => {
+		// Arrange & Act
+		renderCatchAll();
+
+		// Assert
+		const link = screen.getByRole("link", { name: "Go to Invoice List" });
+		expect(link).toHaveAttribute("href", "/invoices");
 	});
 });

@@ -1,5 +1,24 @@
-import { Link, useParams } from "react-router";
+/**
+ * Invoice Detail Page
+ *
+ * 인보이스 상세 정보를 표시하는 페이지입니다.
+ * 회사 정보, 고객 정보, 라인 아이템 테이블, 합계 섹션을 포함합니다.
+ * A4 인쇄 최적화 및 PDF 다운로드 플레이스홀더를 제공합니다.
+ */
+
 import type { MetaFunction } from "react-router";
+import { useParams } from "react-router";
+import {
+	InvoiceActions,
+	InvoiceHeader,
+	InvoiceSummary,
+	InvoiceTable,
+} from "~/presentation/components/invoice";
+import { Card, CardContent } from "~/presentation/components/ui/card";
+import {
+	dummyCompanyInfo,
+	dummyInvoiceDetail,
+} from "~/presentation/routes/invoices/_data/dummy-invoice-detail";
 
 /**
  * Invoice Detail Page Meta
@@ -20,39 +39,72 @@ export const meta: MetaFunction = () => {
  * Invoice Detail Page Component
  *
  * Displays invoice details with:
- * - Invoice information placeholder
- * - PDF download button (to be implemented)
- * - Link back to invoice list
+ * - InvoiceActions (navigation, print, PDF download)
+ * - InvoiceHeader (company info, invoice meta, client info)
+ * - InvoiceTable (line items)
+ * - InvoiceSummary (totals)
+ * - Notes section (optional)
  */
 export default function InvoiceDetail() {
 	const { invoiceId } = useParams<{ invoiceId: string }>();
 	const displayId = invoiceId ?? "inv-unknown";
 
-	return (
-		<div className="container mx-auto px-4 py-8">
-			<header className="mb-8">
-				<Link
-					to="/invoices"
-					className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-				>
-					← 목록으로 돌아가기
-				</Link>
-				<h1 className="mt-4 text-3xl font-bold text-foreground">
-					인보이스 상세
-				</h1>
-				<p className="mt-2 text-muted-foreground">인보이스 ID: {displayId}</p>
-			</header>
+	const invoice = dummyInvoiceDetail;
+	const companyInfo = dummyCompanyInfo;
 
-			<main>
-				<div className="rounded-lg border border-dashed border-border p-8 text-center">
-					<p className="text-muted-foreground">
-						인보이스 상세 정보가 여기에 표시됩니다.
-					</p>
-					<p className="mt-2 text-sm text-muted-foreground/70">
-						Notion API 연동 후 활성화됩니다.
-					</p>
+	return (
+		<div
+			data-testid="invoice-detail-container"
+			className="container mx-auto px-4 py-8 max-w-4xl print-optimized"
+		>
+			{/* Actions - Hidden on print */}
+			<div className="mb-6 flex justify-between items-center no-print">
+				<div>
+					<h1 className="text-3xl font-bold text-foreground">인보이스 상세</h1>
+					<p className="mt-1 text-muted-foreground">인보이스 ID: {displayId}</p>
 				</div>
-			</main>
+				<InvoiceActions />
+			</div>
+
+			{/* Invoice Content Card */}
+			<Card className="print-avoid-break">
+				<CardContent className="p-6 md:p-8 space-y-6">
+					{/* Header - Company & Client Info */}
+					<InvoiceHeader invoice={invoice} companyInfo={companyInfo} />
+
+					{/* Line Items Table */}
+					<InvoiceTable
+						lineItems={invoice.line_items}
+						currency={invoice.currency}
+						className="border-t pt-6"
+					/>
+
+					{/* Summary */}
+					<InvoiceSummary
+						subtotal={invoice.subtotal}
+						taxRate={invoice.tax_rate}
+						taxAmount={invoice.tax_amount}
+						totalAmount={invoice.total_amount}
+						currency={invoice.currency}
+						className="border-t pt-6"
+					/>
+
+					{/* Notes Section */}
+					{invoice.notes && (
+						<div
+							data-testid="invoice-notes"
+							className="border-t pt-6 print-avoid-break"
+						>
+							<h3 className="text-sm font-medium text-muted-foreground mb-2">
+								Notes
+							</h3>
+							<p className="text-sm text-foreground whitespace-pre-wrap">
+								{invoice.notes}
+							</p>
+						</div>
+					)}
+				</CardContent>
+			</Card>
 		</div>
 	);
 }

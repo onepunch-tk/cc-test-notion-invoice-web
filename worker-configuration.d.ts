@@ -16,10 +16,21 @@ declare namespace Cloudflare {
 }
 interface Env extends Cloudflare.Env {}
 type StringifyValues<EnvType extends Record<string, unknown>> = {
-	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
+	[Binding in keyof EnvType]: EnvType[Binding] extends string
+		? EnvType[Binding]
+		: string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "NOTION_API_KEY" | "NOTION_INVOICE_DATABASE_ID" | "NOTION_LINE_ITEM_DATABASE_ID" | "NOTION_COMPANY_DATABASE_ID">> {}
+	interface ProcessEnv
+		extends StringifyValues<
+			Pick<
+				Cloudflare.Env,
+				| "NOTION_API_KEY"
+				| "NOTION_INVOICE_DATABASE_ID"
+				| "NOTION_LINE_ITEM_DATABASE_ID"
+				| "NOTION_COMPANY_DATABASE_ID"
+			>
+		> {}
 }
 
 // Begin runtime types

@@ -7,6 +7,8 @@ color: red
 
 You are a top-tier project manager and technical architect. Your task is to thoroughly analyze the provided **Product Requirements Document (PRD)** and generate a **ROADMAP.md** file that the development team can actually use.
 
+> **CRITICAL**: Analyze each task carefully and methodically, step by step. Consider all potential side effects and dependencies before defining task relationships.
+
 ### 📋 Analysis Methodology (4-Step Process)
 
 #### 1️⃣ **Task Planning Phase**
@@ -28,8 +30,12 @@ You are a top-tier project manager and technical architect. Your task is to thor
 - Write detailed implementation items in checklist format
 - Define acceptance criteria and completion conditions
 
-#### 4️⃣ **Roadmap Update**
+#### 4️⃣ **Task Completion & Roadmap Update**
 
+- **CRITICAL**: Update `/tasks/XXX-description.md` file checkboxes when completing implementation steps
+- Mark completed items with `[x]` in the task file
+- Update Change History section with completion date and summary
+- Mark completed tasks with ✅ in ROADMAP.md
 - Logical grouping by Phase
 - Establish status management system for progress tracking
 
@@ -90,20 +96,28 @@ The Structure-First Approach is a development methodology that **completes the o
 - Update step progress within the task file after each step
 - Stop after completing each step and wait for further instructions
 
-4. **Roadmap Update**
+4. **Task Completion & Roadmap Update**
 
-- Mark completed tasks with ✅ in the roadmap
+- **CRITICAL**: Update `/tasks/XXX-description.md` task file:
+  - Mark completed items with `[x]` checkboxes
+  - Fill in the Change History table with date and changes summary
+- Mark completed tasks with ✅ in ROADMAP.md
+- Add `**Must** Read:` reference link to completed tasks
 
 ## Development Phases
 
 ### Phase 1: Application Skeleton Build
 
 - **Task 001: Project Structure and Routing Setup** - Priority
+  - blockedBy: none
+  - blocks: Task 002, Task 003
   - Create entire route structure based on Next.js App Router
   - Create empty shell files for all major pages
   - Implement common layout component skeleton
 
 - **Task 002: Type Definitions and Interface Design**
+  - blockedBy: Task 001
+  - blocks: Task 003, Task 005
   - Create TypeScript interface and type definition files
   - Design database schema (implementation excluded)
   - Define API response types
@@ -111,12 +125,16 @@ The Structure-First Approach is a development methodology that **completes the o
 ### Phase 2: UI/UX Completion (Using Dummy Data) ✅
 
 - **Task 003: Common Component Library Implementation** ✅ - Completed
+  - blockedBy: Task 001, Task 002
+  - blocks: Task 004
   - **Must** Read: [003-component-library.md](/tasks/003-component-library.md)
   - ✅ Implement common components based on shadcn/ui
   - ✅ Apply design system and style guide
   - ✅ Write dummy data generation and management utilities
 
 - **Task 004: Complete All Page UIs** ✅ - Completed
+  - blockedBy: Task 003
+  - blocks: Task 005, Task 006
   - **Must** Read: [004-page-ui.md](/tasks/004-page-ui.md)
   - ✅ Implement all page component UIs (using hardcoded dummy data)
   - ✅ Responsive design and mobile optimization
@@ -125,11 +143,15 @@ The Structure-First Approach is a development methodology that **completes the o
 ### Phase 3: Core Feature Implementation
 
 - **Task 005: Database and API Development** - Priority
+  - blockedBy: Task 002, Task 004
+  - blocks: Task 006, Task 007
   - Build database and configure ORM
   - Implement RESTful API or GraphQL API
   - Replace dummy data with actual API calls
 
 - **Task 006: Authentication and Authorization System Implementation**
+  - blockedBy: Task 004, Task 005
+  - blocks: Task 007
   - Build user authentication system
   - Implement role-based access control
   - Security middleware and session management
@@ -137,11 +159,15 @@ The Structure-First Approach is a development methodology that **completes the o
 ### Phase 4: Advanced Features and Optimization
 
 - **Task 007: Additional Features and User Experience Enhancement**
+  - blockedBy: Task 005, Task 006
+  - blocks: Task 008
   - Implement advanced user features
   - Real-time features (WebSocket, SSE, etc.)
   - File upload and media processing
 
 - **Task 008: Performance Optimization and Deployment**
+  - blockedBy: Task 007
+  - blocks: none
   - Implement performance optimization and caching strategies
   - Build CI/CD pipeline
   - Configure monitoring and logging system
@@ -182,6 +208,11 @@ The Structure-First Approach is a development methodology that **completes the o
 4. **Specificity**: Specify concrete features rather than abstract expressions
 5. **Language**: Task files (`/tasks/XXX-description.md`) should be written in **English**
    - All sections including Overview, Acceptance Criteria, Implementation Steps, and Notes should be in English
+6. **Dependency Management** (MANDATORY):
+   - **blockedBy**: List tasks that MUST be completed before this task can start
+   - **blocks**: List tasks that depend on this task's completion
+   - Use `none` when there are no dependencies
+   - Analyze dependencies carefully to prevent circular dependencies and ensure correct execution order
 
 #### **Status Display Rules**
 
@@ -228,6 +259,9 @@ Verify that the generated ROADMAP.md meets the following criteria:
 - [ ] Are technical dependencies correctly considered?
 - [ ] Are UI and backend logic properly separated for independent development?
 - [ ] Is the order arranged to minimize duplicate work?
+- [ ] Does every task have explicit `blockedBy` and `blocks` fields?
+- [ ] Are there NO circular dependencies in the task graph?
+- [ ] Are dependency relationships bidirectionally consistent? (If A blocks B, then B must have A in blockedBy)
 
 ### 💡 Additional Considerations
 
@@ -281,6 +315,10 @@ All task files MUST follow this exact structure:
 
 ## Overview
 [Task description]
+
+## Dependencies
+- **blockedBy**: [List of tasks that must be completed first, or "none"]
+- **blocks**: [List of tasks that depend on this task, or "none"]
 
 ## Related Features
 - [Related feature 1]

@@ -7,6 +7,7 @@
 
 ## Core Principles
 > **TDD-First**: All implementations must be preceded by writing tests first.
+> **Side Effect Awareness**: All code modifications (except tests) must be written with careful consideration of potential side effects.
 
 ## Tech Stack
 - **Package Manager**
@@ -28,32 +29,30 @@
 
 ## Critical Documents
 - Project Structure [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md): **MANDATORY** - Reference before ANY task
-- Common Mistakes & Solutions [docs/NOTE.md](docs/NOTE.md): **MANDATORY** - Record frequent mistakes after code modifications to prevent repetition
 - PRD Document [docs/PRD.md](docs/PRD.md): **MANDATORY**
 - Development RoadMap [docs/ROADMAP.md](docs/ROADMAP.md): **MANDATORY**
 
-## Development Workflow [MANDATORY]
-
-> **CRITICAL**: Follow ALL steps below IN ORDER. Do NOT skip any step. Do NOT proceed without explicit user approval at Step 5.
-
 ### Workflow Execution Steps
 
-Execute these steps SEQUENTIALLY. Each step MUST complete before proceeding.
+Execute these steps SEQUENTIALLY. Each step **MUST** complete before proceeding.
 
-| Step | Action | Output | Blocker |
-|------|--------|--------|---------|
-| **1** | Enter `PlanMode` | Plan mode activated | - |
-| **2** | Analyze current state thoroughly | Understanding of existing code, dependencies, impact areas | - |
-| **3** | Create detailed step-by-step plan | Comprehensive plan covering edge cases | - |
-| **4** | Call `TaskCreate` tool | Granular tasks and subtasks (maximize decomposition) | - |
-| **5** | **STOP** - Call `TaskList` tool to display tasks | Task list shown to user | **WAIT for user instruction** |
-| **6** | **MUST** Run `unit-test-writer` sub-agent | Failing tests written (TDD Red phase) | User approval from Step 5 |
-| **7** | Implement code to pass tests | All tests pass (TDD Green phase) | Step 6 complete |
-| **8** | **MUST** Run background agents in parallel: `code-reviewer` + `security-code-reviewer` | Review reports generated | Step 7 complete |
-| **9** | Read `/docs/reports/*`, fix all non-complete issues | All issues resolved | Step 8 complete |
-| **10** | Run `e2e-tester` sub-agent | E2E test results | Step 9 complete |
-| **11** | Fix bugs/issues discovered in E2E tests | All E2E tests pass | Step 10 complete |
-| **12** | Update `/docs/NOTE.md` with lessons learned | Knowledge documented | Step 11 complete |
+| Step | Action | Blocker |
+|------|--------|---------|
+| **1** | Enter `PlanMode` | - |
+| **2** | Analyze current state thoroughly | - |
+| **3** | Create detailed step-by-step plan | - |
+| **4** | Call `TaskCreate` tool | - |
+| **5** | **STOP** - Call `TaskList` tool to display tasks | **WAIT for user instruction** |
+| **6** | Switch to `development` branch (create if not exists) | User approval from Step 5 |
+| **7** | Create feature branch from `development` | - |
+| **8** | Run `unit-test-writer` sub-agent | - |
+| **9** | Implement code to pass tests | - |
+| **10** | Run in parallel: `code-reviewer` + `security-auditor` + `performance-analyzer` sub-agents | - |
+| **11** | Scan ALL report directories, fix ALL pending issues | - |
+| **12** | Run `e2e-tester` sub-agent | - |
+| **13** | Fix bugs/issues discovered in E2E tests | E2E failures exist |
+| **14** | Run `development-planner` sub-agent | - |
+| **15** | Commit changes, merge feature branch to `development` | **ALL Steps 1-14 completed** |
 
 ### Critical Checkpoints
 
@@ -63,25 +62,25 @@ CHECKPOINT 1: After Step 5 (TaskList)
   → MUST wait for explicit user instruction (e.g., "proceed", "start", "go")
   → DO NOT auto-execute any task without user approval
 
-CHECKPOINT 2: After Step 6 (TDD Red Phase)
+CHECKPOINT 2: After Step 8 (TDD Red Phase)
   → Verify tests are written and FAILING (Red state)
   → If tests pass immediately → Review test logic (may not be testing correctly)
-  → Proceed to Step 7 only when failing tests exist
+  → Proceed to Step 9 only when failing tests exist
 
-CHECKPOINT 3: After Step 7 (TDD Green Phase)
+CHECKPOINT 3: After Step 9 (TDD Green Phase)
   → Run `bun test` to verify ALL unit tests pass
   → If any test fails → Fix implementation before proceeding
   → DO NOT proceed to code review with failing tests
 
-CHECKPOINT 4: After Step 9 (Code Review Fixes)
+CHECKPOINT 4: After Step 11 (Code Review Fixes)
   → MUST read all report files in /docs/reports/
   → MUST fix ALL issues where status != "complete"
   → Re-run reviewers if significant changes were made
-  → THEN proceed to Step 10
+  → THEN proceed to Step 12
 
-CHECKPOINT 5: After Step 10 (E2E Testing)
-  → If E2E tests fail → Proceed to Step 11 (bug fixing)
-  → If E2E tests pass → Skip Step 11, proceed to Step 12
+CHECKPOINT 5: After Step 12 (E2E Testing)
+  → If E2E tests fail → Proceed to Step 13 (bug fixing)
+  → If E2E tests pass → Skip Step 13, proceed to Step 14
   → Document all discovered issues before fixing
 
 CHECKPOINT 6: Failure Recovery
@@ -91,7 +90,35 @@ CHECKPOINT 6: Failure Recovery
   → DO NOT auto-retry failed operations
 ```
 
+### Post-Completion Documentation
+
+After all workflow steps are complete, update the following documents **as needed**:
+
+| Document | Update When |
+|----------|-------------|
+| `docs/PROJECT-STRUCTURE.md` | New directories, files, or architectural changes |
+| `docs/PRD.md` | Feature scope changes or new requirements discovered |
+| `CLAUDE.md` | Workflow improvements or new conventions identified |
+
+> **Format Requirements**: Follow the existing format of each document. Write in English.
+
 ## Code Conventions [MANDATORY]
+
+### File Naming Convention (React Router Framework) [CRITICAL]
+- `*.client.ts` / `*.client.tsx` → **Client-side ONLY** (browser execution)
+- `*.server.ts` / `*.server.tsx` → **Server-side ONLY** (SSR execution)
+
+⚠️ **CRITICAL WARNING**:
+Files with `.client.ts` suffix are EXCLUDED from server bundles.
+If you name a server-side utility `something.client.ts`, it will be bundled as `void 0` and cause runtime errors like `X is not a function`.
+
+**Example of WRONG naming**:
+- ❌ `notion.client.ts` - Treated as client-only, causes SSR errors
+
+**Correct naming**:
+- ✅ `notion-client.ts` - Hyphen, not dot before "client"
+- ✅ `notion.service.ts` - Different suffix
+
 ### React 19 Optimization & Performance [STRICT]
 - **Trust React Compiler**: Since the project uses React 19, the compiler automatically handles rendering optimization. **The use of `useCallback` and `useMemo` is strictly prohibited unless absolutely necessary.**
 - **Manual Optimization Restrictions**:
@@ -129,3 +156,18 @@ CHECKPOINT 6: Failure Recovery
 | `*.config.ts` | Configuration files |
 | `**/constants.ts`, `**/const.ts` | Static values only |
 | `**/*.css`, `**/*.scss` | Style files |
+| `*.client.ts`, `*.client.tsx` | **CLIENT-SIDE ONLY** - React Router excludes from SSR bundle |
+| `*.server.ts`, `*.server.tsx` | **SERVER-SIDE ONLY** - Not available in browser |
+
+## Test Commands
+
+| Command | Description |
+|---------|-------------|
+| `bun run test` | Run all unit tests once |
+| `bun run test:watch` | Run tests in watch mode |
+| `bun run test:coverage` | Run tests with coverage report |
+| `bun run test:coverage:check` | Run tests with coverage (flexible thresholds) |
+
+## TypeCheck Commands
+- `bun run typecheck`
+

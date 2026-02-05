@@ -34,6 +34,10 @@ export const invoiceLineItemSchema = z.object({
  *
  * 인보이스 데이터 검증
  * 날짜 필드는 문자열에서 Date로 자동 변환 (Notion API 응답 대응)
+ *
+ * @remarks
+ * - `notes` 필드는 optional: 인보이스에 추가 메모가 없는 경우 undefined
+ *   Notion에서 Notes 필드가 비어있거나 존재하지 않을 때 undefined로 처리됨
  */
 export const invoiceSchema = z.object({
 	invoice_id: z.string().min(1, "Invoice ID is required"),
@@ -49,6 +53,7 @@ export const invoiceSchema = z.object({
 	tax_amount: z.number(),
 	total_amount: z.number(),
 	currency: z.string(),
+	/** 인보이스 추가 메모 (optional: 메모가 없는 경우 undefined) */
 	notes: z.string().optional(),
 	created_at: z.coerce.date(),
 });

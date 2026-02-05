@@ -6,10 +6,11 @@ import { z } from "zod";
  * Invoice-Web MVP 환경 변수:
  * - NOTION_API_KEY: Notion Integration 토큰
  * - NOTION_INVOICE_DATABASE_ID: 인보이스 데이터베이스 ID
- * - NOTION_COMPANY_DATABASE_ID: 회사 정보 데이터베이스 ID
+ * - NOTION_LINE_ITEM_DATABASE_ID: 라인 아이템 데이터베이스 ID
+ * - NOTION_COMPANY_DATABASE_ID: 회사 정보 데이터베이스 ID (선택)
  *
  * 새 환경 변수 추가 시 이 스키마만 수정하면 됩니다:
- * - 필수: z.string()
+ * - 필수: z.string().min(1, "...")
  * - 선택: z.string().optional()
  */
 export const envSchema = z.object({
@@ -22,7 +23,7 @@ export const envSchema = z.object({
 		.min(1, "NOTION_LINE_ITEM_DATABASE_ID is required"),
 	NOTION_COMPANY_DATABASE_ID: z
 		.string()
-		.min(1, "NOTION_COMPANY_DATABASE_ID is required"),
+		.min(1, "NOTION_LINE_ITEM_DATABASE_ID is required"),
 });
 
 /** 환경 변수 타입 (스키마에서 자동 추론) */

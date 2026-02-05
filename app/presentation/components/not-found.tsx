@@ -3,8 +3,24 @@ import { Link } from "react-router";
 /**
  * NotFound Component
  *
- * Displays 404 error page with invoice-specific messaging.
- * Used by ErrorBoundary in root.tsx when a 404 Response is thrown.
+ * @deprecated Use `NotFoundState` from `~/presentation/components/error` instead.
+ * This component will be removed in a future version.
+ *
+ * Migration guide:
+ * ```tsx
+ * // Before
+ * import { NotFound } from "~/presentation/components/not-found";
+ * <NotFound />
+ *
+ * // After
+ * import { NotFoundState } from "~/presentation/components/error";
+ * <NotFoundState
+ *   title="인보이스를 찾을 수 없습니다"
+ *   message="요청하신 인보이스가 존재하지 않거나 주소가 변경되었을 수 있습니다."
+ *   actionLabel="인보이스 목록으로"
+ *   actionHref="/"
+ * />
+ * ```
  */
 export function NotFound() {
 	return (

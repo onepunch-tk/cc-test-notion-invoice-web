@@ -24,24 +24,24 @@
 
 ## 수락 기준
 
-- [ ] 인보이스 목록이 카드 그리드로 표시됨
-- [ ] 각 카드에 인보이스 번호, 고객명, 날짜, 금액, 상태가 표시됨
-- [ ] 카드 클릭 시 상세 페이지로 이동하는 링크 동작
-- [ ] 로딩 스켈레톤 UI가 구현됨
-- [ ] 빈 상태 UI가 구현됨 (인보이스 없을 때)
-- [ ] 모바일/태블릿/데스크톱 반응형 레이아웃 적용
-- [ ] 모든 테스트 통과
-- [ ] 코드 리뷰 완료
+- [x] 인보이스 목록이 카드 그리드로 표시됨
+- [x] 각 카드에 인보이스 번호, 고객명, 날짜, 금액, 상태가 표시됨
+- [x] 카드 클릭 시 상세 페이지로 이동하는 링크 동작
+- [x] 로딩 스켈레톤 UI가 구현됨
+- [x] 빈 상태 UI가 구현됨 (인보이스 없을 때)
+- [x] 모바일/태블릿/데스크톱 반응형 레이아웃 적용
+- [x] 모든 테스트 통과
+- [x] 코드 리뷰 완료
 
 ## 구현 단계
 
 ### Step 1: 더미 데이터 생성
 
-- [ ] `app/presentation/routes/invoices/_data/dummy-invoices.ts` 생성
+- [x] `app/presentation/routes/invoices/_data/dummy-invoices.ts` 생성
   - 5-10개의 더미 Invoice 데이터 배열
   - 다양한 상태 (Draft, Sent, Paid, Overdue) 포함
   - 다양한 금액 및 날짜 포함
-- [ ] 타입 안전성 확보 (Invoice 타입 사용)
+- [x] 타입 안전성 확보 (Invoice 타입 사용)
 
 **완료 조건**:
 - `unit-test-writer` 서브에이전트 실행 완료
@@ -49,11 +49,11 @@
 
 ### Step 2: 로딩 스켈레톤 컴포넌트 구현
 
-- [ ] `app/presentation/components/invoice/invoice-list-skeleton.tsx` 생성
+- [x] `app/presentation/components/invoice/invoice-list-skeleton.tsx` 생성
   - 카드 형태의 Skeleton 컴포넌트 3-6개 표시
   - 실제 InvoiceCard와 동일한 레이아웃
   - count prop으로 스켈레톤 개수 조절
-- [ ] 반응형 그리드 레이아웃 적용
+- [x] 반응형 그리드 레이아웃 적용
 
 **완료 조건**:
 - `unit-test-writer` 서브에이전트 실행 완료
@@ -61,11 +61,11 @@
 
 ### Step 3: 빈 상태 컴포넌트 구현
 
-- [ ] `app/presentation/components/invoice/empty-invoice-list.tsx` 생성
+- [x] `app/presentation/components/invoice/empty-invoice-list.tsx` 생성
   - "인보이스가 없습니다" 메시지
   - 아이콘 또는 일러스트레이션
   - 안내 텍스트 (Notion에서 인보이스 생성 안내)
-- [ ] 중앙 정렬 레이아웃
+- [x] 중앙 정렬 레이아웃
 
 **완료 조건**:
 - `unit-test-writer` 서브에이전트 실행 완료
@@ -73,12 +73,12 @@
 
 ### Step 4: 인보이스 목록 페이지 구현
 
-- [ ] `app/presentation/routes/invoices/index.tsx` 업데이트
+- [x] `app/presentation/routes/invoices/index.tsx` 업데이트
   - 페이지 제목 "Invoices" 표시
   - InvoiceCard 그리드 레이아웃 (더미 데이터 사용)
   - 반응형 그리드: 모바일 1열, 태블릿 2열, 데스크톱 3열
   - meta 함수로 페이지 제목 설정
-- [ ] 조건부 렌더링 준비 (로딩/빈 상태/데이터)
+- [x] 조건부 렌더링 준비 (로딩/빈 상태/데이터)
 
 **완료 조건**:
 - `unit-test-writer` 서브에이전트 실행 완료
@@ -86,10 +86,10 @@
 
 ### Step 5: 상태별 UI 통합
 
-- [ ] isLoading 상태일 때 InvoiceListSkeleton 표시 (시뮬레이션)
-- [ ] 데이터가 비어있을 때 EmptyInvoiceList 표시
-- [ ] 데이터가 있을 때 InvoiceCard 그리드 표시
-- [ ] 상태 전환 테스트용 버튼 추가 (개발용, 나중에 제거)
+- [x] isLoading 상태일 때 InvoiceListSkeleton 표시 (시뮬레이션)
+- [x] 데이터가 비어있을 때 EmptyInvoiceList 표시
+- [x] 데이터가 있을 때 InvoiceCard 그리드 표시
+- [x] 상태 전환 테스트용 버튼 추가 (개발용, 나중에 제거)
 
 **완료 조건**:
 - 모든 단위 테스트 통과
@@ -97,11 +97,11 @@
 
 ### Step 6: 반응형 디자인 최적화
 
-- [ ] 모바일 (< 640px): 1열 레이아웃, 터치 친화적 카드 크기
-- [ ] 태블릿 (640px - 1024px): 2열 레이아웃
-- [ ] 데스크톱 (> 1024px): 3열 레이아웃
-- [ ] 카드 간격 및 패딩 조정
-- [ ] 페이지 최대 너비 설정 (max-w-7xl)
+- [x] 모바일 (< 640px): 1열 레이아웃, 터치 친화적 카드 크기
+- [x] 태블릿 (640px - 1024px): 2열 레이아웃
+- [x] 데스크톱 (> 1024px): 3열 레이아웃
+- [x] 카드 간격 및 패딩 조정
+- [x] 페이지 최대 너비 설정 (max-w-7xl)
 
 **완료 조건**:
 - 모든 단위 테스트 통과
@@ -112,38 +112,38 @@
 > 아래 단계는 **절대 건너뛸 수 없습니다**. 완료 후 각 항목에 체크하세요.
 
 ### TDD Red Phase
-- [ ] `unit-test-writer` 서브에이전트 호출 (Task tool 사용)
-- [ ] 실패하는 테스트 작성 확인
+- [x] `unit-test-writer` 서브에이전트 호출 (Task tool 사용)
+- [x] 실패하는 테스트 작성 확인
 
 ### TDD Green Phase
-- [ ] 테스트 통과를 위한 코드 구현
-- [ ] `bun test` 통과 확인
+- [x] 테스트 통과를 위한 코드 구현
+- [x] `bun test` 통과 확인
 
 ### Code Review Phase
-- [ ] `code-reviewer` 서브에이전트 호출 (background)
-- [ ] `security-code-reviewer` 서브에이전트 호출 (background)
-- [ ] `/docs/reports/` 리뷰 결과 확인
-- [ ] 미해결 이슈 모두 수정
+- [x] `code-reviewer` 서브에이전트 호출 (background)
+- [x] `security-code-reviewer` 서브에이전트 호출 (background)
+- [x] `/docs/reports/` 리뷰 결과 확인
+- [x] 미해결 이슈 모두 수정
 
 ### E2E Test Phase
-- [ ] `e2e-tester` 서브에이전트 호출 (Task tool 사용)
-- [ ] E2E 테스트 통과 확인
+- [x] `e2e-tester` 서브에이전트 호출 (Task tool 사용)
+- [x] E2E 테스트 통과 확인
 
 ### Completion Phase
-- [ ] 이 Task 파일의 모든 체크박스 업데이트
-- [ ] `docs/NOTE.md`에 배운 점 기록
-- [ ] `docs/ROADMAP.md`에서 Task 완료 표시
+- [x] 이 Task 파일의 모든 체크박스 업데이트
+- [x] `docs/NOTE.md`에 배운 점 기록
+- [x] `docs/ROADMAP.md`에서 Task 완료 표시
 
 ## Test Checklist
 
-- [ ] Unit tests written via `unit-test-writer`
-- [ ] E2E tests written via `e2e-tester`
-- [ ] All tests passing
-- [ ] 인보이스 카드 렌더링 테스트
-- [ ] 로딩 스켈레톤 렌더링 테스트
-- [ ] 빈 상태 렌더링 테스트
-- [ ] 카드 클릭 네비게이션 테스트
-- [ ] 반응형 레이아웃 테스트
+- [x] Unit tests written via `unit-test-writer`
+- [x] E2E tests written via `e2e-tester`
+- [x] All tests passing
+- [x] 인보이스 카드 렌더링 테스트
+- [x] 로딩 스켈레톤 렌더링 테스트
+- [x] 빈 상태 렌더링 테스트
+- [x] 카드 클릭 네비게이션 테스트
+- [x] 반응형 레이아웃 테스트
 
 ## 참고 사항
 
@@ -157,4 +157,4 @@
 
 | 날짜 | 변경 내용 |
 |------|----------|
-| | |
+| 2026-02-02 | Task 005 완료 - Invoice List Page UI 구현, 185개 테스트 통과, 코드/보안 리뷰 완료 |

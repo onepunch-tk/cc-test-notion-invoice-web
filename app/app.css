@@ -160,3 +160,34 @@ body {
 		}
 	}
 }
+
+/* Print Optimization Styles */
+@media print {
+	/* Hide elements with no-print class */
+	.no-print {
+		display: none !important;
+	}
+
+	/* A4 page setup */
+	@page {
+		size: A4;
+		margin: 10mm;
+	}
+
+	/* Ensure colors print correctly */
+	body {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+
+	/* Prevent page breaks inside these elements */
+	.print-avoid-break {
+		break-inside: avoid;
+	}
+
+	/* Reset background for print */
+	.print-optimized {
+		background: white !important;
+		color: black !important;
+	}
+}

@@ -21,11 +21,13 @@ binding = "ASSETS"
 # ============================================
 
 # KV Namespace
-# bunx wrangler kv namespace create INVOICE_CACHE 으로 생성 후 id 입력
+# 1. Run: bunx wrangler kv namespace create INVOICE_CACHE
+# 2. Copy the ID from output and replace PLACEHOLDER below
+# 3. For preview: bunx wrangler kv namespace create INVOICE_CACHE --preview
 [[kv_namespaces]]
 binding = "INVOICE_CACHE"
-id = "<YOUR_KV_NAMESPACE_ID>"
-preview_id = "<YOUR_KV_PREVIEW_NAMESPACE_ID>"
+id = "PLACEHOLDER_RUN_WRANGLER_KV_CREATE"
+preview_id = "PLACEHOLDER_RUN_WRANGLER_KV_CREATE_PREVIEW"
 
 # D1 Database
 # bunx wrangler d1 create <NAME> 으로 생성 후 database_id 입력

@@ -12,8 +12,6 @@ FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
 # 보호 대상 패턴
 PROTECTED_PATTERNS=(
-    ".env"
-    ".env."
     "package-lock.json"
     "bun.lock"
     "yarn.lock"

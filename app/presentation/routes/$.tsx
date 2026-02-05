@@ -1,5 +1,5 @@
 import type { MetaFunction } from "react-router";
-import { NotFound } from "~/presentation/components/not-found";
+import { NotFoundState } from "~/presentation/components/error";
 
 /**
  * 404 Catch-all Route Meta
@@ -19,8 +19,12 @@ export const meta: MetaFunction = () => {
 /**
  * 404 Catch-all Route Component
  *
- * Displays NotFound component for any unmatched routes
+ * Displays NotFoundState component for any unmatched routes
  */
 export default function CatchAll() {
-	return <NotFound />;
+	return (
+		<main className="container mx-auto flex min-h-dvh items-center justify-center p-4">
+			<NotFoundState />
+		</main>
+	);
 }

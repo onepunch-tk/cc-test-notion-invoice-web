@@ -2,6 +2,7 @@ import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
 import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
+import { sanitizeErrorForLogging } from "~/infrastructure/utils/error-sanitizer";
 
 export default async function handleRequest(
 	request: Request,
@@ -22,7 +23,14 @@ export default async function handleRequest(
 				// errors encountered during initial shell rendering since they'll
 				// reject and get logged in handleDocumentRequest.
 				if (shellRendered) {
-					console.error(error);
+					console.error("[SSR Error]", {
+						url: request.url,
+						method: request.method,
+						statusCode: responseStatusCode,
+						error: sanitizeErrorForLogging(error),
+						userAgent: userAgent ?? "unknown",
+						timestamp: new Date().toISOString(),
+					});
 				}
 			},
 		},
