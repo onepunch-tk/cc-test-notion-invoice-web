@@ -41,6 +41,10 @@ export const CACHE_TTL = {
 
 /**
  * Rate Limiter 설정 상수
+ *
+ * @remarks
+ * Cloudflare KV는 최소 TTL이 60초입니다.
+ * windowSeconds는 60 이상으로 설정해야 합니다.
  */
 export const RATE_LIMIT_CONFIG = {
 	/** IP 기반 Rate Limit: 60 req/min */
@@ -48,10 +52,18 @@ export const RATE_LIMIT_CONFIG = {
 		maxRequests: 60,
 		windowSeconds: 60,
 	},
-	/** Notion API Rate Limit: 3 req/sec */
+	/**
+	 * Notion API Rate Limit: 180 req/min (scaled from 3 req/sec)
+	 *
+	 * @remarks
+	 * Notion API는 3 req/sec 제한이 있지만,
+	 * Cloudflare KV의 최소 TTL(60초) 제약으로 인해
+	 * 60초 윈도우에 맞춰 스케일링했습니다.
+	 * 3 req/sec × 60 sec = 180 req/min
+	 */
 	NOTION_API: {
-		maxRequests: 3,
-		windowSeconds: 1,
+		maxRequests: 180,
+		windowSeconds: 60,
 	},
 } as const;
 

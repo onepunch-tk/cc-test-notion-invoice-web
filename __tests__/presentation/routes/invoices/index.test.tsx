@@ -1,197 +1,298 @@
 /**
  * InvoiceList 페이지 컴포넌트 테스트
  *
- * TDD Red Phase: InvoiceList 페이지의 향상된 기능을 테스트합니다.
- * 새로운 기능(인보이스 카드, 스켈레톤, 빈 상태, 그리드 레이아웃)에 대한 테스트는
- * 실패해야 합니다 (아직 구현되지 않음).
+ * createRoutesStub을 사용하여 loader 데이터와 함께 컴포넌트를 테스트합니다.
+ * - loader 데이터로 인보이스 목록 렌더링
+ * - 빈 상태 렌더링
+ * - ErrorBoundary 테스트
  */
 
-import { screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import InvoiceList from "~/presentation/routes/invoices/index";
-import { renderWithRouter } from "../../../utils/render-with-router";
+import { createRoutesStub } from "react-router";
+import type { Invoice } from "~/domain/invoice";
+import InvoiceList, {
+	ErrorBoundary,
+} from "~/presentation/routes/invoices/index";
+
+/**
+ * Mock 인보이스 데이터 생성 헬퍼
+ */
+const createMockInvoice = (overrides: Partial<Invoice> = {}): Invoice => ({
+	invoice_id: "inv-001",
+	invoice_number: "INV-2024-001",
+	client_name: "테스트 회사",
+	client_email: "test@example.com",
+	client_address: "서울시 강남구",
+	issue_date: new Date("2024-01-15"),
+	due_date: new Date("2024-02-15"),
+	status: "Draft",
+	subtotal: 1000000,
+	tax_rate: 10,
+	tax_amount: 100000,
+	total_amount: 1100000,
+	currency: "KRW",
+	notes: "테스트 인보이스",
+	created_at: new Date("2024-01-15"),
+	...overrides,
+});
+
+/**
+ * createRoutesStub을 사용한 렌더링 헬퍼
+ */
+const renderWithLoaderData = (invoices: Invoice[]) => {
+	const RoutesStub = createRoutesStub([
+		{
+			path: "/invoices",
+			Component: InvoiceList,
+			loader: () => ({ invoices }),
+		},
+	]);
+
+	return render(<RoutesStub initialEntries={["/invoices"]} />);
+};
+
+/**
+ * ErrorBoundary 테스트를 위한 렌더링 헬퍼
+ */
+const renderWithError = (status: number, message: string) => {
+	const RoutesStub = createRoutesStub([
+		{
+			path: "/invoices",
+			Component: InvoiceList,
+			ErrorBoundary: ErrorBoundary,
+			loader: () => {
+				throw new Response(message, { status });
+			},
+		},
+	]);
+
+	return render(<RoutesStub initialEntries={["/invoices"]} />);
+};
 
 describe("InvoiceList 페이지", () => {
-	const renderInvoiceList = () => {
-		return renderWithRouter(<InvoiceList />);
-	};
-
 	describe("페이지 헤더 렌더링", () => {
-		it('"인보이스 목록" 제목이 렌더링되어야 한다', () => {
+		it('"인보이스 목록" 제목이 렌더링되어야 한다', async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
 			expect(
-				screen.getByRole("heading", { level: 1, name: /인보이스 목록/i }),
+				await screen.findByRole("heading", {
+					level: 1,
+					name: /인보이스 목록/i,
+				}),
 			).toBeInTheDocument();
 		});
 
-		it("제목이 h1 태그여야 한다", () => {
+		it("제목이 h1 태그여야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const heading = screen.getByRole("heading", { level: 1 });
+			const heading = await screen.findByRole("heading", { level: 1 });
 			expect(heading).toHaveTextContent(/인보이스 목록/i);
 		});
 
-		it("페이지 설명이 렌더링되어야 한다", () => {
+		it("페이지 설명이 렌더링되어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const description = screen.getByText(/Notion/i);
+			const description = await screen.findByText(/Notion/i);
 			expect(description).toBeInTheDocument();
 		});
 	});
 
 	describe("인보이스 카드 렌더링", () => {
-		it("데이터가 있을 때 인보이스 카드들이 렌더링되어야 한다", () => {
-			// Arrange & Act
-			renderInvoiceList();
+		it("데이터가 있을 때 인보이스 카드들이 렌더링되어야 한다", async () => {
+			// Arrange
+			const mockInvoices = [
+				createMockInvoice({ invoice_id: "inv-001" }),
+				createMockInvoice({ invoice_id: "inv-002" }),
+			];
+
+			// Act
+			renderWithLoaderData(mockInvoices);
 
 			// Assert
-			// 더미 데이터가 있을 때 invoice-card가 렌더링되어야 함
-			const invoiceCards = screen.queryAllByTestId("invoice-card");
-			expect(invoiceCards.length).toBeGreaterThan(0);
+			await waitFor(() => {
+				const invoiceCards = screen.queryAllByTestId("invoice-card");
+				expect(invoiceCards.length).toBeGreaterThan(0);
+			});
 		});
 
-		it("8개의 더미 인보이스 카드가 렌더링되어야 한다", () => {
-			// Arrange & Act
-			renderInvoiceList();
+		it("loader에서 반환된 인보이스 수만큼 카드가 렌더링되어야 한다", async () => {
+			// Arrange
+			const mockInvoices = [
+				createMockInvoice({ invoice_id: "inv-001" }),
+				createMockInvoice({ invoice_id: "inv-002" }),
+				createMockInvoice({ invoice_id: "inv-003" }),
+			];
+
+			// Act
+			renderWithLoaderData(mockInvoices);
 
 			// Assert
-			const invoiceCards = screen.getAllByTestId("invoice-card");
-			expect(invoiceCards).toHaveLength(8);
-		});
-	});
-
-	describe("로딩 상태 렌더링", () => {
-		it("로딩 중일 때 스켈레톤이 렌더링되어야 한다", () => {
-			// Arrange & Act
-			// 로딩 상태를 시뮬레이션하기 위해 isLoading prop 또는 상태 사용
-			renderInvoiceList();
-
-			// Assert
-			// 로딩 상태일 때 스켈레톤 컴포넌트가 표시되어야 함
-			const skeleton = screen.queryByTestId("invoice-list-skeleton");
-			// 이 테스트는 로딩 상태 구현 후 조건부로 통과
-			expect(skeleton).toBeDefined();
+			await waitFor(() => {
+				const invoiceCards = screen.getAllByTestId("invoice-card");
+				expect(invoiceCards).toHaveLength(3);
+			});
 		});
 	});
 
 	describe("빈 상태 렌더링", () => {
-		it("데이터가 없을 때 빈 상태 컴포넌트가 렌더링되어야 한다", () => {
+		it("데이터가 없을 때 빈 상태 컴포넌트가 렌더링되어야 한다", async () => {
 			// Arrange & Act
-			// 데이터가 없는 상태를 시뮬레이션
-			renderInvoiceList();
+			renderWithLoaderData([]);
 
 			// Assert
-			// 데이터가 없을 때 빈 상태 컴포넌트가 표시되어야 함
-			const emptyState = screen.queryByTestId("empty-invoice-list");
-			// 현재는 더미 데이터가 있으므로 빈 상태가 표시되지 않아야 함
-			// 데이터가 비어있을 때만 표시되어야 함
-			expect(emptyState).toBeDefined();
+			const emptyState = await screen.findByTestId("empty-invoice-list");
+			expect(emptyState).toBeInTheDocument();
+		});
+
+		it("데이터가 없을 때 인보이스 그리드가 렌더링되지 않아야 한다", async () => {
+			// Arrange & Act
+			renderWithLoaderData([]);
+
+			// Assert
+			await screen.findByTestId("empty-invoice-list");
+			expect(screen.queryByTestId("invoice-grid")).not.toBeInTheDocument();
 		});
 	});
 
 	describe("반응형 그리드 레이아웃", () => {
-		it("인보이스 카드 컨테이너에 그리드 클래스가 적용되어야 한다", () => {
+		it("인보이스 카드 컨테이너에 그리드 클래스가 적용되어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const gridContainer = screen.getByTestId("invoice-grid");
+			const gridContainer = await screen.findByTestId("invoice-grid");
 			expect(gridContainer).toHaveClass("grid");
 		});
 
-		it("모바일에서 1열 그리드가 적용되어야 한다", () => {
+		it("모바일에서 1열 그리드가 적용되어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const gridContainer = screen.getByTestId("invoice-grid");
+			const gridContainer = await screen.findByTestId("invoice-grid");
 			expect(gridContainer).toHaveClass("grid-cols-1");
 		});
 
-		it("태블릿에서 2열 그리드가 적용되어야 한다", () => {
+		it("태블릿에서 2열 그리드가 적용되어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const gridContainer = screen.getByTestId("invoice-grid");
+			const gridContainer = await screen.findByTestId("invoice-grid");
 			expect(gridContainer.className).toMatch(/sm:grid-cols-2/);
 		});
 
-		it("데스크탑에서 3열 그리드가 적용되어야 한다", () => {
+		it("데스크탑에서 3열 그리드가 적용되어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const gridContainer = screen.getByTestId("invoice-grid");
+			const gridContainer = await screen.findByTestId("invoice-grid");
 			expect(gridContainer.className).toMatch(/lg:grid-cols-3/);
 		});
 
-		it("그리드 아이템 간 간격이 적용되어야 한다", () => {
+		it("그리드 아이템 간 간격이 적용되어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const gridContainer = screen.getByTestId("invoice-grid");
+			const gridContainer = await screen.findByTestId("invoice-grid");
 			expect(gridContainer.className).toMatch(/gap-/);
 		});
 	});
 
 	describe("페이지 레이아웃 구조", () => {
-		it("컨테이너가 적절한 패딩을 가져야 한다", () => {
+		it("컨테이너가 적절한 패딩을 가져야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const container = screen.getByTestId("invoice-list-container");
+			const container = await screen.findByTestId("invoice-list-container");
 			expect(container.className).toMatch(/p[xy]?-/);
 		});
 
-		it("헤더와 메인 콘텐츠가 분리되어야 한다", () => {
+		it("헤더와 메인 콘텐츠가 분리되어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const header = screen.getByRole("banner");
-			const main = screen.getByRole("main");
+			await waitFor(() => {
+				const header = screen.getByRole("banner");
+				const main = screen.getByRole("main");
 
-			expect(header).toBeInTheDocument();
-			expect(main).toBeInTheDocument();
+				expect(header).toBeInTheDocument();
+				expect(main).toBeInTheDocument();
+			});
 		});
 
-		it("헤더와 메인 사이에 적절한 간격이 있어야 한다", () => {
+		it("헤더와 메인 사이에 적절한 간격이 있어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const header = screen.getByRole("banner");
+			const header = await screen.findByRole("banner");
 			expect(header.className).toMatch(/mb-/);
 		});
 	});
 
 	describe("접근성 검증", () => {
-		it("페이지에 적절한 랜드마크가 있어야 한다", () => {
+		it("페이지에 적절한 랜드마크가 있어야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			expect(screen.getByRole("banner")).toBeInTheDocument();
-			expect(screen.getByRole("main")).toBeInTheDocument();
+			await waitFor(() => {
+				expect(screen.getByRole("banner")).toBeInTheDocument();
+				expect(screen.getByRole("main")).toBeInTheDocument();
+			});
 		});
 
-		it("제목이 적절한 계층 구조를 가져야 한다", () => {
+		it("제목이 적절한 계층 구조를 가져야 한다", async () => {
 			// Arrange & Act
-			renderInvoiceList();
+			renderWithLoaderData([createMockInvoice()]);
 
 			// Assert
-			const h1 = screen.getByRole("heading", { level: 1 });
+			const h1 = await screen.findByRole("heading", { level: 1 });
 			expect(h1).toBeInTheDocument();
+		});
+	});
+
+	describe("ErrorBoundary 렌더링", () => {
+		it("500 에러 시 ErrorState가 렌더링되어야 한다", async () => {
+			// Arrange & Act
+			renderWithError(500, "Server error");
+
+			// Assert
+			const errorState = await screen.findByTestId("error-state");
+			expect(errorState).toBeInTheDocument();
+		});
+
+		it("에러 상태에서 재시도 버튼이 표시되어야 한다", async () => {
+			// Arrange & Act
+			renderWithError(500, "Server error");
+
+			// Assert
+			const retryButton = await screen.findByRole("button", {
+				name: /Try Again/i,
+			});
+			expect(retryButton).toBeInTheDocument();
+		});
+
+		it("에러 상태에서 홈으로 이동 링크가 표시되어야 한다", async () => {
+			// Arrange & Act
+			renderWithError(500, "Server error");
+
+			// Assert
+			const homeLink = await screen.findByRole("link", { name: /Go Home/i });
+			expect(homeLink).toBeInTheDocument();
+			expect(homeLink).toHaveAttribute("href", "/");
 		});
 	});
 });

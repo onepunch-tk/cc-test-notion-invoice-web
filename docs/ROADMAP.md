@@ -69,88 +69,108 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
 
 ## Development Phases
 
-### Phase 1: Application Skeleton Build
+### Phase 1: Application Skeleton Build ✅
 
-- **Task 001: Project Structure and Routing Setup** - ✅ Complete
-  - See: `/tasks/001-route-structure.md`
-  - React Router v7 기반 전체 라우트 구조 생성
-  - 모든 주요 페이지의 빈 쉘 파일 생성 (Invoice List, Invoice Detail, 404)
-  - 공통 레이아웃 컴포넌트 스켈레톤 구현
+- **Task 001: Project Structure and Routing Setup** ✅ - Completed
+  - blockedBy: none
+  - blocks: Task 002, Task 003, Task 003-A
+  - **Must** Read: [001-route-structure.md](/tasks/001-route-structure.md)
+  - ✅ React Router v7 기반 전체 라우트 구조 생성
+  - ✅ 모든 주요 페이지의 빈 쉘 파일 생성 (Invoice List, Invoice Detail, 404)
+  - ✅ 공통 레이아웃 컴포넌트 스켈레톤 구현
   - Related: F004, F006, F009
 
-- **Task 002: Type Definitions and Interface Design** - ✅ Complete
-  - See: `/tasks/002-type-definitions.md`
-  - Invoice, InvoiceLineItem, CompanyInfo TypeScript 인터페이스 및 타입 정의
-  - Zod 스키마 정의 (Notion API 응답 검증용)
-  - Notion API 응답 타입 정의
+- **Task 002: Type Definitions and Interface Design** ✅ - Completed
+  - blockedBy: Task 001
+  - blocks: Task 004, Task 005, Task 006, Task 008
+  - **Must** Read: [002-type-definitions.md](/tasks/002-type-definitions.md)
+  - ✅ Invoice, InvoiceLineItem, CompanyInfo TypeScript 인터페이스 및 타입 정의
+  - ✅ Zod 스키마 정의 (Notion API 응답 검증용)
+  - ✅ Notion API 응답 타입 정의
   - Related: F003, F007
 
-- **Task 003: Environment Variables and Configuration** - ✅ Complete
-  - See: `/tasks/003-env-config.md`
-  - Notion API 환경 변수 스키마 정의 (NOTION_API_KEY, DATABASE_IDs)
-  - Cloudflare KV 바인딩 설정
-  - Wrangler 설정 업데이트
+- **Task 003: Environment Variables and Configuration** ✅ - Completed
+  - blockedBy: Task 001
+  - blocks: Task 003-A, Task 008, Task 009
+  - **Must** Read: [003-env-config.md](/tasks/003-env-config.md)
+  - ✅ Notion API 환경 변수 스키마 정의 (NOTION_API_KEY, DATABASE_IDs)
+  - ✅ Cloudflare KV 바인딩 설정
+  - ✅ Wrangler 설정 업데이트
   - Related: F003
 
-- **Task 003-A: Notion Database Setup** - ✅ Complete
-  - See: `/tasks/003-A-notion-database-setup.md`
-  - Notion API를 통한 Invoice, Line Item 데이터베이스 자동 생성
-  - Company 데이터베이스 검증
-  - `scripts/setup-notion-databases.ts` 스크립트 제공
+- **Task 003-A: Notion Database Setup** ✅ - Completed
+  - blockedBy: Task 003
+  - blocks: Task 008
+  - **Must** Read: [003-A-notion-database-setup.md](/tasks/003-A-notion-database-setup.md)
+  - ✅ Notion API를 통한 Invoice, Line Item 데이터베이스 자동 생성
+  - ✅ Company 데이터베이스 검증
+  - ✅ `scripts/setup-notion-databases.ts` 스크립트 제공
   - Generated Database IDs:
     - Invoice: `2fbd6380-800d-81d8-96e0-e8fe519d03f5`
     - Line Item: `2fbd6380-800d-8192-908a-e911d3a6b313`
   - Related: F003
 
-### Phase 2: UI/UX Completion (Using Dummy Data)
+### Phase 2: UI/UX Completion (Using Dummy Data) ✅
 
-- **Task 004: Common Component Library Implementation** - ✅ Complete
-  - See: `/tasks/004-component-library.md`
-  - shadcn/ui 기반 공통 컴포넌트 구현 (Button, Card, Table, Badge, Skeleton)
-  - 인보이스 관련 UI 컴포넌트 (InvoiceCard, InvoiceTable, InvoiceHeader, InvoiceSummary)
-  - format utilities (formatCurrency, formatDate) 및 invoice-utils (getStatusBadgeVariant)
-  - 132개 테스트 통과, 코드/보안 리뷰 완료
+- **Task 004: Common Component Library Implementation** ✅ - Completed
+  - blockedBy: Task 001, Task 002
+  - blocks: Task 005, Task 006, Task 007
+  - **Must** Read: [004-component-library.md](/tasks/004-component-library.md)
+  - ✅ shadcn/ui 기반 공통 컴포넌트 구현 (Button, Card, Table, Badge, Skeleton)
+  - ✅ 인보이스 관련 UI 컴포넌트 (InvoiceCard, InvoiceTable, InvoiceHeader, InvoiceSummary)
+  - ✅ format utilities (formatCurrency, formatDate) 및 invoice-utils (getStatusBadgeVariant)
+  - ✅ 132개 테스트 통과, 코드/보안 리뷰 완료
   - Related: F005
 
-- **Task 005: Invoice List Page UI** - ✅ Complete
-  - See: `/tasks/005-invoice-list-ui.md`
-  - 인보이스 목록 페이지 UI 구현 (하드코딩된 더미 데이터 사용)
-  - InvoiceCard 그리드 레이아웃 (반응형: 1/2/3열)
-  - 로딩 스켈레톤 (InvoiceListSkeleton) 및 빈 상태 UI (EmptyInvoiceList)
-  - 8개 더미 Invoice 데이터 (Draft 2, Sent 2, Paid 3, Overdue 1, KRW/USD 혼합)
-  - 185개 테스트 통과, 코드/보안 리뷰 완료
+- **Task 005: Invoice List Page UI** ✅ - Completed
+  - blockedBy: Task 004
+  - blocks: Task 010
+  - **Must** Read: [005-invoice-list-ui.md](/tasks/005-invoice-list-ui.md)
+  - ✅ 인보이스 목록 페이지 UI 구현 (하드코딩된 더미 데이터 사용)
+  - ✅ InvoiceCard 그리드 레이아웃 (반응형: 1/2/3열)
+  - ✅ 로딩 스켈레톤 (InvoiceListSkeleton) 및 빈 상태 UI (EmptyInvoiceList)
+  - ✅ 8개 더미 Invoice 데이터 (Draft 2, Sent 2, Paid 3, Overdue 1, KRW/USD 혼합)
+  - ✅ 185개 테스트 통과, 코드/보안 리뷰 완료
   - Related: F004, F005, F008, F009
 
-- **Task 006: Invoice Detail Page UI** - ✅ Complete
+- **Task 006: Invoice Detail Page UI** ✅ - Completed
+  - blockedBy: Task 004
+  - blocks: Task 011
   - **Must** Read: [006-invoice-detail-ui.md](/tasks/006-invoice-detail-ui.md)
   - ✅ 인보이스 상세 페이지 UI 구현 (하드코딩된 더미 데이터 사용)
   - ✅ 회사 정보, 고객 정보, 라인 아이템 테이블, 합계 섹션
   - ✅ 인쇄 최적화 레이아웃 (A4 사이즈)
   - ✅ PDF 다운로드 버튼 플레이스홀더
-  - 271개 테스트 통과, E2E 10/10 통과, 코드/보안 리뷰 완료
+  - ✅ 271개 테스트 통과, E2E 10/10 통과, 코드/보안 리뷰 완료
   - Related: F001, F005, F006, F008, F009
 
-- **Task 007: Error Pages and States UI** - ✅ Complete
+- **Task 007: Error Pages and States UI** ✅ - Completed
+  - blockedBy: Task 004
+  - blocks: none
   - **Must** Read: [007-error-pages-ui.md](/tasks/007-error-pages-ui.md)
   - ✅ NotFoundState 컴포넌트 (FileQuestion 아이콘, 커스터마이즈 가능한 props)
   - ✅ ErrorState 컴포넌트 (error/warning variant, onRetry 콜백 지원)
   - ✅ ErrorBoundary 개선 (404/일반 에러 분기, 에러 메시지 sanitization)
   - ✅ CatchAll 라우트 ($.tsx) NotFoundState 적용
   - ✅ 접근성: role="status/alert", aria-live 속성 적용
-  - 319개 단위 테스트 통과, E2E 10/10 통과, 코드/보안/성능 리뷰 완료
+  - ✅ 319개 단위 테스트 통과, E2E 10/10 통과, 코드/보안/성능 리뷰 완료
   - Related: F009
 
 ### Phase 3: Core Feature Implementation
 
-- **Task 008: Notion API Integration Service** - ✅ Complete
-  - See: `/tasks/008-notion-api-service.md`
-  - Notion API 클라이언트 설정 (@notionhq/client)
-  - Invoice, LineItem, CompanyInfo 데이터 fetching 서비스 구현
-  - Notion API 응답을 도메인 타입으로 변환하는 mapper 구현
-  - Zod 스키마로 응답 검증
+- **Task 008: Notion API Integration Service** ✅ - Completed
+  - blockedBy: Task 002, Task 003, Task 003-A
+  - blocks: Task 010, Task 011, Task 012
+  - **Must** Read: [008-notion-api-service.md](/tasks/008-notion-api-service.md)
+  - ✅ Notion API 클라이언트 설정 (@notionhq/client)
+  - ✅ Invoice, LineItem, CompanyInfo 데이터 fetching 서비스 구현
+  - ✅ Notion API 응답을 도메인 타입으로 변환하는 mapper 구현
+  - ✅ Zod 스키마로 응답 검증
   - Related: F003, F007
 
-- **Task 009: Cloudflare KV Caching Layer** - ✅ Complete
+- **Task 009: Cloudflare KV Caching Layer** ✅ - Completed
+  - blockedBy: Task 003
+  - blocks: Task 010, Task 011
   - **Must** Read: [009-kv-caching.md](/tasks/009-kv-caching.md)
   - ✅ Cloudflare KV 캐싱 서비스 구현 (CacheService 인터페이스, KVCacheService 구현체)
   - ✅ TTL 설정 (Invoice List: 5분, Invoice Detail: 10분, Company Info: 15분)
@@ -162,14 +182,20 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - ✅ 539개 테스트 통과 (42개 신규 캐싱 레이어 테스트 포함)
   - Related: F003
 
-- **Task 010: Invoice List Page Data Integration**
-  - See: `/tasks/010-invoice-list-data.md`
-  - 인보이스 목록 페이지에 실제 Notion 데이터 연동
-  - loader 함수 구현 (서버 사이드 데이터 fetching)
-  - 에러 핸들링 및 로딩 상태 처리
+- **Task 010: Invoice List Page Data Integration** ✅ - Completed
+  - blockedBy: Task 005, Task 008, Task 009
+  - blocks: Task 012
+  - **Must** Read: [010-invoice-list-data.md](/tasks/010-invoice-list-data.md)
+  - ✅ 인보이스 목록 페이지에 실제 Notion 데이터 연동
+  - ✅ loader 함수 구현 (서버 사이드 데이터 fetching)
+  - ✅ ErrorBoundary 에러 핸들링 구현
+  - ✅ 더미 데이터 제거 및 useLoaderData 연동
+  - ✅ createRoutesStub 활용 종합 테스트 작성
   - Related: F003, F004, F008, F009
 
-- **Task 011: Invoice Detail Page Data Integration**
+- **Task 011: Invoice Detail Page Data Integration** - Priority
+  - blockedBy: Task 006, Task 008, Task 009
+  - blocks: Task 012
   - See: `/tasks/011-invoice-detail-data.md`
   - 인보이스 상세 페이지에 실제 Notion 데이터 연동
   - URL 파라미터로 invoice_id 추출 및 검증
@@ -178,6 +204,8 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Related: F001, F003, F006, F007, F008, F009
 
 - **Task 012: Core Feature Integration Testing**
+  - blockedBy: Task 008, Task 010, Task 011
+  - blocks: none
   - See: `/tasks/012-integration-testing.md`
   - API 통합 테스트 (MSW 활용)
   - 비즈니스 로직 검증
@@ -186,7 +214,9 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
 
 ### Phase 4: PDF Export and Polish
 
-- **Task 013: PDF Document Component**
+- **Task 013: PDF Document Component** - Priority
+  - blockedBy: none
+  - blocks: Task 014
   - See: `/tasks/013-pdf-document.md`
   - @react-pdf/renderer 기반 PDF 문서 컴포넌트 구현
   - 웹 뷰와 동일한 레이아웃 재현
@@ -195,6 +225,8 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Related: F002
 
 - **Task 014: PDF Download Feature**
+  - blockedBy: Task 013
+  - blocks: Task 015
   - See: `/tasks/014-pdf-download.md`
   - PDFDownloadLink 컴포넌트로 다운로드 기능 구현
   - 클라이언트 사이드 전용 (dynamic import)
@@ -203,6 +235,8 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Related: F002
 
 - **Task 015: Performance Optimization**
+  - blockedBy: Task 014
+  - blocks: Task 018
   - See: `/tasks/015-performance.md`
   - PDF 라이브러리 lazy loading
   - 이미지 최적화 (로고 등)
@@ -210,7 +244,9 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Cloudflare Edge 캐싱 최적화
   - Related: F003, F005
 
-- **Task 016: Security and Input Validation**
+- **Task 016: Security and Input Validation** - Priority
+  - blockedBy: none
+  - blocks: Task 018
   - See: `/tasks/016-security.md`
   - invoice_id 형식 검증 (인젝션 방지)
   - Notion 데이터 sanitization (XSS 방지)
@@ -219,7 +255,9 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - **[Security]** CORS 설정 (필요시)
   - Related: F006, F007
 
-- **Task 017: Accessibility Audit and Fixes**
+- **Task 017: Accessibility Audit and Fixes** - Priority
+  - blockedBy: none
+  - blocks: Task 018
   - See: `/tasks/017-accessibility.md`
   - 키보드 네비게이션 검증 및 개선
   - 스크린 리더 호환성 확인
@@ -228,6 +266,8 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Related: F005
 
 - **Task 018: Final QA and Testing**
+  - blockedBy: Task 015, Task 016, Task 017
+  - blocks: Task 019
   - See: `/tasks/018-final-qa.md`
   - 전체 기능 통합 테스트
   - 크로스 브라우저 테스트 (Chrome, Firefox, Safari, Edge)
@@ -235,6 +275,8 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - Related: All Features
 
 - **Task 019: Production Deployment**
+  - blockedBy: Task 018
+  - blocks: none
   - See: `/tasks/019-deployment.md`
   - Cloudflare Workers 배포 설정
   - 환경 변수 및 시크릿 설정
