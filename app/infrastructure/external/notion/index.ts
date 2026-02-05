@@ -10,6 +10,8 @@ export {
 	createNotionInvoiceRepository,
 	type NotionInvoiceRepositoryConfig,
 } from "./invoice.repository.impl";
+export { createCachedInvoiceRepository } from "./cached-invoice.repository";
+export { createCachedCompanyRepository } from "./cached-company.repository";
 export { createNotionClient, type NotionClientConfig } from "./notion.client";
 export {
 	getDate,
@@ -28,6 +30,7 @@ export {
 	isDateProperty,
 	isEmailProperty,
 	isNumberProperty,
+	isPageObjectResponse,
 	isPhoneNumberProperty,
 	isRichTextProperty,
 	isSelectProperty,

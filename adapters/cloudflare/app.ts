@@ -15,8 +15,11 @@ export default {
 		// 환경 변수 추출
 		const env = extractCloudflareEnv(cloudflareEnv);
 
-		// Composition Root: Container 생성 및 주입
-		const container = createContainer(env);
+		// KV 바인딩 추출 (wrangler.toml에 INVOICE_CACHE로 설정됨)
+		const kv = cloudflareEnv.INVOICE_CACHE;
+
+		// Composition Root: Container 생성 및 주입 (KV 전달)
+		const container = createContainer(env, kv);
 
 		return requestHandler(request, {
 			env,
