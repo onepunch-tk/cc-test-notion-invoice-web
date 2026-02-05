@@ -40,6 +40,13 @@ export default defineConfig({
 				"app/presentation/**/*.{ts,tsx}",
 			],
 			exclude: ["**/*.d.ts", "**/index.ts", "**/types/**"],
+			// 커버리지 임계값 설정
+			thresholds: {
+				statements: 90,
+				branches: 90,
+				functions: 90,
+				lines: 90,
+			},
 		},
 
 		// 타임아웃 설정 (ms)

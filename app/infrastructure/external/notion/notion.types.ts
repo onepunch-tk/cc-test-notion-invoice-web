@@ -120,3 +120,30 @@ export const isPhoneNumberProperty = (
 ): prop is Extract<PropertyValueType, { type: "phone_number" }> => {
 	return prop.type === "phone_number";
 };
+
+/**
+ * PageObjectResponse 타입 가드
+ *
+ * Notion API 응답에서 페이지 객체를 식별합니다.
+ * PartialPageObjectResponse와 구분하기 위해 사용됩니다.
+ *
+ * @param result - 검사할 Notion API 응답 객체
+ * @returns PageObjectResponse 타입이면 true, 아니면 false
+ *
+ * @example
+ * ```typescript
+ * const pages = response.results.filter(isPageObjectResponse);
+ * // pages는 PageObjectResponse[] 타입으로 좁혀짐
+ * ```
+ */
+export const isPageObjectResponse = (
+	result: unknown,
+): result is PageObjectResponse => {
+	return (
+		typeof result === "object" &&
+		result !== null &&
+		"object" in result &&
+		(result as { object: string }).object === "page" &&
+		"properties" in result
+	);
+};

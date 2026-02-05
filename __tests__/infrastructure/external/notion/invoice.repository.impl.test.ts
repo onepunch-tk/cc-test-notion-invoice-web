@@ -144,7 +144,7 @@ describe("createNotionInvoiceRepository", () => {
 			expect(result).toEqual([]);
 		});
 
-		it("Notion API 오류 발생 시 에러를 전파한다", async () => {
+		it("Notion API 오류 발생 시 NotionApiError로 래핑하여 전파한다", async () => {
 			// Arrange
 			const error = new Error("Notion API Error");
 			vi.mocked(mockClient.databases.query).mockRejectedValue(error);
@@ -152,7 +152,9 @@ describe("createNotionInvoiceRepository", () => {
 			const repository = createNotionInvoiceRepository(mockClient, config);
 
 			// Act & Assert
-			await expect(repository.findAll()).rejects.toThrow("Notion API Error");
+			await expect(repository.findAll()).rejects.toThrow(
+				"Failed to fetch invoice list from Notion",
+			);
 		});
 	});
 
@@ -352,7 +354,7 @@ describe("createNotionInvoiceRepository", () => {
 			expect(result?.line_items).toEqual([]);
 		});
 
-		it("Notion API 오류 발생 시 에러를 전파한다", async () => {
+		it("Notion API 오류 발생 시 NotionApiError로 래핑하여 전파한다", async () => {
 			// Arrange
 			const invoiceId = "inv-001";
 			const error = new Error("Notion API Error");
@@ -362,7 +364,7 @@ describe("createNotionInvoiceRepository", () => {
 
 			// Act & Assert
 			await expect(repository.findById(invoiceId)).rejects.toThrow(
-				"Notion API Error",
+				`Failed to fetch invoice detail for ID: ${invoiceId}`,
 			);
 		});
 	});
@@ -495,7 +497,7 @@ describe("createNotionInvoiceRepository", () => {
 			expect(result).toEqual([]);
 		});
 
-		it("Notion API 오류 발생 시 에러를 전파한다", async () => {
+		it("Notion API 오류 발생 시 NotionApiError로 래핑하여 전파한다", async () => {
 			// Arrange
 			const invoiceId = "inv-001";
 			const error = new Error("Notion API Error");
@@ -505,7 +507,7 @@ describe("createNotionInvoiceRepository", () => {
 
 			// Act & Assert
 			await expect(repository.findLineItems(invoiceId)).rejects.toThrow(
-				"Notion API Error",
+				`Failed to fetch line items for invoice: ${invoiceId}`,
 			);
 		});
 	});

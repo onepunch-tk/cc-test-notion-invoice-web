@@ -6,8 +6,8 @@ import type {
 import { createCircuitBreaker } from "~/infrastructure/external/cloudflare/circuit-breaker.service";
 import { CircuitOpenError } from "~/infrastructure/external/cloudflare/errors";
 import {
-	type MockKVNamespace,
 	createMockKVNamespace,
+	type MockKVNamespace,
 } from "../../../fixtures/cloudflare/kv-namespace.fixture";
 
 describe("createCircuitBreaker", () => {
@@ -23,7 +23,9 @@ describe("createCircuitBreaker", () => {
 			recoveryTimeSeconds: 10,
 			halfOpenRequests: 1,
 		};
-		circuitBreaker = createCircuitBreaker(mockKV, circuitKey, config);
+		circuitBreaker = createCircuitBreaker(mockKV, circuitKey, config, {
+			getCurrentTime: () => mockKV._getCurrentTime(),
+		});
 	});
 
 	describe("상태 전이: CLOSED → OPEN", () => {

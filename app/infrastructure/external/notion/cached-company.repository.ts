@@ -12,9 +12,8 @@ import type { CompanyInfo } from "~/domain/company";
 import {
 	CACHE_TTL,
 	companyInfoKey,
-	notionApiRateLimitKey,
 } from "~/infrastructure/external/cloudflare/cache-keys";
-import { RateLimitExceededError } from "~/infrastructure/external/cloudflare/errors";
+import { createProtectedExecutor } from "~/infrastructure/external/cloudflare/protection-utils";
 
 /**
  * Cached Company Repository 의존성
@@ -39,32 +38,11 @@ export const createCachedCompanyRepository = (
 ): CompanyRepository => {
 	const { repository, cache, rateLimiter, circuitBreaker } = deps;
 
-	/**
-	 * Rate Limit 확인 및 요청
-	 */
-	const checkRateLimit = async (): Promise<void> => {
-		const key = notionApiRateLimitKey();
-		const result = await rateLimiter.checkAndRecord(key);
-
-		if (!result.allowed) {
-			throw new RateLimitExceededError(
-				key,
-				result.retryAfter ?? 1,
-				result.resetAt,
-			);
-		}
-	};
-
-	/**
-	 * Circuit Breaker를 통해 작업 실행
-	 */
-	const executeWithProtection = async <T>(
-		operation: () => Promise<T>,
-		fallback?: () => Promise<T>,
-	): Promise<T> => {
-		await checkRateLimit();
-		return circuitBreaker.execute(operation, fallback);
-	};
+	// Create protected executor with rate limiting and circuit breaker
+	const executeWithProtection = createProtectedExecutor({
+		rateLimiter,
+		circuitBreaker,
+	});
 
 	const getCompanyInfo = async (): Promise<CompanyInfo> => {
 		const cacheKey = companyInfoKey();

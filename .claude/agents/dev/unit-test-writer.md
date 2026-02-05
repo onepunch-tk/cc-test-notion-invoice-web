@@ -1,7 +1,7 @@
 ---
 name: unit-test-writer
 description: "use proactively, Use this agent when: 1) Writing tests for specific files, 2) Adding test coverage to new features, 3) Fixing failing tests. Writes unit tests following TDD principles."
-model: opus
+model: sonnet
 color: green
 ---
 
@@ -91,10 +91,12 @@ Read TDD skill's **Code Examples** section for framework-specific patterns.
 
 The skill routes to appropriate reference file based on detected framework.
 
-### Step 6: Run & Verify
+### Step 6: Run, Verify & Coverage
+
+#### 6-1. Run Tests
 
 ```bash
-# Run specific test (adjust for package manager)
+# Run specific test file (adjust for package manager)
 bun run test __tests__/path/to/file.test.ts
 
 # Run all tests
@@ -102,6 +104,28 @@ bun run test
 ```
 
 > **Note**: Type check is automatically performed by PostToolUse hook after file modifications.
+
+#### 6-2. Coverage Verification
+
+**MUST** Verify coverage after tests pass.
+
+```bash
+# Generate and verify coverage report
+bun run test:coverage
+```
+
+| Metric | Minimum Threshold |
+|--------|-------------------|
+| Statements | 90% |
+| Branches | 90% |
+| Functions | 90% |
+| Lines | 90% |
+
+**If coverage is below threshold**:
+1. Analyze coverage report (`coverage/index.html`)
+2. Identify uncovered lines
+3. Write additional test cases
+4. Re-verify
 
 ---
 
@@ -115,3 +139,4 @@ Refer to TDD Skill's quality checklist:
 - [ ] Mocks initialized in `beforeEach`
 - [ ] No `any` type
 - [ ] All tests pass
+- [ ] Coverage 90%+ achieved (statements, branches, functions, lines)

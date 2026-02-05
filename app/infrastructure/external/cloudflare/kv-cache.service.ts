@@ -32,8 +32,9 @@ export const createKVCacheService = (kv: KVNamespaceLike): CacheService => {
 		try {
 			const value = await kv.get(key, { type: "json" });
 			return value as T | null;
-		} catch {
-			// Graceful degradation: 에러 시 null 반환
+		} catch (error) {
+			// Graceful degradation: log error and return null
+			console.error(`[KVCache] Failed to get key "${key}":`, error);
 			return null;
 		}
 	};
@@ -46,16 +47,18 @@ export const createKVCacheService = (kv: KVNamespaceLike): CacheService => {
 		try {
 			const options = ttlSeconds ? { expirationTtl: ttlSeconds } : undefined;
 			await kv.put(key, JSON.stringify(value), options);
-		} catch {
-			// Graceful degradation: 에러 무시
+		} catch (error) {
+			// Graceful degradation: log error and continue
+			console.error(`[KVCache] Failed to set key "${key}":`, error);
 		}
 	};
 
 	const deleteKey = async (key: string): Promise<void> => {
 		try {
 			await kv.delete(key);
-		} catch {
-			// Graceful degradation: 에러 무시
+		} catch (error) {
+			// Graceful degradation: log error and continue
+			console.error(`[KVCache] Failed to delete key "${key}":`, error);
 		}
 	};
 

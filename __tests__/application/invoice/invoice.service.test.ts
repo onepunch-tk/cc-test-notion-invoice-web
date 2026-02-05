@@ -177,7 +177,8 @@ describe("createInvoiceService", () => {
 			);
 
 			expect(mockInvoiceRepository.findById).toHaveBeenCalledWith(invoiceId);
-			expect(mockCompanyRepository.getCompanyInfo).not.toHaveBeenCalled();
+			// Promise.all로 병렬 호출되므로 company repository도 호출됨
+			expect(mockCompanyRepository.getCompanyInfo).toHaveBeenCalled();
 		});
 
 		it("Invoice Repository 오류 발생 시 에러를 전파한다", async () => {
@@ -194,7 +195,8 @@ describe("createInvoiceService", () => {
 				"Invoice Repository Error",
 			);
 			expect(mockInvoiceRepository.findById).toHaveBeenCalledWith(invoiceId);
-			expect(mockCompanyRepository.getCompanyInfo).not.toHaveBeenCalled();
+			// Promise.all로 병렬 호출되므로 company repository도 호출됨
+			expect(mockCompanyRepository.getCompanyInfo).toHaveBeenCalled();
 		});
 
 		it("Company Repository 오류 발생 시 에러를 전파한다", async () => {

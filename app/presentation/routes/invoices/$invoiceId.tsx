@@ -8,13 +8,13 @@
 
 import type { MetaFunction } from "react-router";
 import { useParams } from "react-router";
-import { Card, CardContent } from "~/presentation/components/ui/card";
 import {
 	InvoiceActions,
 	InvoiceHeader,
 	InvoiceSummary,
 	InvoiceTable,
 } from "~/presentation/components/invoice";
+import { Card, CardContent } from "~/presentation/components/ui/card";
 import {
 	dummyCompanyInfo,
 	dummyInvoiceDetail,

@@ -47,20 +47,39 @@ export const formatCurrency = (
  * 날짜를 지정된 포맷으로 문자열로 변환합니다.
  *
  * @param date - 포맷팅할 날짜
- * @param formatStr - 포맷 문자열 (기본값: 'yyyy-MM-dd')
+ * @param options - 포맷 문자열 또는 Intl.DateTimeFormatOptions (기본값: 'yyyy-MM-dd')
+ * @param locale - BCP 47 언어 태그 (기본값: 'ko-KR') - Intl.DateTimeFormatOptions 사용 시에만 적용
  * @returns 포맷팅된 날짜 문자열
  *
  * @example
+ * // 기본 포맷 문자열 사용 (하위 호환성)
  * formatDate(new Date('2024-01-15')) // "2024-01-15"
  * formatDate(new Date('2024-01-15'), 'yyyy년 MM월 dd일') // "2024년 01월 15일"
+ *
+ * @example
+ * // Intl.DateTimeFormatOptions 사용 (국제화 지원)
+ * formatDate(new Date('2024-01-15'), { year: 'numeric', month: 'long', day: 'numeric' })
+ * // "2024년 1월 15일" (ko-KR)
+ * formatDate(new Date('2024-01-15'), { year: 'numeric', month: 'short', day: 'numeric' }, 'en-US')
+ * // "Jan 15, 2024"
  */
-export const formatDate = (date: Date, formatStr = "yyyy-MM-dd"): string => {
-	const year = date.getFullYear().toString();
-	const month = (date.getMonth() + 1).toString().padStart(2, "0");
-	const day = date.getDate().toString().padStart(2, "0");
+export const formatDate = (
+	date: Date,
+	options: string | Intl.DateTimeFormatOptions = "yyyy-MM-dd",
+	locale = "ko-KR",
+): string => {
+	// 문자열 포맷 사용 시 기존 로직 유지 (하위 호환성)
+	if (typeof options === "string") {
+		const year = date.getFullYear().toString();
+		const month = (date.getMonth() + 1).toString().padStart(2, "0");
+		const day = date.getDate().toString().padStart(2, "0");
 
-	return formatStr
-		.replace("yyyy", year)
-		.replace("MM", month)
-		.replace("dd", day);
+		return options
+			.replace("yyyy", year)
+			.replace("MM", month)
+			.replace("dd", day);
+	}
+
+	// Intl.DateTimeFormatOptions 사용 시 (새로운 방식)
+	return new Intl.DateTimeFormat(locale, options).format(date);
 };

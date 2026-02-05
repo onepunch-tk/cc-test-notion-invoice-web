@@ -5,10 +5,14 @@
  */
 
 import type { Client } from "@notionhq/client";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import {
+	CompanyInfoNotFoundError,
+	NotionApiError,
+} from "~/application/invoice/errors";
 import type { CompanyRepository } from "~/application/invoice/invoice.port";
 import type { CompanyInfo } from "~/domain/company";
 import { mapNotionPageToCompanyInfo } from "./notion.mapper";
+import { isPageObjectResponse } from "./notion.types";
 
 /**
  * Notion Company Repository 설정 인터페이스
@@ -16,21 +20,6 @@ import { mapNotionPageToCompanyInfo } from "./notion.mapper";
 export interface NotionCompanyRepositoryConfig {
 	companyDbId: string;
 }
-
-/**
- * PageObjectResponse 타입 가드
- */
-const isPageObjectResponse = (
-	result: unknown,
-): result is PageObjectResponse => {
-	return (
-		typeof result === "object" &&
-		result !== null &&
-		"object" in result &&
-		(result as { object: string }).object === "page" &&
-		"properties" in result
-	);
-};
 
 /**
  * Notion 기반 Company Repository 생성 팩토리 함수
@@ -48,21 +37,35 @@ export const createNotionCompanyRepository = (
 		 * 회사 정보 조회
 		 *
 		 * Company 데이터베이스에서 첫 번째 레코드를 조회합니다.
-		 * 회사 정보가 없을 경우 에러를 발생시킵니다.
+		 *
+		 * @returns 회사 정보
+		 * @throws CompanyInfoNotFoundError 회사 정보가 없는 경우
+		 * @throws NotionApiError Notion API 호출 실패 시
 		 */
 		getCompanyInfo: async (): Promise<CompanyInfo> => {
-			const response = await client.databases.query({
-				database_id: config.companyDbId,
-				page_size: 1,
-			});
+			try {
+				const response = await client.databases.query({
+					database_id: config.companyDbId,
+					page_size: 1,
+				});
 
-			const pages = response.results.filter(isPageObjectResponse);
+				const pages = response.results.filter(isPageObjectResponse);
 
-			if (pages.length === 0) {
-				throw new Error("Company information not found");
+				if (pages.length === 0) {
+					throw new CompanyInfoNotFoundError();
+				}
+
+				return mapNotionPageToCompanyInfo(pages[0]);
+			} catch (error) {
+				// CompanyInfoNotFoundError는 그대로 전파
+				if (error instanceof CompanyInfoNotFoundError) {
+					throw error;
+				}
+				throw new NotionApiError(
+					"Failed to fetch company information from Notion",
+					error,
+				);
 			}
-
-			return mapNotionPageToCompanyInfo(pages[0]);
 		},
 	};
 };

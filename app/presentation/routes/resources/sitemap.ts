@@ -1,47 +1,68 @@
 import type { Route } from "./+types/sitemap";
 
+/**
+ * Sitemap URL 옵션
+ */
+interface SitemapUrlOptions {
+	path: string;
+	changefreq?:
+		| "always"
+		| "hourly"
+		| "daily"
+		| "weekly"
+		| "monthly"
+		| "yearly"
+		| "never";
+	priority?: string;
+	lastmod?: string;
+}
+
+/**
+ * Sitemap URL XML 생성
+ *
+ * @param domain - 사이트 도메인 (origin)
+ * @param options - URL 옵션
+ * @returns XML URL 요소 문자열
+ */
+const generateSitemapUrl = (
+	domain: string,
+	options: SitemapUrlOptions,
+): string => {
+	const { path, changefreq = "daily", priority, lastmod } = options;
+	const resolvedPriority = priority ?? (path === "/" ? "1.0" : "0.8");
+
+	return `  <url>
+    <loc>${domain}${path}</loc>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${resolvedPriority}</priority>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
+  </url>`;
+};
+
 export async function loader({ request }: Route.LoaderArgs) {
 	const domain = new URL(request.url).origin;
 
 	// 정적 페이지
-	//예) const staticPaths = ["/", "/login", "/auth/signup"];
 	const staticPaths = ["/"];
 
 	// 동적 페이지 (db 조회)
-	//예) const allPosts = await db.select().from(posts);
-	/*
-✅ (Good) 딱 필요한 컬럼만 가져옴 -> 속도와 메모리 수십 배 절약
-const allPosts = await db
-  .select({ 
-    id: posts.id, 
-    updatedAt: posts.updatedAt // lastmod용 (필요하면)
-  })
-  .from(posts);
-   */
+	// TODO: Task 010/011에서 인보이스 페이지 추가
 	const dynamicPaths: string[] = [];
 
 	const allPaths = [...staticPaths, ...dynamicPaths];
 
-	// 2. XML 생성 로직
-	const sitemapUrls = allPaths.map((url) => {
-		return `
-    <url>
-      <loc>${domain}${url}</loc>
-      <changefreq>daily</changefreq>
-      <priority>${url === "/" ? "1.0" : "0.8"}</priority>
-    </url>`;
-	});
+	// XML 생성
+	const sitemapUrls = allPaths.map((path) =>
+		generateSitemapUrl(domain, { path }),
+	);
 
-	const content = `
-<?xml version="1.0" encoding="UTF-8"?>
+	const content = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
 >
-  ${sitemapUrls.join("")}
-</urlset>
-`.trim();
+${sitemapUrls.join("\n")}
+</urlset>`;
 
 	return new Response(content, {
 		status: 200,

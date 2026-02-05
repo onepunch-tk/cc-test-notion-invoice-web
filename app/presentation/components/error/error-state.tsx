@@ -20,6 +20,29 @@ interface ErrorStateProps {
 	className?: string;
 }
 
+/**
+ * Retry 버튼 라벨 결정
+ * actionLabel이 제공되면 사용, 아니면 기본값 "Try Again"
+ */
+const getRetryButtonLabel = (actionLabel?: string): string => {
+	return actionLabel ?? "Try Again";
+};
+
+/**
+ * 네비게이션 버튼 라벨 결정
+ * - onRetry가 있으면: 항상 "Go Home" (retry 버튼이 primary action)
+ * - onRetry가 없으면: actionLabel 또는 기본값 "Go Home"
+ */
+const getNavigationButtonLabel = (
+	hasRetry: boolean,
+	actionLabel?: string,
+): string => {
+	if (hasRetry) {
+		return "Go Home";
+	}
+	return actionLabel ?? "Go Home";
+};
+
 export default function ErrorState({
 	title = "Something went wrong",
 	message = "An unexpected error occurred.",
@@ -32,11 +55,11 @@ export default function ErrorState({
 	const Icon = variant === "error" ? AlertCircle : AlertTriangle;
 	const iconTestId = variant === "error" ? "error-icon" : "warning-icon";
 
-	// Resolve button labels consistently
-	const retryButtonLabel = actionLabel ?? "Try Again";
-	const navigationButtonLabel = onRetry
-		? "Go Home"
-		: (actionLabel ?? "Go Home");
+	const retryButtonLabel = getRetryButtonLabel(actionLabel);
+	const navigationButtonLabel = getNavigationButtonLabel(
+		!!onRetry,
+		actionLabel,
+	);
 
 	return (
 		<div

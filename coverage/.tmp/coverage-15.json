@@ -1,0 +1,535 @@
+{
+	"result": [
+		{
+			"scriptId": "1238",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/setup.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 6870, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 6870, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 570, "endOffset": 939, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "<instance_members_initializer>",
+					"ranges": [{ "startOffset": 974, "endOffset": 1104, "count": 0 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "<instance_members_initializer>",
+					"ranges": [{ "startOffset": 1243, "endOffset": 1473, "count": 0 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1412",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/infrastructure/external/notion/company.repository.impl.test.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 24718, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 24718, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 777, "endOffset": 8201, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 979, "endOffset": 1036, "count": 6 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1094, "endOffset": 8197, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1181, "endOffset": 2171, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2240, "endOffset": 2898, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2970, "endOffset": 5299, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5370, "endOffset": 5986, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6061, "endOffset": 7034, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 7107, "endOffset": 8191, "count": 1 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1413",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/infrastructure/external/notion/company.repository.impl.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 5180, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 5180, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 266, "endOffset": 329, "count": 6 },
+						{ "startOffset": 319, "endOffset": 327, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "isPageObjectResponse",
+					"ranges": [{ "startOffset": 525, "endOffset": 672, "count": 5 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "createNotionCompanyRepository",
+					"ranges": [{ "startOffset": 712, "endOffset": 1272, "count": 6 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "getCompanyInfo",
+					"ranges": [
+						{ "startOffset": 877, "endOffset": 1265, "count": 6 },
+						{ "startOffset": 1016, "endOffset": 1114, "count": 5 },
+						{ "startOffset": 1114, "endOffset": 1181, "count": 1 },
+						{ "startOffset": 1181, "endOffset": 1264, "count": 4 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1414",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/infrastructure/external/notion/notion.mapper.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 19998, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 19998, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 249, "endOffset": 295, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 337, "endOffset": 382, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 422, "endOffset": 465, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 503, "endOffset": 544, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 584, "endOffset": 627, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 666, "endOffset": 708, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 745, "endOffset": 785, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 830, "endOffset": 878, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 931, "endOffset": 987, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1041, "endOffset": 1098, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1155, "endOffset": 1215, "count": 4 },
+						{ "startOffset": 1205, "endOffset": 1213, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "isObject",
+					"ranges": [{ "startOffset": 1823, "endOffset": 1891, "count": 24 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "getTitleText",
+					"ranges": [
+						{ "startOffset": 1914, "endOffset": 2191, "count": 4 },
+						{ "startOffset": 1949, "endOffset": 1959, "count": 0 },
+						{ "startOffset": 2020, "endOffset": 2030, "count": 0 },
+						{ "startOffset": 2132, "endOffset": 2142, "count": 0 },
+						{ "startOffset": 2183, "endOffset": 2188, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "getRichText",
+					"ranges": [
+						{ "startOffset": 2213, "endOffset": 2517, "count": 8 },
+						{ "startOffset": 2248, "endOffset": 2258, "count": 0 },
+						{ "startOffset": 2322, "endOffset": 2332, "count": 0 },
+						{ "startOffset": 2451, "endOffset": 2461, "count": 0 },
+						{ "startOffset": 2509, "endOffset": 2514, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "getNumber",
+					"ranges": [{ "startOffset": 2537, "endOffset": 2714, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "getDate",
+					"ranges": [{ "startOffset": 2732, "endOffset": 2917, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "getSelect",
+					"ranges": [{ "startOffset": 2937, "endOffset": 3129, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "getEmail",
+					"ranges": [
+						{ "startOffset": 3148, "endOffset": 3324, "count": 4 },
+						{ "startOffset": 3183, "endOffset": 3193, "count": 0 },
+						{ "startOffset": 3254, "endOffset": 3264, "count": 0 },
+						{ "startOffset": 3316, "endOffset": 3321, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "getUrl",
+					"ranges": [
+						{ "startOffset": 3341, "endOffset": 3515, "count": 4 },
+						{ "startOffset": 3376, "endOffset": 3388, "count": 0 },
+						{ "startOffset": 3447, "endOffset": 3459, "count": 0 },
+						{ "startOffset": 3505, "endOffset": 3512, "count": 1 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "getPhoneNumber",
+					"ranges": [
+						{ "startOffset": 3540, "endOffset": 3729, "count": 4 },
+						{ "startOffset": 3575, "endOffset": 3585, "count": 0 },
+						{ "startOffset": 3652, "endOffset": 3662, "count": 0 },
+						{ "startOffset": 3721, "endOffset": 3726, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "mapNotionPageToInvoice",
+					"ranges": [{ "startOffset": 3762, "endOffset": 4621, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "mapNotionPageToLineItem",
+					"ranges": [{ "startOffset": 4655, "endOffset": 5123, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "mapNotionPageToCompanyInfo",
+					"ranges": [
+						{ "startOffset": 5160, "endOffset": 5642, "count": 4 },
+						{ "startOffset": 5519, "endOffset": 5528, "count": 1 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1415",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/domain/company/company.schemas.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 2966, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 2966, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 254, "endOffset": 305, "count": 4 },
+						{ "startOffset": 295, "endOffset": 303, "count": 0 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1493",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/domain/invoice/invoice.schemas.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 7564, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 7564, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 256, "endOffset": 309, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 361, "endOffset": 416, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 460, "endOffset": 507, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 564, "endOffset": 624, "count": 0 }],
+					"isBlockCoverage": false
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1494",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/infrastructure/external/notion/notion.types.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 7393, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 7393, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 252, "endOffset": 301, "count": 4 },
+						{ "startOffset": 291, "endOffset": 299, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 350, "endOffset": 402, "count": 8 },
+						{ "startOffset": 392, "endOffset": 400, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 449, "endOffset": 499, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 544, "endOffset": 592, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 639, "endOffset": 689, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 735, "endOffset": 784, "count": 4 },
+						{ "startOffset": 774, "endOffset": 782, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 828, "endOffset": 875, "count": 4 },
+						{ "startOffset": 865, "endOffset": 873, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 927, "endOffset": 982, "count": 4 },
+						{ "startOffset": 972, "endOffset": 980, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "isTitleProperty",
+					"ranges": [{ "startOffset": 1009, "endOffset": 1054, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "isRichTextProperty",
+					"ranges": [{ "startOffset": 1083, "endOffset": 1132, "count": 8 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "isNumberProperty",
+					"ranges": [{ "startOffset": 1159, "endOffset": 1205, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "isDateProperty",
+					"ranges": [{ "startOffset": 1230, "endOffset": 1274, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "isSelectProperty",
+					"ranges": [{ "startOffset": 1301, "endOffset": 1347, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "isEmailProperty",
+					"ranges": [{ "startOffset": 1373, "endOffset": 1418, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "isUrlProperty",
+					"ranges": [{ "startOffset": 1442, "endOffset": 1485, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "isPhoneNumberProperty",
+					"ranges": [{ "startOffset": 1517, "endOffset": 1569, "count": 4 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1495",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/fixtures/notion/notion-page-response.fixture.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 35522, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 35522, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 258, "endOffset": 313, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 366, "endOffset": 422, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 478, "endOffset": 537, "count": 9 },
+						{ "startOffset": 527, "endOffset": 535, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "createMockInvoicePage",
+					"ranges": [{ "startOffset": 570, "endOffset": 5277, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "createMockLineItemPage",
+					"ranges": [{ "startOffset": 5310, "endOffset": 7908, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "createMockCompanyInfoPage",
+					"ranges": [
+						{ "startOffset": 7944, "endOffset": 10506, "count": 9 },
+						{ "startOffset": 10488, "endOffset": 10493, "count": 5 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		}
+	]
+}

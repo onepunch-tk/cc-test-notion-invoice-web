@@ -163,7 +163,7 @@ describe("NotionCompanyRepository", () => {
 			});
 		});
 
-		it("Notion API 에러가 발생하면 에러를 전파해야 한다", async () => {
+		it("Notion API 에러가 발생하면 NotionApiError로 래핑하여 전파해야 한다", async () => {
 			// Arrange
 			const notionError = new Error("Notion API error");
 			const mockClient = {
@@ -176,7 +176,7 @@ describe("NotionCompanyRepository", () => {
 
 			// Act & Assert
 			await expect(repository.getCompanyInfo()).rejects.toThrow(
-				"Notion API error",
+				"Failed to fetch company information from Notion",
 			);
 			expect(mockClient.databases.query).toHaveBeenCalledWith({
 				database_id: "company-db-id-123",

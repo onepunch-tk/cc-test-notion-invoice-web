@@ -2,6 +2,8 @@
  * Notion Infrastructure Layer Barrel Export
  */
 
+export { createCachedCompanyRepository } from "./cached-company.repository";
+export { createCachedInvoiceRepository } from "./cached-invoice.repository";
 export {
 	createNotionCompanyRepository,
 	type NotionCompanyRepositoryConfig,
@@ -10,9 +12,7 @@ export {
 	createNotionInvoiceRepository,
 	type NotionInvoiceRepositoryConfig,
 } from "./invoice.repository.impl";
-export { createCachedInvoiceRepository } from "./cached-invoice.repository";
-export { createCachedCompanyRepository } from "./cached-company.repository";
-export { createNotionClient, type NotionClientConfig } from "./notion.client";
+export { createNotionClient, type NotionClientConfig } from "./notion-client";
 export {
 	getDate,
 	getEmail,

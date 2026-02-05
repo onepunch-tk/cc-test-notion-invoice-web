@@ -10,8 +10,8 @@ import { createInvoiceService } from "~/application/invoice/invoice.service";
 import type { IContainer } from "~/application/shared/container.types";
 import {
 	CIRCUIT_BREAKER_CONFIG,
-	RATE_LIMIT_CONFIG,
 	circuitBreakerKey,
+	RATE_LIMIT_CONFIG,
 } from "~/infrastructure/external/cloudflare/cache-keys";
 import { createCircuitBreaker } from "~/infrastructure/external/cloudflare/circuit-breaker.service";
 import { createKVCacheService } from "~/infrastructure/external/cloudflare/kv-cache.service";
@@ -25,7 +25,7 @@ import { createCachedCompanyRepository } from "~/infrastructure/external/notion/
 import { createCachedInvoiceRepository } from "~/infrastructure/external/notion/cached-invoice.repository";
 import { createNotionCompanyRepository } from "~/infrastructure/external/notion/company.repository.impl";
 import { createNotionInvoiceRepository } from "~/infrastructure/external/notion/invoice.repository.impl";
-import { createNotionClient } from "~/infrastructure/external/notion/notion.client";
+import { createNotionClient } from "~/infrastructure/external/notion/notion-client";
 
 /**
  * KVNamespace 인터페이스 (Cloudflare Workers 런타임에서 제공)

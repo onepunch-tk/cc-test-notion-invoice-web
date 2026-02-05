@@ -2,6 +2,20 @@
  * KV Rate Limiter Service Implementation
  *
  * Cloudflare KV 기반 Sliding Window Rate Limiter 서비스
+ *
+ * @remarks
+ * **Known Limitation - Race Condition**:
+ * This implementation uses non-atomic read-modify-write operations.
+ * Under high concurrency, multiple requests may pass the rate limit check
+ * before the count is updated (e.g., 4-5 requests may pass instead of 3).
+ *
+ * **Mitigation**:
+ * - Set conservative rate limits (e.g., 2 req/sec instead of 3)
+ * - The impact is limited to brief bursts, not sustained violations
+ *
+ * **Future Improvement**:
+ * Consider Cloudflare Durable Objects for atomic counters if strict
+ * rate limiting is required.
  */
 
 import type {
@@ -20,8 +34,17 @@ interface KVNamespaceLike {
 		value: string,
 		options?: { expirationTtl?: number },
 	): Promise<void>;
-	// Mock에서 시간 제어를 위한 선택적 메서드
-	_getCurrentTime?: () => number;
+}
+
+/**
+ * Rate Limiter 옵션
+ */
+interface KVRateLimiterOptions {
+	/**
+	 * 현재 시간을 반환하는 함수 (테스트용 DI)
+	 * 기본값: Date.now
+	 */
+	getCurrentTime?: () => number;
 }
 
 /**
@@ -37,21 +60,18 @@ interface RateLimitState {
  *
  * @param kv - Cloudflare KVNamespace
  * @param config - Rate Limiter 설정
+ * @param options - 추가 옵션 (테스트용 시간 함수 등)
  * @returns RateLimiter 인스턴스
  */
 export const createKVRateLimiter = (
 	kv: KVNamespaceLike,
 	config: RateLimiterConfig,
+	options?: KVRateLimiterOptions,
 ): RateLimiter => {
 	/**
-	 * 현재 시간 가져오기 (Mock에서 오버라이드 가능)
+	 * 현재 시간 가져오기 (옵션으로 주입된 함수 또는 Date.now)
 	 */
-	const getCurrentTime = (): number => {
-		if (kv._getCurrentTime) {
-			return kv._getCurrentTime();
-		}
-		return Date.now();
-	};
+	const getCurrentTime = options?.getCurrentTime ?? (() => Date.now());
 
 	/**
 	 * 현재 Rate Limit 상태 조회

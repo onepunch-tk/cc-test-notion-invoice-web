@@ -27,6 +27,8 @@ export default function InvoiceTable({
 	currency = "KRW",
 	className,
 }: InvoiceTableProps) {
+	// toSorted()는 ES2023 기능으로 일부 환경에서 미지원
+	// 하위 호환성을 위해 spread + sort 패턴 유지
 	const sortedItems = [...lineItems].sort(
 		(a, b) => a.sort_order - b.sort_order,
 	);

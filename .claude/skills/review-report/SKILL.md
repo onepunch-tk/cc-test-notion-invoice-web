@@ -1,227 +1,77 @@
 ---
 name: review-report
-description: "A universal report skill for saving code review and security review results as Markdown files with checklist-based progress tracking. Differentiates review types by directory (docs/reports/code-review/, docs/reports/security-review/). Generates Markdown files via automatic script invocation. Used by code-reviewer and security-reviewer agents after review completion."
+description: |
+  코드 리뷰 자동화 에이전트를 위한 표준화된 리뷰 리포트를 생성합니다.
+  리뷰어 에이전트가 호출하여 일관된 형식의 리포트를 출력합니다.
+model: sonnet
 allowed-tools:
-  - Read
-  - Glob
-  - Grep
   - Bash
+  - Read
+  - Write
+  - Glob
 ---
 
-# Review Report
+# 리뷰 리포트 스킬
 
-A universal skill for saving review results as structured Markdown files with fix checklists for progress tracking.
-
-## Core Features
-
-1. **Markdown format report generation**: Saves structured issue lists with visual formatting
-2. **Directory-based classification**: Automatic classification by review type
-3. **Automatic script invocation**: Uses Python script for token efficiency
-4. **Fix checklist generation**: Enables progress tracking for issue resolution
+코드 리뷰 자동화 에이전트를 위한 표준화된 리포트를 생성합니다.
 
 ---
 
-## Report Generation Procedure
+## 파라미터
 
-Follow these steps to generate a report using this skill:
+`$ARGUMENTS`: 리포트 설정 (`<type> [options]` 형식)
 
-### Step 1: Organize Issue Data
+| 타입 | 출력 위치 | 설명 |
+|-----|----------|------|
+| `code-review` | `docs/reports/code-review/` | 코드 품질 리포트 |
+| `security-review` | `docs/reports/security-review/` | 보안 감사 리포트 |
+| `performance-review` | `docs/reports/performance-review/` | 성능 분석 리포트 |
 
-Organize discovered issues as a JSON array:
+---
 
-```json
-[
-  {
-    "file": "app/components/example.tsx",
-    "location": "23:5",
-    "severity": "high",
-    "category": "type-safety",
-    "problem": "Type safety violation due to any type usage",
-    "suggestion": "Change to unknown type and apply Type Guard",
-    "rationale": "TypeScript strict mode requires explicit typing to prevent runtime errors",
-    "evidence": "Code: `const data: any = response;` violates project TypeScript rules (CLAUDE.md Section 4)",
-    "references": []
-  }
-]
-```
+## 워크플로우
 
-### Step 2: Execute Script
-
-Execute the following command using the Bash tool:
-
+### 1. 커밋 해시 및 날짜 가져오기
 ```bash
-python .claude/skills/review-report/scripts/generate_report.py \
-  --output <directory> \
-  --issues '<JSON array>'
+COMMIT_HASH=$(git rev-parse --short HEAD)
+DATE=$(date +%Y%m%d)
+FILENAME="${COMMIT_HASH}_${DATE}.md"
 ```
 
-**Output directories:**
-- Code review: `docs/reports/code-review`
-- Security review: `docs/reports/security-review`
+### 2. 템플릿 선택
+리포트 타입에 따라 적절한 템플릿 로드:
+- `references/report-template.md`
 
-**Example (code review):**
-```bash
-python .claude/skills/review-report/scripts/generate_report.py \
-  --output docs/reports/code-review \
-  --issues '[{"file":"app/components/Button.tsx","location":"15:3","severity":"high","category":"type-safety","problem":"any type usage","suggestion":"Use unknown instead"}]'
-```
+### 3. 이슈 집계
+호출 에이전트로부터 필수 필드와 함께 이슈 수집:
+- **severity**: critical | high | medium | low
+- **location**: file:line
+- **category**: 이슈 분류
+- **problem**: 문제 설명
+- **impact**: 중요한 이유
+- **suggestion**: 해결 방법
+- **evidence**: 코드 스니펫 또는 참조
+- **references**: 문서 링크 (선택)
 
-**If no issues found:**
-```bash
-python .claude/skills/review-report/scripts/generate_report.py \
-  --output docs/reports/code-review \
-  --issues '[]'
-```
+### 4. 리포트 생성
+템플릿에 집계된 데이터를 적용하여 마크다운 리포트 생성
 
-### Step 3: Verify Results
-
-After execution, confirm the "리포트 생성 완료" message and file path.
-
-Additionally, verify file creation:
-```bash
-ls -la docs/reports/code-review/*.md | tail -1
-```
-
-### Step 4: Track Fixes via Checklist
-
-**⚠️ MANDATORY**: After fixing issues, agents MUST update the report checkboxes.
-
-The generated Markdown report includes a **Fix Checklist** section:
-
-```markdown
-## ✅ Fix Checklist
-
-**⚠️ MANDATORY**: Check each box (`- [x]`) immediately after fixing the issue.
-
-Track your progress by checking off fixed issues:
-
-- [ ] #1 [Critical] path/to/file.ts:23 - Brief problem description
-```
-
-**Checklist Update Protocol**:
-1. **Fix the issue** in source code
-2. **Open the generated `.md` report file** using Read tool
-3. **Change checkbox**: `- [ ]` → `- [x]` for the fixed issue
-4. **Save changes** using Edit tool
-5. Track overall progress by reviewing completed items
-6. When all items are checked, update report status to `✅ Complete`
-
-⛔ **CRITICAL**: Checkboxes MUST be checked immediately after each fix. Do NOT batch checkbox updates.
+### 5. 리포트 저장
+`docs/reports/{type}/{commit_hash}_{YYYYMMDD}.md` 에 저장
 
 ---
 
-## Issue Field Description
+## 심각도 정의
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| file | O | File path |
-| location | O | Line:column (e.g., "23:5") |
-| severity | O | critical / high / medium / low |
-| category | O | Issue classification (type-safety, convention, security, etc.) |
-| problem | O | Detailed problem description |
-| suggestion | O | Fix suggestion |
-| rationale | O | Reasoning basis for why this is an issue (reference to rules, best practices, documentation) |
-| evidence | O | Concrete proof supporting the finding (code snippet, compiler error, documentation quote, context7 reference) |
-| references | O | Array of referenced document paths (use empty array [] if none) |
+| 레벨 | 이모지 | 정의 | 필요 조치 |
+|-----|-------|-----|----------|
+| Critical | 🔴 | 버그, 보안 취약점, 프로덕션 차단 | 머지 전 필수 수정 |
+| High | 🟠 | 유지보수성/보안에 영향을 주는 중요 이슈 | 머지 전 수정 권장 |
+| Medium | 🟡 | 코드 품질 이슈, 잠재적 문제 | 빠른 시일 내 해결 |
+| Low | 🟢 | 스타일 제안, 사소한 개선 | 선택 사항 |
 
 ---
 
-## Severity Criteria
+## 참조 템플릿
 
-- **critical**: Runtime errors, security vulnerabilities (immediate fix required)
-- **high**: Type safety, major convention violations
-- **medium**: Code quality, performance improvement recommendations
-- **low**: Style, documentation recommendations
-
----
-
-## Categories by Review Type
-
-### Code Review (docs/reports/code-review/)
-
-- `type-safety`: Type safety (any usage, missing generic constraints, etc.)
-- `convention`: Code conventions (function declaration style, naming, etc.)
-- `react19`: React 19 optimization rules (unnecessary memoization, etc.)
-- `deprecated-api`: Deprecated APIs
-- `code-quality`: Code quality (duplication, complexity, etc.)
-
-### Security Review (docs/reports/security-review/)
-
-- `injection`: Injection vulnerabilities (SQL, XSS, Command, etc.)
-- `access-control`: Access control issues
-- `auth-failure`: Authentication/session management issues
-- `crypto-failure`: Cryptography-related issues
-- `security-misconfig`: Security configuration errors
-
----
-
-## Filename Convention
-
-`{8-char_random_hash}_{YYYYMMDD}.md`
-
-Example: `a1b2c3d4_20260119.md`
-
----
-
-## Generated Report Structure
-
-The generated Markdown report includes:
-
-1. **Header**: Review type, status, generation timestamp, total issues
-2. **Summary Table**: Issue count by severity with visual indicators
-3. **Issues Section**: Organized by severity (Critical → Low) with detailed tables
-4. **Fix Checklist**: Checkbox items for tracking progress
-5. **Notes Section**: Additional context and recommendations
-
-Example output:
-```markdown
-# Code Review Report
-
-**Status**: 🔄 In Progress
-**Generated**: 2026-01-22 10:30:00 (UTC)
-**Total Issues**: 5
-
----
-
-## 📊 Summary
-
-| Severity | Count |
-|----------|-------|
-| 🔴 Critical | 1 |
-| 🟠 High | 2 |
-| 🟡 Medium | 1 |
-| 🟢 Low | 1 |
-
----
-
-## 🔍 Issues
-
-### 🔴 Critical Issues
-
-| # | File | Location | Category | Problem | Suggestion |
-|---|------|----------|----------|---------|------------|
-| 1 | ... | ... | ... | ... | ... |
-
----
-
-## ✅ Fix Checklist
-
-- [ ] #1 [Critical] file.ts:10 - Problem description
-- [ ] #2 [High] file.ts:20 - Problem description
-...
-```
-
----
-
-## JSON Escape Notes
-
-- Single quotes (') inside JSON should be escaped as `'\''`
-- Double quotes (") are JSON standard, use as-is
-- Korean characters can be used directly
-
----
-
-## References
-
-- Markdown template details: `references/report-template.md`
-- Security review reference: `.claude/skills/owasp-top10-2025/references/`
+- [리포트 템플릿](references/report-template.md)

@@ -8,28 +8,10 @@ import {
 } from "react-router";
 import "./app.css";
 import { ThemeProvider } from "next-themes";
+import { sanitizeErrorMessage } from "~/infrastructure/utils/error-sanitizer";
 import { ErrorState, NotFoundState } from "~/presentation/components/error";
 import { Toaster } from "~/presentation/components/ui/sonner";
 import type { Route } from "./+types/root";
-
-/**
- * Sanitizes error messages to prevent sensitive information disclosure.
- * Redacts database URLs, API keys, file paths with usernames, and other sensitive patterns.
- */
-const sanitizeErrorMessage = (message: string): string => {
-	return message
-		.replace(/postgresql:\/\/[^@\s]+@[^\s]+/g, "postgresql://[REDACTED]")
-		.replace(/mongodb:\/\/[^@\s]+@[^\s]+/g, "mongodb://[REDACTED]")
-		.replace(/mysql:\/\/[^@\s]+@[^\s]+/g, "mysql://[REDACTED]")
-		.replace(/redis:\/\/[^@\s]+@[^\s]+/g, "redis://[REDACTED]")
-		.replace(/api[_-]?key[=:]\s*['"]?[^\s'"]+['"]?/gi, "API_KEY=[REDACTED]")
-		.replace(/password[=:]\s*['"]?[^\s'"]+['"]?/gi, "password=[REDACTED]")
-		.replace(/secret[=:]\s*['"]?[^\s'"]+['"]?/gi, "secret=[REDACTED]")
-		.replace(/token[=:]\s*['"]?[^\s'"]+['"]?/gi, "token=[REDACTED]")
-		.replace(/\/Users\/[^/\s]+/g, "/Users/[USER]")
-		.replace(/\/home\/[^/\s]+/g, "/home/[USER]")
-		.replace(/C:\\Users\\[^\\s]+/g, "C:\\Users\\[USER]");
-};
 
 /**
  * Handler for retry button - reloads the page.

@@ -1,141 +1,121 @@
-# Markdown Report Template
+# {Type} Review Report
 
-This document defines the standard Markdown format for review reports.
+**Status**: Pending
+**Generated**: YYYY-MM-DD HH:MM:SS (UTC)
+**Total Issues**: N
+**Reviewed Files**: N files
 
 ---
 
-## Template Structure
-
-```markdown
-# [Review Type] Report
-
-**Status**: 🔄 In Progress | ✅ Complete
-**Generated**: YYYY-MM-DD HH:MM:SS (UTC)
-**Total Issues**: N
+⚠️ **AI 에이전트를 위한 중요 지침**:
+1. 각 이슈를 수정한 후 즉시 해당 체크박스를 체크하세요
+2. 모든 이슈가 해결되면 Status를 "✅ Complete"로 업데이트하세요
+3. 완료된 항목을 체크하지 않고 이 리포트를 떠나지 마세요
 
 ---
 
 ## 📊 Summary
 
+[코드의 목적과 전반적인 품질에 대한 간략한 개요]
+
 | Severity | Count |
 |----------|-------|
-| 🔴 Critical | X |
-| 🟠 High | X |
-| 🟡 Medium | X |
-| 🟢 Low | X |
+| 🔴 Critical | 0 |
+| 🟠 High | 0 |
+| 🟡 Medium | 0 |
+| 🟢 Low | 0 |
 
 ---
 
-## 🔍 Issues
+## 🚨 Critical Issues
 
-### 🔴 Critical Issues
+> 버그, 보안 취약점 등 반드시 수정해야 하는 이슈
 
-| # | File | Location | Category | Problem | Suggestion | Rationale | Evidence | References |
-|---|------|----------|----------|---------|------------|-----------|----------|------------|
-| 1 | path/to/file.ts | 23:5 | category | Description | Fix recommendation | Why this is a problem | Code snippet or pattern found | CWE-XXX, OWASP-XXX |
+| # | File | Location | Category | Problem | Impact | Solution | Evidence | References |
+|---|------|----------|----------|---------|--------|----------|----------|------------|
+| 1 | path/file.ts | 10:5 | security | [문제 설명] | [중요한 이유] | [해결 방법] | [코드 스니펫] | [문서 링크] |
 
-### 🟠 High Issues
+---
 
-| # | File | Location | Category | Problem | Suggestion | Rationale | Evidence | References |
-|---|------|----------|----------|---------|------------|-----------|----------|------------|
-| 1 | path/to/file.ts | 45:10 | category | Description | Fix recommendation | Why this is a problem | Code snippet or pattern found | CWE-XXX, OWASP-XXX |
+## ⚠️ Major Improvements
 
-### 🟡 Medium Issues
+> 유지보수성 또는 성능에 영향을 주는 중요한 이슈
 
-| # | File | Location | Category | Problem | Suggestion | Rationale | Evidence | References |
-|---|------|----------|----------|---------|------------|-----------|----------|------------|
-| 1 | path/to/file.ts | 67:3 | category | Description | Fix recommendation | Why this is a problem | Code snippet or pattern found | - |
+| # | File | Location | Category | Problem | Impact | Solution | Evidence | References |
+|---|------|----------|----------|---------|--------|----------|----------|------------|
 
-### 🟢 Low Issues
+---
 
-| # | File | Location | Category | Problem | Suggestion | Rationale | Evidence | References |
-|---|------|----------|----------|---------|------------|-----------|----------|------------|
-| 1 | path/to/file.ts | 89:1 | category | Description | Fix recommendation | Why this is a problem | Code snippet or pattern found | - |
+## 💡 Minor Suggestions
+
+> 스타일 개선, 사소한 최적화
+
+| # | File | Location | Category | Problem | Suggestion |
+|---|------|----------|----------|---------|------------|
+
+---
+
+## 📈 Performance Metrics
+
+> 성능 리뷰 전용 섹션 (code-review, security-review에서는 생략)
+
+### 응답 시간 개선 가능성
+- [구체적인 최적화 및 예상 개선 효과]
+
+### 메모리 사용량 최적화
+- [메모리 패턴 및 해결책]
+
+### CPU 사용률 감소 방안
+- [계산 최적화 방안]
+
+### I/O 효율성 향상
+- [데이터베이스, 네트워크, 파일 I/O 최적화]
+
+---
+
+## ✨ Positive Aspects
+
+> 잘된 점 - 균형 잡힌 피드백을 위해 항상 포함
+
+- [긍정적인 코드 패턴이나 결정]
+- [준수된 베스트 프랙티스]
+- [효과적인 구현]
+
+---
+
+## 📋 Recommended Actions
+
+> 우선순위가 지정된 다음 단계 목록
+
+1. **[Critical]** [즉시 조치가 필요한 항목]
+2. **[High]** [중요하지만 긴급하지 않은 항목]
+3. **[Medium]** [계획된 개선 항목]
 
 ---
 
 ## ✅ Fix Checklist
 
-**⚠️ MANDATORY**: Check each box (`- [x]`) immediately after fixing the issue.
+**필수**: 이슈를 수정한 직후 각 체크박스를 체크하세요.
 
-Track your progress by checking off fixed issues:
+### Critical Issues
+- [ ] #1 [Critical] file:line - 간략한 설명
 
-- [ ] #1 [Critical] path/to/file.ts:23 - Brief problem description
-- [ ] #2 [High] path/to/file.ts:45 - Brief problem description
-- [ ] #3 [Medium] path/to/file.ts:67 - Brief problem description
-- [ ] #4 [Low] path/to/file.ts:89 - Brief problem description
+### High Issues
+- [ ] #2 [High] file:line - 간략한 설명
 
-**Completion Rule**: When all checkboxes are checked, update the Status at the top to `✅ Complete`.
+### Medium Issues
+- [ ] #3 [Medium] file:line - 간략한 설명
+
+### Low Issues
+- [ ] #4 [Low] file:line - 간략한 설명
 
 ---
 
 ## 📝 Notes
 
-Additional context, recommendations, or observations from the review.
+심각도 순서대로 이슈를 해결하세요 (Critical > High > Medium > Low).
+모든 체크박스가 체크되면 Status를 "✅ Complete"로 업데이트하세요.
 
 ---
 
-*Generated by review-report skill*
-```
-
----
-
-## Field Descriptions
-
-### Header Section
-- **Status**: `🔄 In Progress` when issues exist, `✅ Complete` when no issues found
-- **Generated**: UTC timestamp when report was created
-- **Total Issues**: Sum of all issues across all severities
-
-### Summary Table
-- Provides quick overview of issue distribution by severity
-- Uses emoji indicators for visual scanning
-
-### Issues Section
-- Organized by severity (Critical → Low)
-- Only includes sections that have issues
-- Table columns:
-  - `#`: Sequential number within severity group
-  - `File`: Relative file path
-  - `Location`: Line:column position
-  - `Category`: Issue category (type-safety, injection, etc.)
-  - `Problem`: Concise problem description
-  - `Suggestion`: Recommended fix
-  - `Rationale`: Explanation of why this is a problem
-  - `Evidence`: Code snippet or pattern that demonstrates the issue
-  - `References`: Related standards (CWE, OWASP, etc.) or documentation links
-
-### Fix Checklist
-- One checkbox per issue for tracking progress
-- Format: `- [ ] #N [Severity] file:line - description`
-- **AI agents MUST**: Check off items (`- [x]`) immediately after fixing each issue
-- **Completion**: Update report status to `✅ Complete` when all items are checked
-
-### Notes Section
-- Optional section for additional context
-- Reviewer observations or overall recommendations
-
----
-
-## Review Types
-
-### Code Review Reports
-- Directory: `docs/reports/code-review/`
-- Title: `# Code Review Report`
-- Categories: type-safety, convention, react19, deprecated-api, code-quality
-
-### Security Review Reports
-- Directory: `docs/reports/security-review/`
-- Title: `# Security Review Report`
-- Categories: injection, access-control, auth-failure, crypto-failure, security-misconfig
-
----
-
-## Severity Indicators
-
-| Severity | Emoji | Description |
-|----------|-------|-------------|
-| Critical | 🔴 | Runtime errors, security vulnerabilities requiring immediate fix |
-| High | 🟠 | Type safety violations, major convention violations |
-| Medium | 🟡 | Code quality issues, performance recommendations |
-| Low | 🟢 | Style recommendations, minor improvements |
+*Generated by {agent-type} agent*

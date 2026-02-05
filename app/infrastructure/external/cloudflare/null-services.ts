@@ -15,6 +15,9 @@ import type {
 	RateLimitResult,
 } from "~/application/shared/rate-limiter.port";
 
+/** Default rate limit window for null implementation (1 minute) */
+const NULL_RATE_LIMIT_WINDOW_MS = 60_000;
+
 /**
  * Null Cache Service 생성
  *
@@ -71,7 +74,7 @@ export const createNullRateLimiter = (): RateLimiter => {
 		return {
 			allowed: true,
 			remaining: Number.MAX_SAFE_INTEGER,
-			resetAt: Date.now() + 60000,
+			resetAt: Date.now() + NULL_RATE_LIMIT_WINDOW_MS,
 		};
 	};
 
@@ -83,7 +86,7 @@ export const createNullRateLimiter = (): RateLimiter => {
 		return {
 			allowed: true,
 			remaining: Number.MAX_SAFE_INTEGER,
-			resetAt: Date.now() + 60000,
+			resetAt: Date.now() + NULL_RATE_LIMIT_WINDOW_MS,
 		};
 	};
 

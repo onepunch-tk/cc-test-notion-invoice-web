@@ -5,8 +5,8 @@ import type {
 } from "~/application/shared/rate-limiter.port";
 import { createKVRateLimiter } from "~/infrastructure/external/cloudflare/rate-limiter.service";
 import {
-	type MockKVNamespace,
 	createMockKVNamespace,
+	type MockKVNamespace,
 } from "../../../fixtures/cloudflare/kv-namespace.fixture";
 
 describe("createKVRateLimiter", () => {
@@ -20,7 +20,9 @@ describe("createKVRateLimiter", () => {
 			maxRequests: 5,
 			windowSeconds: 60,
 		};
-		rateLimiter = createKVRateLimiter(mockKV, config);
+		rateLimiter = createKVRateLimiter(mockKV, config, {
+			getCurrentTime: () => mockKV._getCurrentTime(),
+		});
 	});
 
 	describe("checkLimit", () => {

@@ -125,7 +125,7 @@ bun run scripts/setup-notion-databases.ts
 - [x] Notion에서 Invoice 데이터베이스 확인 (15개 속성)
 - [x] Notion에서 Line Item 데이터베이스 확인 (6개 속성)
 - [x] Line Item → Invoice Relation 동작 확인
-- [ ] `bun run dev`로 앱 실행 시 환경 변수 로드 확인
+- [x] `bun run dev`로 앱 실행 시 환경 변수 로드 확인
 
 ## Mandatory Workflow (CRITICAL)
 

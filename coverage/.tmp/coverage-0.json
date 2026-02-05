@@ -1,0 +1,313 @@
+{
+	"result": [
+		{
+			"scriptId": "1238",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/setup.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 6870, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 6870, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 570, "endOffset": 939, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "<instance_members_initializer>",
+					"ranges": [{ "startOffset": 974, "endOffset": 1104, "count": 0 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "<instance_members_initializer>",
+					"ranges": [{ "startOffset": 1243, "endOffset": 1473, "count": 0 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1412",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/presentation/routes/$.test.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 5389, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 5389, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 943, "endOffset": 2248, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "renderCatchAll",
+					"ranges": [{ "startOffset": 976, "endOffset": 1318, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1383, "endOffset": 1522, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1575, "endOffset": 1724, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1788, "endOffset": 1977, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2033, "endOffset": 2244, "count": 1 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1709",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/routes/$.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 3331, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 3331, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 241, "endOffset": 279, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 317, "endOffset": 359, "count": 4 },
+						{ "startOffset": 349, "endOffset": 357, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "meta",
+					"ranges": [{ "startOffset": 647, "endOffset": 796, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "CatchAll",
+					"ranges": [{ "startOffset": 798, "endOffset": 1412, "count": 4 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1710",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/components/error/index.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 1502, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 1502, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 247, "endOffset": 310, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 354, "endOffset": 417, "count": 4 },
+						{ "startOffset": 407, "endOffset": 415, "count": 0 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1711",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/components/error/error-state.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 10186, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 10186, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 244, "endOffset": 288, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "ErrorState",
+					"ranges": [{ "startOffset": 979, "endOffset": 5083, "count": 0 }],
+					"isBlockCoverage": false
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1726",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/components/ui/button.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 7832, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 7832, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 243, "endOffset": 283, "count": 4 },
+						{ "startOffset": 273, "endOffset": 281, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 328, "endOffset": 376, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "Button",
+					"ranges": [
+						{ "startOffset": 2448, "endOffset": 3105, "count": 4 },
+						{ "startOffset": 2609, "endOffset": 2619, "count": 0 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1737",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/lib/utils.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 2194, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 2194, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 239, "endOffset": 275, "count": 8 },
+						{ "startOffset": 265, "endOffset": 273, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "cn",
+					"ranges": [{ "startOffset": 552, "endOffset": 654, "count": 8 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1739",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/components/error/not-found-state.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 8671, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 8671, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 244, "endOffset": 291, "count": 4 },
+						{ "startOffset": 281, "endOffset": 289, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "NotFoundState",
+					"ranges": [{ "startOffset": 967, "endOffset": 4656, "count": 4 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1740",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/utils/render-with-router.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 3450, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 3450, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 253, "endOffset": 303, "count": 4 },
+						{ "startOffset": 293, "endOffset": 301, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "renderWithRouter",
+					"ranges": [{ "startOffset": 753, "endOffset": 1258, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "Wrapper",
+					"ranges": [{ "startOffset": 855, "endOffset": 1168, "count": 4 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		}
+	]
+}

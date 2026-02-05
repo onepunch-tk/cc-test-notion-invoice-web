@@ -39,3 +39,13 @@ export class ValidationError extends Error {
 		this.name = "ValidationError";
 	}
 }
+
+/**
+ * Company 정보를 찾을 수 없을 때 발생하는 에러
+ */
+export class CompanyInfoNotFoundError extends Error {
+	constructor() {
+		super("Company information not found in Notion database");
+		this.name = "CompanyInfoNotFoundError";
+	}
+}

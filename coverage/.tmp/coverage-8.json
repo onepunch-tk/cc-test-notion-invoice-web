@@ -1,0 +1,511 @@
+{
+	"result": [
+		{
+			"scriptId": "1238",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/setup.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 6870, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 6870, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 570, "endOffset": 939, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "<instance_members_initializer>",
+					"ranges": [{ "startOffset": 974, "endOffset": 1104, "count": 0 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "<instance_members_initializer>",
+					"ranges": [{ "startOffset": 1243, "endOffset": 1473, "count": 0 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1412",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/presentation/components/invoice/invoice-card.test.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 19692, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 19692, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "createInvoice",
+					"ranges": [{ "startOffset": 961, "endOffset": 1040, "count": 10 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1066, "endOffset": 7983, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1092, "endOffset": 3586, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1137, "endOffset": 1704, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1741, "endOffset": 2305, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2340, "endOffset": 2963, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3000, "endOffset": 3580, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3615, "endOffset": 6578, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3676, "endOffset": 4357, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4410, "endOffset": 5093, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5146, "endOffset": 5824, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5884, "endOffset": 6572, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6601, "endOffset": 7275, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6660, "endOffset": 7269, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 7297, "endOffset": 7979, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 7335, "endOffset": 7973, "count": 1 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1709",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/components/invoice/invoice-card.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 9896, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 9896, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 244, "endOffset": 289, "count": 10 },
+						{ "startOffset": 279, "endOffset": 287, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "InvoiceCard",
+					"ranges": [{ "startOffset": 1272, "endOffset": 5525, "count": 10 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1722",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/components/ui/badge.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 6122, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 6122, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 242, "endOffset": 281, "count": 10 },
+						{ "startOffset": 271, "endOffset": 279, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 325, "endOffset": 372, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "Badge",
+					"ranges": [
+						{ "startOffset": 1966, "endOffset": 2523, "count": 10 },
+						{ "startOffset": 2065, "endOffset": 2093, "count": 0 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1733",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/lib/utils.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 2194, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 2194, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 239, "endOffset": 275, "count": 60 },
+						{ "startOffset": 265, "endOffset": 273, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "cn",
+					"ranges": [{ "startOffset": 552, "endOffset": 654, "count": 60 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1735",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/components/ui/card.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 10024, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 10024, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 241, "endOffset": 279, "count": 10 },
+						{ "startOffset": 269, "endOffset": 277, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 320, "endOffset": 364, "count": 10 },
+						{ "startOffset": 354, "endOffset": 362, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 405, "endOffset": 449, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 489, "endOffset": 532, "count": 10 },
+						{ "startOffset": 522, "endOffset": 530, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 573, "endOffset": 617, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 663, "endOffset": 712, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 754, "endOffset": 799, "count": 10 },
+						{ "startOffset": 789, "endOffset": 797, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "Card",
+					"ranges": [{ "startOffset": 1050, "endOffset": 1589, "count": 10 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "CardHeader",
+					"ranges": [{ "startOffset": 1590, "endOffset": 2214, "count": 10 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "CardTitle",
+					"ranges": [{ "startOffset": 2215, "endOffset": 2687, "count": 10 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "CardDescription",
+					"ranges": [{ "startOffset": 2688, "endOffset": 3175, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "CardAction",
+					"ranges": [{ "startOffset": 3176, "endOffset": 3710, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "CardContent",
+					"ranges": [{ "startOffset": 3711, "endOffset": 4165, "count": 10 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "CardFooter",
+					"ranges": [{ "startOffset": 4166, "endOffset": 4653, "count": 0 }],
+					"isBlockCoverage": false
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1736",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/lib/format.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 5241, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 5241, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 251, "endOffset": 299, "count": 10 },
+						{ "startOffset": 289, "endOffset": 297, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 340, "endOffset": 384, "count": 10 },
+						{ "startOffset": 374, "endOffset": 382, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "formatCurrency",
+					"ranges": [
+						{ "startOffset": 536, "endOffset": 868, "count": 10 },
+						{ "startOffset": 639, "endOffset": 649, "count": 0 },
+						{ "startOffset": 783, "endOffset": 786, "count": 0 },
+						{ "startOffset": 838, "endOffset": 841, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "formatDate",
+					"ranges": [{ "startOffset": 889, "endOffset": 1181, "count": 10 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1737",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/app/presentation/lib/invoice-utils.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 2395, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 2395, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 258, "endOffset": 313, "count": 10 },
+						{ "startOffset": 303, "endOffset": 311, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "getStatusBadgeVariant",
+					"ranges": [{ "startOffset": 346, "endOffset": 511, "count": 10 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1738",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/fixtures/invoice/invoice.fixture.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 10734, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 10734, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 251, "endOffset": 299, "count": 8 },
+						{ "startOffset": 289, "endOffset": 297, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 352, "endOffset": 408, "count": 10 },
+						{ "startOffset": 398, "endOffset": 406, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 462, "endOffset": 519, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 585, "endOffset": 654, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 708, "endOffset": 765, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 820, "endOffset": 878, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "createValidInvoiceData",
+					"ranges": [{ "startOffset": 1011, "endOffset": 1534, "count": 16 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "createValidLineItemData",
+					"ranges": [{ "startOffset": 1568, "endOffset": 1752, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "createValidInvoiceWithLineItemsData",
+					"ranges": [{ "startOffset": 1798, "endOffset": 2081, "count": 0 }],
+					"isBlockCoverage": false
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1739",
+			"url": "file:///Users/tkstart/Desktop/development/remix/invoice-web/__tests__/utils/render-with-router.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 3450, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 3450, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 253, "endOffset": 303, "count": 10 },
+						{ "startOffset": 293, "endOffset": 301, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "renderWithRouter",
+					"ranges": [{ "startOffset": 753, "endOffset": 1258, "count": 10 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "Wrapper",
+					"ranges": [{ "startOffset": 855, "endOffset": 1168, "count": 10 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		}
+	]
+}

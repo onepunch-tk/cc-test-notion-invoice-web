@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CacheService } from "~/application/shared/cache.port";
 import { createKVCacheService } from "~/infrastructure/external/cloudflare/kv-cache.service";
 import {
-	type MockKVNamespace,
 	createMockKVNamespace,
+	type MockKVNamespace,
 } from "../../../fixtures/cloudflare/kv-namespace.fixture";
 
 describe("createKVCacheService", () => {
