@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
 	CACHE_TTL,
 	CIRCUIT_BREAKER_CONFIG,
-	RATE_LIMIT_CONFIG,
 	circuitBreakerKey,
 	companyInfoKey,
 	invoiceDetailKey,
 	invoiceListKey,
 	ipRateLimitKey,
 	notionApiRateLimitKey,
+	RATE_LIMIT_CONFIG,
 } from "~/infrastructure/external/cloudflare/cache-keys";
 
 describe("cache-keys", () => {
@@ -121,10 +121,10 @@ describe("cache-keys", () => {
 			});
 		});
 
-		it("NOTION_API는 3 req/1s 설정을 가진다", () => {
+		it("NOTION_API는 180 req/60s 설정을 가진다 (3 req/sec scaled for KV minimum TTL)", () => {
 			expect(RATE_LIMIT_CONFIG.NOTION_API).toEqual({
-				maxRequests: 3,
-				windowSeconds: 1,
+				maxRequests: 180,
+				windowSeconds: 60,
 			});
 		});
 	});
