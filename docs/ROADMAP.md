@@ -113,11 +113,14 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - 271개 테스트 통과, E2E 10/10 통과, 코드/보안 리뷰 완료
   - Related: F001, F005, F006, F008, F009
 
-- **Task 007: Error Pages and States UI** - Priority
-  - See: `/tasks/007-error-pages-ui.md`
-  - 404 Not Found 페이지 UI
-  - 일반 에러 상태 컴포넌트
-  - 에러 바운더리 구현
+- **Task 007: Error Pages and States UI** - ✅ Complete
+  - **Must** Read: [007-error-pages-ui.md](/tasks/007-error-pages-ui.md)
+  - ✅ NotFoundState 컴포넌트 (FileQuestion 아이콘, 커스터마이즈 가능한 props)
+  - ✅ ErrorState 컴포넌트 (error/warning variant, onRetry 콜백 지원)
+  - ✅ ErrorBoundary 개선 (404/일반 에러 분기, 에러 메시지 sanitization)
+  - ✅ CatchAll 라우트 ($.tsx) NotFoundState 적용
+  - ✅ 접근성: role="status/alert", aria-live 속성 적용
+  - 319개 단위 테스트 통과, E2E 10/10 통과, 코드/보안/성능 리뷰 완료
   - Related: F009
 
 ### Phase 3: Core Feature Implementation

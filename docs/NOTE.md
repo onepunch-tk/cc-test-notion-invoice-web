@@ -597,3 +597,127 @@ it("shows toast on button click", async () => {
 ```
 
 **Takeaway**: When mocking external modules like `sonner`, ensure all used methods are included in the mock object.
+
+---
+
+## Task 007: Error Pages and States UI
+
+### Lesson 26: Reusable Error State Component Pattern
+
+**Pattern**: Create configurable error state components with sensible defaults:
+
+```tsx
+interface ErrorStateProps {
+  title?: string;           // default: "Something went wrong"
+  message?: string;         // default: "An unexpected error occurred."
+  onRetry?: () => void;     // Retry callback
+  actionHref?: string;      // Navigation href
+  variant?: "error" | "warning";
+}
+```
+
+**Key Points**:
+- Provide sensible defaults for all optional props
+- Support both retry (callback) and navigation (href) actions
+- When both are provided, show both buttons with appropriate styling
+- Use `role="alert"` and `aria-live="assertive"` for error states
+- Use `role="status"` and `aria-live="polite"` for info states (like 404)
+
+**Takeaway**: Design error components to be flexible while having good defaults that work out-of-the-box.
+
+---
+
+### Lesson 27: Error Message Sanitization in DEV Mode
+
+**Problem**: In development mode, displaying raw error messages could leak sensitive information like database URLs, API keys, or file paths with usernames.
+
+**Solution**: Implement a sanitization function that redacts sensitive patterns:
+
+```ts
+const sanitizeErrorMessage = (message: string): string => {
+  return message
+    .replace(/postgresql:\/\/[^@\s]+@[^\s]+/g, "postgresql://[REDACTED]")
+    .replace(/api[_-]?key[=:]\s*['"]?[^\s'"]+['"]?/gi, "API_KEY=[REDACTED]")
+    .replace(/\/Users\/[^/\s]+/g, "/Users/[USER]")
+    .replace(/\/home\/[^/\s]+/g, "/home/[USER]");
+};
+```
+
+**Key Points**:
+- Even in DEV mode, sanitize sensitive patterns
+- Include database connection strings, API keys, secrets, tokens
+- Redact file paths that include usernames
+- Apply to both error messages and stack traces
+
+**Takeaway**: Security practices should apply even in development environments to prevent accidental data exposure.
+
+---
+
+### Lesson 28: Module-Level Handler Functions
+
+**Pattern**: For simple handlers that don't depend on component state, define them at module level:
+
+```tsx
+// Module level - created once
+const handleRetry = () => {
+  window.location.reload();
+};
+
+// Inside component - references the same function
+export function ErrorBoundary() {
+  return <ErrorState onRetry={handleRetry} />;
+}
+```
+
+**Benefits**:
+- No function recreation on every render
+- Satisfies ESLint/performance rules
+- Clear separation between stateless utilities and component logic
+
+**When NOT to do this**:
+- When the handler needs component state or props
+- When the handler should capture closure variables
+
+**Takeaway**: Move stateless handlers outside components to avoid unnecessary function recreation.
+
+---
+
+### Lesson 29: Test Updates When Changing Component Defaults
+
+**Problem**: When replacing a component with different default text (e.g., Korean "인보이스를 찾을 수 없습니다" → English "Page Not Found"), existing tests fail.
+
+**Solution**: Update tests to match the new component's defaults:
+
+```tsx
+// Old test expecting Korean
+expect(screen.getByText(/인보이스를 찾을 수 없습니다/i)).toBeInTheDocument();
+
+// Updated test for English defaults
+expect(screen.getByText("Page Not Found")).toBeInTheDocument();
+expect(screen.getByText("The page you're looking for doesn't exist.")).toBeInTheDocument();
+```
+
+**Takeaway**: When replacing components, audit all test files that depend on the old component's text/behavior.
+
+---
+
+### Lesson 30: Use `npx vitest` Instead of `bun test` for Path Aliases
+
+**Problem**: `bun test` may not properly resolve TypeScript path aliases (`~/*`), causing "Cannot find module" errors.
+
+**Solution**: Use `npx vitest run` which properly loads `vitest.config.ts` with `tsconfigPaths` plugin:
+
+```bash
+# May fail with path aliases
+bun test
+
+# Works correctly
+npx vitest run
+```
+
+**Key Points**:
+- `vitest.config.ts` includes `tsconfigPaths()` plugin for alias resolution
+- `bun test` uses Bun's test runner which may not use vitest config
+- Stick with `npx vitest run` for consistent behavior
+
+**Takeaway**: Use the test runner that matches your configuration (Vitest with vitest.config.ts).
