@@ -701,23 +701,134 @@ expect(screen.getByText("The page you're looking for doesn't exist.")).toBeInThe
 
 ---
 
-### Lesson 30: Use `npx vitest` Instead of `bun test` for Path Aliases
+### Lesson 30: Use `bun run test` Instead of `bun test`
 
-**Problem**: `bun test` may not properly resolve TypeScript path aliases (`~/*`), causing "Cannot find module" errors.
+**Problem**: `bun test` invokes Bun's built-in test runner, which doesn't load `vitest.config.ts`. This causes "Cannot find module" errors for path aliases (`~/*`).
 
-**Solution**: Use `npx vitest run` which properly loads `vitest.config.ts` with `tsconfigPaths` plugin:
+**Solution**: Use `bun run test` which executes the package.json script:
 
 ```bash
-# May fail with path aliases
+# ❌ Bun's built-in test runner (ignores vitest.config.ts)
 bun test
 
-# Works correctly
-npx vitest run
+# ✅ Executes package.json "test" script → vitest
+bun run test
 ```
 
 **Key Points**:
-- `vitest.config.ts` includes `tsconfigPaths()` plugin for alias resolution
-- `bun test` uses Bun's test runner which may not use vitest config
-- Stick with `npx vitest run` for consistent behavior
+- `bun test` = Bun 내장 테스트 러너 (vitest.config.ts 무시)
+- `bun run test` = package.json의 `"test": "vitest run"` 스크립트 실행
+- `vitest.config.ts`의 `tsconfigPaths()` 플러그인이 path alias 해석
 
-**Takeaway**: Use the test runner that matches your configuration (Vitest with vitest.config.ts).
+**Takeaway**: `bun test` ≠ `bun run test`. Always use `bun run test`.
+
+---
+
+## Task 008: Notion API Integration Service
+
+### Lesson 31: Notion API Type Guards for Safe Property Extraction
+
+**Pattern**: Use type guards to safely extract values from Notion API's PageObjectResponse properties.
+
+```typescript
+// Type guard for property type checking
+const isObject = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null;
+};
+
+// Property extractor with type guard
+export const getTitleText = (prop: unknown): string => {
+  if (!isObject(prop)) return "";
+  if (!isTitleProperty(prop as PageObjectResponse["properties"][string]))
+    return "";
+
+  const titleProp = prop as { title: Array<{ plain_text: string }> };
+  if (!Array.isArray(titleProp.title) || titleProp.title.length === 0) return "";
+
+  return titleProp.title[0]?.plain_text ?? "";
+};
+```
+
+**Key Points**:
+- Notion properties come as union types - always validate before extracting
+- Use `unknown` type for input to enforce type checking
+- Return safe defaults ("", 0, null) for invalid inputs
+- Combine with Zod schema validation for domain objects
+
+**Takeaway**: Create a set of property extractors for each Notion property type to ensure type-safe data extraction.
+
+---
+
+### Lesson 32: Factory Pattern for Repository Implementation
+
+**Pattern**: Use factory functions to create repository implementations with dependency injection.
+
+```typescript
+export const createNotionInvoiceRepository = (
+  client: Client,
+  config: NotionInvoiceRepositoryConfig,
+): InvoiceRepository => {
+  const findAll = async (): Promise<Invoice[]> => { /* ... */ };
+  const findById = async (invoiceId: string): Promise<InvoiceWithLineItems | null> => { /* ... */ };
+  const findLineItems = async (invoiceId: string): Promise<InvoiceLineItem[]> => { /* ... */ };
+
+  return { findAll, findById, findLineItems };
+};
+```
+
+**Benefits**:
+- Clear dependency injection (client, config)
+- Internal function sharing (findById can call findLineItems)
+- Easy testing with mock client
+- Encapsulation of implementation details
+
+**Takeaway**: Factory pattern allows flexible dependency injection while keeping internal implementation encapsulated.
+
+---
+
+### Lesson 33: PageObjectResponse Type Guard
+
+**Problem**: Notion's `databases.query` returns `(PageObjectResponse | PartialPageObjectResponse)[]`, but we only want full page objects.
+
+**Solution**: Create a type guard to filter results:
+
+```typescript
+const isPageObjectResponse = (
+  result: unknown,
+): result is PageObjectResponse => {
+  return (
+    typeof result === "object" &&
+    result !== null &&
+    "object" in result &&
+    (result as { object: string }).object === "page" &&
+    "properties" in result
+  );
+};
+
+// Usage
+const pages = response.results.filter(isPageObjectResponse);
+```
+
+**Takeaway**: Always filter Notion query results with a type guard to ensure you're working with complete page objects.
+
+---
+
+### Lesson 34: Test Mock Structure for Notion Client
+
+**Pattern**: When testing Notion repositories, mock only the methods you use:
+
+```typescript
+const mockClient = {
+  databases: {
+    query: vi.fn(),
+  },
+} as unknown as Client;
+```
+
+**Key Points**:
+- Only mock `databases.query` if that's all you use
+- Use `as unknown as Client` for type safety
+- Reset mocks in `beforeEach` with `vi.clearAllMocks()`
+- Set up mock return values per test case
+
+**Takeaway**: Keep mocks minimal - only mock what you actually use.
