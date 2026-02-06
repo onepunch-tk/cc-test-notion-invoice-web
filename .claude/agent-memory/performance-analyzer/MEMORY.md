@@ -161,6 +161,32 @@ const reloadPage = () => window.location.reload();
   - 현재는 모든 환경에서 sanitizeErrorMessage 적용
   - 개발 환경에서는 원본 에러 로깅으로 디버깅 효율성 향상 가능
 
+### 2026-02-06: Invoice Detail + PDF Component (Task 011, 013)
+- **Perfect Loader Parallelization**: InvoiceService.getInvoiceDetail() 최적화 완료
+  - `Promise.all([invoice, company])` 병렬 호출 → 2배 속도 향상 (200-400ms vs 400-800ms)
+  - NotionInvoiceRepository.findById()도 `Promise.all([invoice, lineItems])` 구현됨
+  - 캐시 히트: 5-10ms, 캐시 미스: 200-400ms
+- **CRITICAL BUG PERSISTS**: Notion API 페이지네이션 여전히 미구현
+  - Task 010에서 발견된 이슈가 Task 011/013에서도 해결 안 됨
+  - findAll()은 100개 이상 데이터 손실 발생 (while loop + cursor 필요)
+  - **우선순위**: MUST FIX BEFORE MERGE (production blocker)
+- **PDF Component (@react-pdf/renderer)**:
+  - Bundle Size: ~150-200KB (client-side only)
+  - **권장**: `.client.tsx` suffix로 SSR 번들 제외 (현재 미적용)
+  - StyleSheet.create() module-level 실행: 5-10ms (cold path라 무시 가능)
+  - Rendering: 100-500ms (client-side, line items 수에 비례)
+- **Algorithm Complexity**:
+  - Array.sort() O(n log n) - 최적 (작은 데이터셋)
+  - map() O(n) - 최적
+  - Zod validation O(1) - regex pattern matching
+- **Font Loading**: Google Fonts CDN 사용
+  - Network latency: ~100-300ms (first load)
+  - Local 대안: +80-160KB bundle size, ~10ms loading
+  - MVP는 CDN 적합, 오프라인 필요 시 local 전환
+- **Error Handling Pattern**: Module-level 함수 (handlePageRetry, getErrorContent)
+  - Cold path (ErrorBoundary)라 function recreation 무시 가능
+  - 프로젝트 컨벤션 준수 (arrow functions for utilities)
+
 ### React Router Loader Performance Patterns
 - **SSR Optimization**: loader가 서버에서 실행되어 초기 HTML에 데이터 포함
   - Initial HTML Size 증가 (~10-20KB per 10 invoices) vs 빠른 FCP
@@ -196,6 +222,22 @@ const reloadPage = () => window.location.reload();
 - **Type Safety**: Always use TypeScript interfaces, avoid `any`
 - **Accessibility First**: Proper ARIA attributes in error states
 - **Convention Over Configuration**: Follow project's React 19 patterns
+
+### PDF Component Performance Patterns (Task 013)
+- **Client-Only Suffix**: Always use `.client.tsx` for @react-pdf/renderer components
+  - Prevents SSR bundling (150-200KB saved on server bundle)
+  - Edge runtime (Cloudflare Workers) doesn't support @react-pdf/renderer
+- **StyleSheet Creation**: Module-level `StyleSheet.create()` is acceptable
+  - One-time cost (5-10ms) on module load
+  - Cold path (PDF download button click) - not hot path
+  - Alternative: Lazy initialization `let cache; const get = () => cache ??= create()`
+- **Font Strategy Trade-offs**:
+  - CDN (Google Fonts): No bundle cost, ~100-300ms network latency
+  - Local: +80-160KB bundle, ~10ms loading, offline support
+  - Choose based on: offline needs, bundle budget, first-load UX priority
+- **Rendering Performance**: O(n) for line items, O(n log n) for sorting
+  - Expected: 100-500ms for typical invoices (<100 line items)
+  - Monitor if >1000 items (rare for invoices, but consider pagination)
 
 ## Tools and Commands
 

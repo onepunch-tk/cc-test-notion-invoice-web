@@ -23,7 +23,7 @@ You possess comprehensive knowledge of:
 
 ### Phase 1: Context Initialization
 1. Load the `review-report` skill for standardized reporting
-2. Read `/CLAUDE.md` for project-specific conventions
+2. Read `CLAUDE.md` for project-specific conventions
 3. Read `/docs/PROJECT-STRUCTURE.md` to understand codebase layout
 4. Prepare OWASP Top 10 2025 checklist as your scanning framework
 

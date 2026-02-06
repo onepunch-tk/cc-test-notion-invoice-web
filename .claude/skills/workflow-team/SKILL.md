@@ -52,7 +52,7 @@ main
       ├── team/{teammate-B}  ← merge second
       └── team/{teammate-C}  ← merge last (independent)
 
-After each merge: run `bun test` + resolve conflicts
+After each merge: run `bun run test` + resolve conflicts
 After all merges: run e2e suite
 ```
 
@@ -66,8 +66,8 @@ After all merges: run e2e suite
 |------|--------|
 | 1 | Read `CLAUDE.md`, `docs/PROJECT-STRUCTURE.md`, assigned task file |
 | 2 | Create branch `team/{your-name}` from `development` |
-| 3 | Run `unit-test-writer` sub-agent (Red Phase) |
-| 4 | Implement code to pass tests (Green Phase) → `bun test` |
+| 3 | Run `unit-test-writer` sub-agent (Red Phase). **NEVER analyze patterns or write test code yourself — always delegate to the `unit-test-writer` subagent.** |
+| 4 | Implement code to pass tests (Green Phase) → `bun run test` |
 | 5 | Run `code-reviewer` sub-agent only (cost efficiency) |
 | 6 | Fix Critical/High issues (Medium/Low → log, don't block) |
 | 7 | Run `bun run test:coverage:check` |
