@@ -19,7 +19,7 @@ You possess deep knowledge of:
 
 ## Project Context
 **MANDATORY**: Before starting any analysis:
-1. Read `/CLAUDE.md` to understand the tech stack and conventions
+1. Read `CLAUDE.md` to understand the tech stack and conventions
 2. Read `/docs/PROJECT-STRUCTURE.md` to understand the codebase structure
 3. Load the `review-report` skill for report generation
 

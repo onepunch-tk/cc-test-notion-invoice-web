@@ -17,7 +17,6 @@ This project is based on **Clean Architecture** pattern, designed to reuse the s
 ├── docker/           # Docker deployment configuration
 ├── supabase/         # Supabase migrations and settings
 ├── docs/             # Project documentation
-├── tests/            # Test infrastructure
 ├── __tests__/        # Test files
 ├── .github/          # GitHub Actions CI/CD
 └── .claude/          # Claude agent configuration

@@ -63,6 +63,12 @@
 - **Impact**: Dev dependencies only, not runtime vulnerabilities
 - **Action**: Run `bun update` to patch
 
+### Test Dependencies (Verified 2026-02-06 - Task 012)
+- **MSW v2**: Network request mocking with `onUnhandledRequest: "error"` prevents unintended leaks
+- **Vitest**: Latest version, no known CVEs
+- **@testing-library/react**: Latest version, secure
+- **@notionhq/client**: Used in tests with mock data only
+
 ---
 
 ## Notion API Integration Security Profile
@@ -98,8 +104,88 @@
 |----------|--------|-------|
 | A01 - Access Control | Not audited | No auth logic yet |
 | A02 - Cryptographic Failures | ✅ Pass | No hardcoded secrets |
-| A03 - Injection | ⚠️ Advisory | XSS-safe but add validation |
+| A03 - Injection | ✅ Pass | Comprehensive Zod validation tests (Task 012) |
 | A09 - Logging Failures | ⚠️ Issue | Error disclosure in DEV |
+
+### Task 012 Test Infrastructure Audit (2026-02-06)
+- **Status**: ✅ PASS with 1 advisory recommendation
+- **Severity**: 0 Critical, 0 High, 1 Medium (mock URL cosmetic), 0 Low
+- **Test Coverage**: SQL injection (`' OR 1=1--`), XSS (implicit via React 19), input validation
+- **Mock Data Security**: All test data uses RFC 2606 reserved domains (`example.com`), safe placeholders
+- **MSW Configuration**: `onUnhandledRequest: "error"` prevents network leaks
+
+---
+
+## Test Code Security Patterns (NEW - Task 012)
+
+### Mock Data Best Practices
+```typescript
+// ✅ GOOD: Use RFC 2606 reserved domains
+email: "test@example.com"
+email: "user@example.org"
+url: "https://example.com/resource"
+
+// ❌ BAD: Real production domains
+email: "test@gmail.com"
+url: "https://notion.so/page-123"  // Use example.com instead
+
+// ✅ GOOD: Reserved phone prefixes
+phone: "+1-555-1234"  // North America 555 prefix
+
+// ✅ GOOD: Generic placeholders for API keys
+api_key: "test-api-key"
+database_id: "test-db-id"
+
+// ❌ BAD: Production-like values
+api_key: "ntn_a1b2c3d4e5f6g7h8i9j0"
+```
+
+### MSW Handler Security
+```typescript
+// ✅ GOOD: Network isolation
+server.listen({ onUnhandledRequest: "error" });
+
+// ✅ GOOD: Generic error messages
+return notionApiErrorHandler(
+    401,
+    "unauthorized",
+    "API token is invalid or has been revoked.",  // No token exposure
+);
+
+// ❌ BAD: Exposing sensitive info
+message: `Invalid token: ${actualToken}`,
+```
+
+### Input Validation Testing Pattern
+```typescript
+// ✅ GOOD: Test attack vectors explicitly
+describe("Zod Param Validation → 400 Error", () => {
+    it("SQL injection 시도는 400 에러를 발생시켜야 한다", async () => {
+        renderWithIntegration("' OR 1=1--");
+        // expect 400 error
+    });
+
+    it("특수문자가 포함된 invoiceId는 400 에러를 발생시켜야 한다", async () => {
+        renderWithIntegration("abc!@#123");
+        // expect 400 error
+    });
+
+    it("100자를 초과하는 invoiceId는 400 에러를 발생시켜야 한다", async () => {
+        renderWithIntegration("a".repeat(101));
+        // expect 400 error
+    });
+});
+```
+
+### Test Fixture Type Safety
+```typescript
+// ✅ GOOD: Type-safe builders prevent type mismatches
+export const createMockInvoicePage = (
+    overrides: Partial<PageObjectResponse> = {},
+): PageObjectResponse => {
+    // Merges overrides with base fixture safely
+};
+```
 
 ---
 
@@ -107,6 +193,7 @@
 
 ### Error Message Sanitization
 ```typescript
+// ✅ Already implemented in app/infrastructure/utils/error-sanitizer.ts
 const sanitizeErrorMessage = (message: string): string => {
   return message
     .replace(/postgresql:\/\/[^@]+@[^\s]+/g, 'postgresql://[REDACTED]')
@@ -114,6 +201,49 @@ const sanitizeErrorMessage = (message: string): string => {
     .replace(/[a-f0-9]{32}/gi, '[DATABASE_ID_REDACTED]')  // Notion DB IDs
     .replace(/\/Users\/[^\/]+/g, '/Users/[USER]');
 };
+```
+
+### External URL Validation (NEW - Required for Task 011/013 fixes)
+```typescript
+// app/infrastructure/utils/url-validator.ts
+const ALLOWED_IMAGE_DOMAINS = [
+  'images.unsplash.com',
+  'cdn.example.com',
+  's3.amazonaws.com'
+];
+
+export const validateImageUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+
+    // Only HTTPS in production
+    if (import.meta.env.PROD && parsed.protocol !== 'https:') {
+      return false;
+    }
+
+    // Block data URIs and private IPs
+    if (parsed.protocol === 'data:' || isPrivateIP(parsed.hostname)) {
+      return false;
+    }
+
+    // Check domain allowlist
+    return ALLOWED_IMAGE_DOMAINS.some(domain =>
+      parsed.hostname === domain || parsed.hostname.endsWith(`.${domain}`)
+    );
+  } catch {
+    return false;
+  }
+};
+```
+
+### Environment-Aware Logging Pattern (NEW)
+```typescript
+// Only log detailed errors in development
+if (import.meta.env.DEV) {
+  console.error("[Context]", sanitizedMessage);
+}
+// Always throw generic message to client
+throw new Response("Generic error message", { status: 500 });
 ```
 
 ### Notion Error Handler Pattern
@@ -218,6 +348,38 @@ export const createCachedInvoiceRepository = (
    - `window.location.reload()` 사용으로 보안 이벤트 추적 불가
    - Fix: React Router의 `revalidator.revalidate()` 사용
 
+### Invoice Detail & PDF Components (Task 011 & 013 - 2026-02-06)
+1. **External Image URL Injection** (High Severity - SSRF/Content Injection)
+   - `companyInfo.logo_url` rendered without URL validation/allowlist
+   - Risk: SSRF to internal metadata services, data URI injection, mixed content
+   - Location: invoice-pdf-document.tsx:39, invoice-header.tsx:31
+   - Fix: Implement URL allowlist validator blocking data:, private IPs, non-HTTPS
+
+2. **Missing CSP for Font Loading** (High Severity - Supply Chain)
+   - Google Fonts CDN URLs hardcoded without CSP headers
+   - Risk: Compromised CDN, MITM attacks, privacy leakage
+   - Location: pdf-fonts.ts:20-27
+   - Fix: Add CSP headers with font-src allowlist, consider self-hosting fonts
+
+3. **Missing Rate Limiting on Detail Page** (Medium Severity)
+   - Invoice detail loader has no rate limiting
+   - Risk: ID enumeration (32-char hex brute-force), DoS, cost escalation
+   - Location: $invoiceId.tsx:72-104
+   - Fix: Leverage existing KV rate limiter (10 req/min per IP)
+
+4. **Console Logging in Production** (Medium Severity)
+   - Error messages logged even after sanitization
+   - Risk: Information disclosure via browser/server logs
+   - Location: $invoiceId.tsx:101
+   - Fix: Conditional logging with import.meta.env.DEV check
+
+**Positive Findings** ✅:
+- Excellent input validation with Zod (blocks XSS, SQL injection, path traversal)
+- Comprehensive error sanitization (16+ sensitive patterns)
+- React 19 XSS auto-escaping properly leveraged
+- Type-safe error handling with custom error classes
+- 14 test cases covering security edge cases (TDD compliance)
+
 ---
 
 ## Security Testing Checklist
@@ -257,28 +419,42 @@ export const createCachedInvoiceRepository = (
 
 ---
 
-## Latest Comprehensive Audit Summary (2026-02-05)
+## Latest Comprehensive Audit Summary (2026-02-06)
 
-**Commit**: 3d74345
-**Scope**: Full app/ directory security audit
+### Most Recent: Task 012 Test Infrastructure
+**Date**: 2026-02-06
+**Scope**: Integration test files (MSW, fixtures, handlers)
+**Findings**: 0 Critical, 0 High, 1 Medium (cosmetic), 0 Low
+**Overall Status**: PASS ✅ (Excellent test security practices)
+**Report**: `/docs/reports/task-012-security-review.md`
+
+### Previous: Task 011 & 013
+**Commit**: 9475fc8 (Task 011 & 013)
+**Scope**: Invoice Detail Page + PDF Document Component
 **Findings**: 2 High, 2 Medium, 1 Low severity issues
-**Overall Status**: GOOD ✅ (Strong foundation with actionable improvements)
+**Overall Status**: GOOD ✅ (Excellent security practices with minor gaps)
 
 ### Critical Takeaways
-1. **Error Sanitization Implemented** ✅ - Previous concerns about information disclosure have been addressed
-2. **No Hardcoded Secrets** ✅ - All environment variables properly managed
-3. **Rate Limiting Still Missing** ⚠️ - Highest priority for production readiness
-4. **Input Validation Gap** ⚠️ - Route parameters need validation before Notion queries
+1. **Input Validation Excellence** ✅ - Comprehensive Zod validation blocks injection attacks
+2. **Error Sanitization Working** ✅ - 16+ sensitive patterns properly redacted
+3. **XSS Prevention by Design** ✅ - React 19 auto-escaping leveraged correctly
+4. **External URL Risk** ⚠️ - logo_url needs allowlist validation (SSRF risk)
+5. **CSP Headers Missing** ⚠️ - Google Fonts CDN without CSP configuration
 
-### Status Updates Since Last Audit
-- ✅ **FIXED**: Error sanitization utility added (`app/infrastructure/utils/error-sanitizer.ts`)
-- ✅ **FIXED**: SSR error handling now sanitizes before logging (`app/entry.server.tsx:26`)
-- ✅ **FIXED**: Client ErrorBoundary sanitizes error messages (`app/root.tsx:102-104`)
-- ⚠️ **UNCHANGED**: Rate limiting not implemented (still critical)
-- ⚠️ **UNCHANGED**: NoSQL injection risk remains (input validation needed)
+### Status Updates Since Last Audit (3d74345)
+- ✅ **IMPROVED**: Invoice detail loader has excellent input validation
+- ✅ **IMPROVED**: Test coverage includes XSS/injection attack scenarios
+- ⚠️ **NEW ISSUE**: External image URLs lack validation (H-1)
+- ⚠️ **NEW ISSUE**: Missing CSP headers for font loading (H-2)
+- ⚠️ **UNCHANGED**: Rate limiting still not implemented on detail page (M-1)
+
+### Production Readiness Blockers
+1. **[High]** Implement URL validation with allowlist for logo_url
+2. **[High]** Add CSP headers for font-src and img-src
+3. **[Medium]** Add rate limiting to invoice detail loader
 
 ---
 
-*Last Updated: 2026-02-05*
-*Latest Audit: Full Security Audit - app/ directory (Commit: 3d74345)*
-*Previous Audit: Notion API Integration (Commit: bae1c16)*
+*Last Updated: 2026-02-06*
+*Latest Audit: Invoice Detail & PDF Components (Commits: af98800, 9475fc8)*
+*Previous Audit: Full Security Audit (Commit: 3d74345)*

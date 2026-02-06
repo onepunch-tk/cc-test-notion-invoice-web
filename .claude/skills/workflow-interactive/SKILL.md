@@ -32,8 +32,8 @@ Follow these steps **sequentially**. Each step MUST complete before proceeding.
 |------|--------|
 | 6 | Switch to `development` branch (create if not exists) |
 | 7 | Create feature branch from `development` |
-| 8 | Run `unit-test-writer` sub-agent → **verify tests FAIL** (Red Phase) |
-| 9 | Implement code to pass tests → run `bun test` → **verify ALL pass** (Green Phase) |
+| 8 | Run `unit-test-writer` sub-agent → **verify tests FAIL** (Red Phase). **NEVER analyze patterns or write test code yourself — always delegate to the `unit-test-writer` subagent.** |
+| 9 | Implement code to pass tests → run `bun run test` → **verify ALL pass** (Green Phase) |
 
 **Auto-verify (no human wait needed)**:
 - After Step 8: If tests pass immediately → review test logic, likely not testing correctly
