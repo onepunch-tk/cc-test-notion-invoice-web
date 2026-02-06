@@ -193,14 +193,16 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - ✅ createRoutesStub 활용 종합 테스트 작성
   - Related: F003, F004, F008, F009
 
-- **Task 011: Invoice Detail Page Data Integration** - Priority
+- **Task 011: Invoice Detail Page Data Integration** ✅ - Completed
   - blockedBy: Task 006, Task 008, Task 009
   - blocks: Task 012
-  - See: `/tasks/011-invoice-detail-data.md`
-  - 인보이스 상세 페이지에 실제 Notion 데이터 연동
-  - URL 파라미터로 invoice_id 추출 및 검증
-  - 인보이스 + 라인 아이템 + 회사 정보 데이터 fetching
-  - 404 에러 처리 (존재하지 않는 인보이스)
+  - **Must** Read: [011-invoice-detail-data.md](/tasks/011-invoice-detail-data.md)
+  - ✅ 인보이스 상세 페이지에 실제 Notion 데이터 연동
+  - ✅ loader 함수 구현 (Zod 기반 invoiceId 검증, DI 컨테이너 서비스 호출)
+  - ✅ 404/400/500 에러 처리 (InvoiceNotFoundError, 검증 실패, 서버 에러)
+  - ✅ 더미 데이터 제거 및 useLoaderData 연동
+  - ✅ 동적 meta 함수 (Invoice #{number})
+  - ✅ 567개 테스트 통과, 코드 리뷰 완료
   - Related: F001, F003, F006, F007, F008, F009
 
 - **Task 012: Core Feature Integration Testing**
@@ -214,14 +216,15 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
 
 ### Phase 4: PDF Export and Polish
 
-- **Task 013: PDF Document Component** - Priority
+- **Task 013: PDF Document Component** ✅ - Completed
   - blockedBy: none
   - blocks: Task 014
-  - See: `/tasks/013-pdf-document.md`
-  - @react-pdf/renderer 기반 PDF 문서 컴포넌트 구현
-  - 웹 뷰와 동일한 레이아웃 재현
-  - A4 사이즈 최적화
-  - 폰트 및 스타일 설정
+  - **Must** Read: [013-pdf-document.md](/tasks/013-pdf-document.md)
+  - ✅ @react-pdf/renderer v4.3.2 기반 InvoicePdfDocument 컴포넌트 구현
+  - ✅ 웹 뷰와 동일한 레이아웃 (Header/BillTo/Table/Summary/Notes)
+  - ✅ A4 사이즈 최적화 PDF StyleSheet
+  - ✅ 한글 폰트 등록 유틸리티 (NotoSansKR)
+  - ✅ 567개 테스트 통과 (39개 PDF 관련 테스트 포함)
   - Related: F002
 
 - **Task 014: PDF Download Feature**
