@@ -40,6 +40,13 @@ vi.mock("~/presentation/lib/format", () => ({
 	}),
 }));
 
+// PdfDownloadButton 모킹 (Node 환경에서 PDFDownloadLink 실행 방지)
+vi.mock("~/presentation/components/pdf", () => ({
+	PdfDownloadButton: () => (
+		<button data-testid="pdf-download-button">PDF 다운로드</button>
+	),
+}));
+
 describe("Invoice Detail 통합 테스트", () => {
 	let mockInvoiceService: InvoiceService;
 

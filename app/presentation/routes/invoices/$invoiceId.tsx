@@ -146,7 +146,7 @@ export default function InvoiceDetail() {
 						인보이스 ID: {invoice.invoice_id}
 					</p>
 				</div>
-				<InvoiceActions />
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />
 			</div>
 
 			{/* Invoice Content Card */}

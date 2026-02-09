@@ -15,6 +15,33 @@ import InvoiceDetail, {
 	ErrorBoundary,
 } from "~/presentation/routes/invoices/$invoiceId";
 
+// InvoiceActions 컴포넌트 모킹
+vi.mock("~/presentation/components/invoice", async () => {
+	const actual = await vi.importActual<
+		typeof import("~/presentation/components/invoice")
+	>("~/presentation/components/invoice");
+	return {
+		...actual,
+		InvoiceActions: ({
+			invoice,
+			companyInfo,
+		}: {
+			invoice?: { invoice_id: string };
+			companyInfo?: { company_name: string };
+		}) => (
+			<div
+				data-testid="invoice-actions"
+				data-invoice-id={invoice?.invoice_id}
+				data-company-name={companyInfo?.company_name}
+			>
+				<a href="/invoices">목록으로</a>
+				<button>인쇄</button>
+				<button>PDF 다운로드</button>
+			</div>
+		),
+	};
+});
+
 // formatDate/formatCurrency 함수 모킹
 vi.mock("~/presentation/lib/format", () => ({
 	formatDate: vi.fn((date: Date) => {
@@ -216,6 +243,30 @@ describe("Invoice Detail 페이지", () => {
 				name: /pdf 다운로드/i,
 			});
 			expect(pdfButton).toBeInTheDocument();
+		});
+
+		it("InvoiceActions에 invoice props가 전달되어야 한다", async () => {
+			const invoice = createMockInvoice();
+			const companyInfo = createMockCompanyInfo();
+			renderWithLoaderData(invoice, companyInfo);
+
+			const actionsContainer = await screen.findByTestId("invoice-actions");
+			expect(actionsContainer).toHaveAttribute(
+				"data-invoice-id",
+				invoice.invoice_id,
+			);
+		});
+
+		it("InvoiceActions에 companyInfo props가 전달되어야 한다", async () => {
+			const invoice = createMockInvoice();
+			const companyInfo = createMockCompanyInfo();
+			renderWithLoaderData(invoice, companyInfo);
+
+			const actionsContainer = await screen.findByTestId("invoice-actions");
+			expect(actionsContainer).toHaveAttribute(
+				"data-company-name",
+				companyInfo.company_name,
+			);
 		});
 	});
 
