@@ -8,9 +8,12 @@
  * - 500: 서비스 에러
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { InvoiceDetailResult } from "~/application/invoice/invoice.service";
-import { InvoiceNotFoundError } from "~/application/invoice/errors";
+import {
+	InvoiceNotFoundError,
+	NotionApiError,
+} from "~/application/invoice/errors";
 import type { IContainer } from "~/application/shared/container.types";
 import type { CompanyInfo } from "~/domain/company";
 import type { InvoiceWithLineItems } from "~/domain/invoice";
@@ -79,9 +82,11 @@ const createLoaderArgs = (container: IContainer, invoiceId: string) =>
 describe("InvoiceDetail Loader", () => {
 	let mockContainer: IContainer;
 	let mockGetInvoiceDetail: ReturnType<typeof vi.fn>;
+	let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		mockGetInvoiceDetail = vi.fn();
 		mockContainer = {
@@ -90,6 +95,10 @@ describe("InvoiceDetail Loader", () => {
 				getInvoiceDetail: mockGetInvoiceDetail,
 			},
 		} as unknown as IContainer;
+	});
+
+	afterEach(() => {
+		consoleErrorSpy.mockRestore();
 	});
 
 	describe("성공 케이스", () => {
@@ -270,6 +279,78 @@ describe("InvoiceDetail Loader", () => {
 				expect(error).toBeInstanceOf(Response);
 				const response = error as Response;
 				expect(response.status).toBe(500);
+			}
+		});
+
+		it("NotionApiError with Error cause일 때 cause 메시지를 console.error에 포함해야 한다", async () => {
+			// Arrange
+			const invoiceId = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6";
+			const causeError = new Error("connection timeout");
+			const notionError = new NotionApiError("API failed", causeError);
+			mockGetInvoiceDetail.mockRejectedValue(notionError);
+
+			// Act & Assert
+			try {
+				await loader(createLoaderArgs(mockContainer, invoiceId));
+				expect.fail("loader should have thrown");
+			} catch (error) {
+				expect(error).toBeInstanceOf(Response);
+				// console.error가 cause 메시지와 함께 호출되었는지 확인
+				expect(consoleErrorSpy).toHaveBeenCalledWith(
+					"[InvoiceDetail Loader]",
+					"API failed",
+					"| Cause:",
+					"connection timeout",
+				);
+			}
+		});
+
+		it("NotionApiError with non-Error cause일 때 cause를 문자열로 변환하여 로깅해야 한다", async () => {
+			// Arrange
+			const invoiceId = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6";
+			const notionError = new NotionApiError("API failed", "raw error string");
+			mockGetInvoiceDetail.mockRejectedValue(notionError);
+
+			// Act & Assert
+			try {
+				await loader(createLoaderArgs(mockContainer, invoiceId));
+				expect.fail("loader should have thrown");
+			} catch (error) {
+				expect(error).toBeInstanceOf(Response);
+				// console.error가 cause를 문자열로 변환하여 호출되었는지 확인
+				expect(consoleErrorSpy).toHaveBeenCalledWith(
+					"[InvoiceDetail Loader]",
+					"API failed",
+					"| Cause:",
+					"raw error string",
+				);
+			}
+		});
+
+		it("NotionApiError without cause일 때 기존 로깅 동작을 유지해야 한다", async () => {
+			// Arrange
+			const invoiceId = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6";
+			const notionError = new NotionApiError("API failed");
+			mockGetInvoiceDetail.mockRejectedValue(notionError);
+
+			// Act & Assert
+			try {
+				await loader(createLoaderArgs(mockContainer, invoiceId));
+				expect.fail("loader should have thrown");
+			} catch (error) {
+				expect(error).toBeInstanceOf(Response);
+				// console.error가 cause 없이 호출되었는지 확인
+				expect(consoleErrorSpy).toHaveBeenCalledWith(
+					"[InvoiceDetail Loader]",
+					"API failed",
+				);
+				// "| Cause:" 문자열이 포함되지 않았는지 확인
+				expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+					expect.anything(),
+					expect.anything(),
+					"| Cause:",
+					expect.anything(),
+				);
 			}
 		});
 	});

@@ -12,6 +12,7 @@ import {
 	useNavigation,
 	useRouteError,
 } from "react-router";
+import { NotionApiError } from "~/application/invoice/errors";
 import { sanitizeErrorMessage } from "~/infrastructure/utils/error-sanitizer";
 import { ErrorState } from "~/presentation/components/error";
 import {
@@ -56,7 +57,17 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 			error instanceof Error
 				? sanitizeErrorMessage(error.message)
 				: "Failed to load invoices";
-		console.error("[InvoiceList Loader]", message);
+
+		if (error instanceof NotionApiError && error.cause) {
+			const causeMessage =
+				error.cause instanceof Error
+					? error.cause.message
+					: String(error.cause);
+			console.error("[InvoiceList Loader]", message, "| Cause:", causeMessage);
+		} else {
+			console.error("[InvoiceList Loader]", message);
+		}
+
 		throw new Response(message, { status: 500 });
 	}
 };
