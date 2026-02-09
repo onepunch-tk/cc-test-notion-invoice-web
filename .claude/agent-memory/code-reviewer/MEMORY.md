@@ -18,6 +18,9 @@
 - Loader: `context.container` for DI, `useLoaderData<typeof loader>` for type inference
 - Error: `isRouteErrorResponse` + `Route.ErrorBoundaryProps`
 - Navigation: `useNavigation` for skeleton UI during loading
+- **Headers (Task 015)**: `export const headers: Route.HeadersFunction = ({ loaderHeaders }) => { ... }`
+  - Extend loaderHeaders, don't replace (preserves upstream headers)
+  - entry.server.tsx sets base Cache-Control, routes override with specific TTLs
 
 ### KV Cache Layer
 - **Graceful Degradation**: Cache operations fail silently (avoid breaking app)
@@ -30,6 +33,11 @@
 - **@react-pdf/renderer**: Client-only, use `React.lazy` + `Suspense`
 - **Font Registration**: Add duplicate check to prevent errors (`isKoreanFontRegistered` flag)
 - **Bundle**: ~150-200KB, properly code-split via `.client.tsx` suffix
+
+### Cloudflare Workers (Task 015)
+- **Fetch Binding**: Use `globalThis.fetch.bind(globalThis)` when passing to third-party SDKs
+- **Cache-Control**: `max-age=0` (no browser cache) + `s-maxage` (Edge cache) + `stale-while-revalidate=60`
+- **Bundle Analysis**: `bun run build:analyze` → stats.html (gitignored)
 
 ## OWASP Compliance Status
 
@@ -48,15 +56,21 @@
 - Cache hit: 5-10ms | Cache miss: 200-400ms (Notion API)
 - Parallel `Promise.all`: 2x faster vs sequential calls
 - Notion pagination: **NOT IMPLEMENTED** (100-item limit, data loss risk)
+- **Edge Caching (Task 015)**: Home (1h), Invoice Detail (10m), Invoice List (5m)
 
 ### Bundle Considerations
 - @react-pdf/renderer: ~150-200KB (client-only, use `.client.tsx`)
 - lucide-react: tree-shakeable (~0.5-1KB per icon)
 - Error handling system: ~3KB (must be in main bundle)
+- date-fns: REMOVED in Task 015 (-2.8KB) - use native Intl.DateTimeFormat
 
 ### Component Performance Priority
 - **Hot path**: List/table components, form inputs, loader functions
 - **Cold path**: Error boundaries, modals, PDF generation
+
+### Image Optimization (Task 015)
+- All images MUST have: `loading="lazy"`, `decoding="async"`, `width`, `height`
+- Prevents CLS (Cumulative Layout Shift), improves LCP (Largest Contentful Paint)
 
 ## Known Vulnerability Patterns
 
@@ -114,6 +128,7 @@
 
 | Date | Scope | Files | Issues | Grade |
 |------|-------|-------|--------|-------|
+| 2026-02-09 | Task 015: Performance Optimization | 8 | 0 (0C/0H/0M/0L) | A+ |
 | 2026-02-09 | Task 150: Repository Error Detail | 4 | 0 (0C/0H/0M/0L) | A+ |
 | 2026-02-09 | Task 014: PDF Download Feature | 9 | 3 (0C/0H/3M/0L) | A |
 | 2026-02-06 | Task 012: Integration Tests | 6 | 8 (0C/0H/3M/5L) | A- |
