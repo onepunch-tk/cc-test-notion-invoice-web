@@ -202,3 +202,5 @@ service-account.json
 .claude/hooks/.env.hooks
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,visualstudiocode,jetbrains+all
+
+tmux-*.log
