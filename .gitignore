@@ -15,6 +15,9 @@
 # Test coverage reports
 /coverage/
 
+# Bundle analysis
+stats.html
+
 # Supabase (로컬 개발용)
 supabase/.branches
 supabase/.temp

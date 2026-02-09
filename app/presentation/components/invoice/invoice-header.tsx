@@ -31,6 +31,10 @@ export default function InvoiceHeader({
 							src={companyInfo.logo_url}
 							alt={companyInfo.company_name}
 							className="h-12 w-auto object-contain"
+							loading="lazy"
+							decoding="async"
+							width={120}
+							height={48}
 						/>
 					)}
 					<div>

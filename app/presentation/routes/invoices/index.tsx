@@ -27,6 +27,15 @@ import type { Route } from "./+types/index";
  *
  * SEO meta tags for the invoice list page
  */
+export const headers: Route.HeadersFunction = ({ loaderHeaders }) => {
+	const headers = new Headers(loaderHeaders);
+	headers.set(
+		"Cache-Control",
+		"public, max-age=0, s-maxage=300, stale-while-revalidate=60",
+	);
+	return headers;
+};
+
 export const meta: MetaFunction = () => {
 	return [
 		{ title: "인보이스 목록 - Invoice-Web" },

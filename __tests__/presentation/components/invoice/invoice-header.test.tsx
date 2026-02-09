@@ -249,6 +249,56 @@ describe("InvoiceHeader", () => {
 		});
 	});
 
+	describe("이미지 최적화 속성", () => {
+		it("로고 이미지에 loading='lazy' 속성이 설정된다", () => {
+			render(
+				<InvoiceHeader
+					invoice={defaultInvoice}
+					companyInfo={defaultCompanyInfo}
+				/>,
+			);
+
+			const logo = screen.getByRole("img", { name: /test company inc/i });
+			expect(logo).toHaveAttribute("loading", "lazy");
+		});
+
+		it("로고 이미지에 decoding='async' 속성이 설정된다", () => {
+			render(
+				<InvoiceHeader
+					invoice={defaultInvoice}
+					companyInfo={defaultCompanyInfo}
+				/>,
+			);
+
+			const logo = screen.getByRole("img", { name: /test company inc/i });
+			expect(logo).toHaveAttribute("decoding", "async");
+		});
+
+		it("로고 이미지에 width 속성이 설정된다", () => {
+			render(
+				<InvoiceHeader
+					invoice={defaultInvoice}
+					companyInfo={defaultCompanyInfo}
+				/>,
+			);
+
+			const logo = screen.getByRole("img", { name: /test company inc/i });
+			expect(logo).toHaveAttribute("width", "120");
+		});
+
+		it("로고 이미지에 height 속성이 설정된다", () => {
+			render(
+				<InvoiceHeader
+					invoice={defaultInvoice}
+					companyInfo={defaultCompanyInfo}
+				/>,
+			);
+
+			const logo = screen.getByRole("img", { name: /test company inc/i });
+			expect(logo).toHaveAttribute("height", "48");
+		});
+	});
+
 	describe("스타일링", () => {
 		it("custom className을 적용한다", () => {
 			// Arrange
