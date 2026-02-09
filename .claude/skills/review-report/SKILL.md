@@ -1,8 +1,8 @@
 ---
 name: review-report
 description: |
-  코드 리뷰 자동화 에이전트를 위한 표준화된 리뷰 리포트를 생성합니다.
-  리뷰어 에이전트가 호출하여 일관된 형식의 리포트를 출력합니다.
+  Generates standardized review reports for the code-reviewer agent.
+  Called by reviewer agents to produce consistent, structured report output.
 model: sonnet
 allowed-tools:
   - Bash

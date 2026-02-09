@@ -18,11 +18,9 @@ Follow these steps **sequentially**. Each step MUST complete before proceeding.
 | 1 | Enter `PlanMode` |
 | 2 | Analyze current state thoroughly |
 | 3 | Create detailed step-by-step plan |
-| 4 | Call `TaskCreate` tool |
-| 5 | **STOP** — Call `TaskList` tool to display tasks |
+| 4 | Exit `PlanMode` → wait for plan approval |
 
-> ⛔ **CHECKPOINT**: MUST wait for explicit user instruction (e.g., "proceed", "start", "go").
-> DO NOT auto-execute any task without user approval.
+> After plan approval, create tasks via `TaskCreate` and execute immediately. No separate confirmation needed.
 
 ---
 

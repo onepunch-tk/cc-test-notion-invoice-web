@@ -25,11 +25,9 @@ Invoke with: `/workflow-team lead` or `/workflow-team teammate`
 | 3 | Analyze task scope, identify required files and dependencies |
 | 4 | Break work into tasks with **clear file ownership** (no overlapping files) |
 | 5 | Create detailed step-by-step plan with task breakdown |
-| 6 | Call `TaskCreate` tool |
-| 7 | **STOP** — Call `TaskList` tool to display tasks |
+| 6 | Exit `PlanMode` → wait for plan approval |
 
-> ⛔ **CHECKPOINT**: MUST wait for explicit user instruction (e.g., "proceed", "start", "go").
-> DO NOT spawn teammates or auto-execute without user approval.
+> After plan approval, create tasks via `TaskCreate` and spawn teammates immediately. No separate confirmation needed.
 
 ### Phase 2: Execute (after user approval)
 
