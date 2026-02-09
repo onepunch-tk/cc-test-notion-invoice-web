@@ -48,6 +48,15 @@ const invoiceIdSchema = z
  *
  * SEO meta tags - loader 데이터로 동적 제목 설정
  */
+export const headers: Route.HeadersFunction = ({ loaderHeaders }) => {
+	const headers = new Headers(loaderHeaders);
+	headers.set(
+		"Cache-Control",
+		"public, max-age=0, s-maxage=600, stale-while-revalidate=60",
+	);
+	return headers;
+};
+
 export const meta: Route.MetaFunction = ({ data }) => {
 	const title = data?.invoice
 		? `Invoice #${data.invoice.invoice_number}`
