@@ -45,7 +45,7 @@ Invoke with: `/workflow-team lead` or `/workflow-team teammate`
 Create an agent team with N teammates:
 1. "{name}" — Read {task-file-path}. Own files: {file-list}.
 2. "{name}" — Read {task-file-path}. Own files: {file-list}.
-Use Sonnet for all teammates. Require plan approval.
+Use Opus for all teammates. Require plan approval.
 ```
 
 ### Lead Rules
