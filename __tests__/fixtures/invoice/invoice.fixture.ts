@@ -4,6 +4,12 @@
  * TDD Red 단계에서 사용할 테스트 데이터를 생성합니다.
  */
 
+import type {
+	Invoice,
+	InvoiceLineItem,
+	InvoiceWithLineItems,
+} from "~/domain/invoice/invoice.types";
+
 /**
  * InvoiceStatus 열거형 값
  */
@@ -15,7 +21,9 @@ export const INVOICE_STATUS = {
 } as const;
 
 /**
- * 유효한 Invoice 데이터 빌더
+ * 유효한 Invoice 데이터 빌더 (raw data — Zod 파싱 테스트 등에 사용)
+ *
+ * date 필드에 string을 허용하여 schema 검증 테스트에서도 사용 가능
  */
 export const createValidInvoiceData = (
 	overrides: Partial<{
@@ -67,7 +75,7 @@ export const createValidLineItemData = (
 		line_total: number;
 		sort_order: number;
 	}> = {},
-) => ({
+): InvoiceLineItem => ({
 	id: "line-001",
 	invoice_id: "inv-001",
 	description: "Test Service",
@@ -79,7 +87,41 @@ export const createValidLineItemData = (
 });
 
 /**
- * 유효한 InvoiceWithLineItems 데이터 빌더
+ * 도메인 타입 호환 Invoice 빌더
+ *
+ * InvoiceWithLineItems 타입을 반환하여 컴포넌트 테스트에서 타입 안전하게 사용
+ */
+export const createTypedInvoiceWithLineItems = (
+	overrides: Partial<Invoice> = {},
+	lineItems: Partial<InvoiceLineItem>[] = [{}],
+): InvoiceWithLineItems => ({
+	invoice_id: "inv-001",
+	invoice_number: "INV-2024-001",
+	client_name: "Test Client",
+	client_email: "client@example.com",
+	client_address: "123 Test Street, Test City",
+	issue_date: new Date("2024-01-15"),
+	due_date: new Date("2024-02-15"),
+	status: INVOICE_STATUS.DRAFT,
+	subtotal: 1000,
+	tax_rate: 10,
+	tax_amount: 100,
+	total_amount: 1100,
+	currency: "USD",
+	notes: "Test notes",
+	created_at: new Date("2024-01-15"),
+	...overrides,
+	line_items: lineItems.map((item, index) =>
+		createValidLineItemData({
+			id: `line-${String(index + 1).padStart(3, "0")}`,
+			sort_order: index + 1,
+			...item,
+		}),
+	),
+});
+
+/**
+ * 유효한 InvoiceWithLineItems 데이터 빌더 (raw data)
  */
 export const createValidInvoiceWithLineItemsData = (
 	invoiceOverrides: Parameters<typeof createValidInvoiceData>[0] = {},

@@ -9,7 +9,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import InvoiceActions from "~/presentation/components/invoice/invoice-actions";
 import { createValidCompanyInfoData } from "../../../fixtures/company/company.fixture";
-import { createValidInvoiceWithLineItemsData } from "../../../fixtures/invoice/invoice.fixture";
+import { createTypedInvoiceWithLineItems } from "../../../fixtures/invoice/invoice.fixture";
 import { renderWithRouter } from "../../../utils/render-with-router";
 
 // PdfDownloadButton 모킹
@@ -51,7 +51,7 @@ describe("InvoiceActions", () => {
 	describe("기본 렌더링", () => {
 		it("액션 컨테이너가 렌더링되어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -66,7 +66,7 @@ describe("InvoiceActions", () => {
 
 		it("3개의 액션 버튼이 렌더링되어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -84,7 +84,7 @@ describe("InvoiceActions", () => {
 	describe("목록으로 버튼", () => {
 		it('"목록으로" 버튼이 렌더링되어야 한다', () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -99,7 +99,7 @@ describe("InvoiceActions", () => {
 
 		it('"목록으로" 버튼이 /invoices로 이동해야 한다', () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -114,7 +114,7 @@ describe("InvoiceActions", () => {
 
 		it('"목록으로" 버튼에 적절한 아이콘이 있어야 한다', () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -133,7 +133,7 @@ describe("InvoiceActions", () => {
 	describe("인쇄 버튼", () => {
 		it('"인쇄" 버튼이 렌더링되어야 한다', () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -149,7 +149,7 @@ describe("InvoiceActions", () => {
 		it('"인쇄" 버튼 클릭 시 window.print()가 호출되어야 한다', async () => {
 			// Arrange
 			const user = userEvent.setup();
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 			renderWithRouter(
 				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
@@ -165,7 +165,7 @@ describe("InvoiceActions", () => {
 
 		it('"인쇄" 버튼에 적절한 아이콘이 있어야 한다', () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -183,7 +183,7 @@ describe("InvoiceActions", () => {
 	describe("PDF 다운로드 버튼", () => {
 		it('"PDF 다운로드" 버튼이 렌더링되어야 한다', () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -198,7 +198,7 @@ describe("InvoiceActions", () => {
 
 		it("PdfDownloadButton에 invoice props가 전달되어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -213,7 +213,7 @@ describe("InvoiceActions", () => {
 
 		it("PdfDownloadButton에 lineItems props가 전달되어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -231,7 +231,7 @@ describe("InvoiceActions", () => {
 
 		it("PdfDownloadButton에 companyInfo props가 전달되어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -251,7 +251,7 @@ describe("InvoiceActions", () => {
 	describe("className prop 검증", () => {
 		it("className prop이 컨테이너에 적용되어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 			const customClassName = "custom-actions-class";
 
@@ -271,7 +271,7 @@ describe("InvoiceActions", () => {
 
 		it("className prop과 기본 클래스가 함께 적용되어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 			const customClassName = "mt-4";
 
@@ -297,7 +297,7 @@ describe("InvoiceActions", () => {
 	describe("레이아웃 검증", () => {
 		it("버튼들이 flex 레이아웃으로 배치되어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -312,7 +312,7 @@ describe("InvoiceActions", () => {
 
 		it("버튼 간 적절한 간격이 있어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -329,7 +329,7 @@ describe("InvoiceActions", () => {
 	describe("접근성 검증", () => {
 		it("모든 버튼에 접근 가능한 레이블이 있어야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
@@ -349,7 +349,7 @@ describe("InvoiceActions", () => {
 
 		it("버튼들이 키보드로 접근 가능해야 한다", () => {
 			// Arrange
-			const invoice = createValidInvoiceWithLineItemsData();
+			const invoice = createTypedInvoiceWithLineItems();
 			const companyInfo = createValidCompanyInfoData();
 
 			// Act
