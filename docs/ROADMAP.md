@@ -239,14 +239,16 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - ✅ 661개 테스트 통과, 코드 리뷰 Grade A
   - Related: F002
 
-- **Task 015: Performance Optimization**
+- **Task 015: Performance Optimization** ✅ - Completed
   - blockedBy: Task 014
   - blocks: Task 018
-  - See: `/tasks/015-performance.md`
-  - PDF 라이브러리 lazy loading
-  - 이미지 최적화 (로고 등)
-  - React 19 Server Components 활용
-  - Cloudflare Edge 캐싱 최적화
+  - **Must** Read: [015-performance.md](/tasks/015-performance.md)
+  - ✅ PDF 라이브러리 lazy loading (React.lazy + Suspense, 이전 Task 014에서 완료)
+  - ✅ 이미지 최적화 (loading="lazy", decoding="async", width/height for CLS)
+  - ✅ Cache-Control 헤더 (entry.server 기본 + per-route s-maxage 설정)
+  - ✅ Dead dependency 제거 (date-fns)
+  - ✅ 번들 분석 도구 추가 (rollup-plugin-visualizer, build:analyze script)
+  - ✅ 683개 테스트 통과, 코드 리뷰 완료
   - Related: F003, F005
 
 - **Task 016: Security and Input Validation** - Priority

@@ -10,13 +10,6 @@ import { createNotionCompanyRepository } from "~/infrastructure/external/notion/
 import { createMockCompanyInfoPage } from "../../../fixtures/notion/notion-page-response.fixture";
 
 describe("NotionCompanyRepository", () => {
-	// Mock Notion Client
-	const mockClient = {
-		databases: {
-			query: vi.fn(),
-		},
-	} as unknown as Client;
-
 	const config = {
 		companyDbId: "company-db-id-123",
 	};
@@ -176,7 +169,28 @@ describe("NotionCompanyRepository", () => {
 
 			// Act & Assert
 			await expect(repository.getCompanyInfo()).rejects.toThrow(
-				"Failed to fetch company information from Notion",
+				"Failed to fetch company information from Notion: Notion API error",
+			);
+			expect(mockClient.databases.query).toHaveBeenCalledWith({
+				database_id: "company-db-id-123",
+				page_size: 1,
+			});
+		});
+
+		it("Notion API 에러 발생 시 Error가 아닌 경우 Unknown error 메시지를 포함한다", async () => {
+			// Arrange
+			const notionError = "something went wrong";
+			const mockClient = {
+				databases: {
+					query: vi.fn().mockRejectedValue(notionError),
+				},
+			} as unknown as Client;
+
+			const repository = createNotionCompanyRepository(mockClient, config);
+
+			// Act & Assert
+			await expect(repository.getCompanyInfo()).rejects.toThrow(
+				"Failed to fetch company information from Notion: Unknown error",
 			);
 			expect(mockClient.databases.query).toHaveBeenCalledWith({
 				database_id: "company-db-id-123",

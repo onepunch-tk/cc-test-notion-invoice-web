@@ -12,6 +12,7 @@ import {
 	useNavigation,
 	useRouteError,
 } from "react-router";
+import { NotionApiError } from "~/application/invoice/errors";
 import { sanitizeErrorMessage } from "~/infrastructure/utils/error-sanitizer";
 import { ErrorState } from "~/presentation/components/error";
 import {
@@ -26,6 +27,15 @@ import type { Route } from "./+types/index";
  *
  * SEO meta tags for the invoice list page
  */
+export const headers: Route.HeadersFunction = ({ loaderHeaders }) => {
+	const headers = new Headers(loaderHeaders);
+	headers.set(
+		"Cache-Control",
+		"public, max-age=0, s-maxage=300, stale-while-revalidate=60",
+	);
+	return headers;
+};
+
 export const meta: MetaFunction = () => {
 	return [
 		{ title: "인보이스 목록 - Invoice-Web" },
@@ -56,7 +66,17 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 			error instanceof Error
 				? sanitizeErrorMessage(error.message)
 				: "Failed to load invoices";
-		console.error("[InvoiceList Loader]", message);
+
+		if (error instanceof NotionApiError && error.cause) {
+			const causeMessage =
+				error.cause instanceof Error
+					? error.cause.message
+					: String(error.cause);
+			console.error("[InvoiceList Loader]", message, "| Cause:", causeMessage);
+		} else {
+			console.error("[InvoiceList Loader]", message);
+		}
+
 		throw new Response(message, { status: 500 });
 	}
 };

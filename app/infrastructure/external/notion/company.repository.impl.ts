@@ -61,8 +61,9 @@ export const createNotionCompanyRepository = (
 				if (error instanceof CompanyInfoNotFoundError) {
 					throw error;
 				}
+				const detail = error instanceof Error ? error.message : "Unknown error";
 				throw new NotionApiError(
-					"Failed to fetch company information from Notion",
+					`Failed to fetch company information from Notion: ${detail}`,
 					error,
 				);
 			}

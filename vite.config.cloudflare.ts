@@ -15,5 +15,14 @@ export default defineConfig({
 		tailwindcss(),
 		reactRouter(),
 		tsconfigPaths(),
+		process.env.ANALYZE === "true" &&
+			import("rollup-plugin-visualizer").then((m) =>
+				m.visualizer({
+					open: true,
+					filename: "stats.html",
+					gzipSize: true,
+					brotliSize: true,
+				}),
+			),
 	],
 });

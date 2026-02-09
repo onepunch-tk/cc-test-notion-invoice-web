@@ -78,9 +78,10 @@
 ## Common Code Quality Issues
 
 ### Type Safety
-- No `any` usage (100% compliance across all reviews)
+- No `any` usage (100% compliance across all reviews including Task 150)
 - Optional props with complex interactions need discriminated unions
 - Generic `extends` constraints required (unconstrained generics found in cache layer)
+- Exemplary pattern: `error instanceof Error ? error.message : "Unknown error"` for type-safe error detail extraction
 
 ### Code Duplication Hotspots
 - `cached-invoice.repository.ts` / `cached-company.repository.ts`: Duplicated rate limit logic
@@ -113,6 +114,7 @@
 
 | Date | Scope | Files | Issues | Grade |
 |------|-------|-------|--------|-------|
+| 2026-02-09 | Task 150: Repository Error Detail | 4 | 0 (0C/0H/0M/0L) | A+ |
 | 2026-02-09 | Task 014: PDF Download Feature | 9 | 3 (0C/0H/3M/0L) | A |
 | 2026-02-06 | Task 012: Integration Tests | 6 | 8 (0C/0H/3M/5L) | A- |
 | 2026-02-06 | Task 010: Invoice List | 2 | 5 (0C/0H/2M/3L) | A |

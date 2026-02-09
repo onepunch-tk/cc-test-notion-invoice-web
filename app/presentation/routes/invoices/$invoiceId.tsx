@@ -13,7 +13,10 @@ import {
 	useNavigation,
 	useRouteError,
 } from "react-router";
-import { InvoiceNotFoundError } from "~/application/invoice/errors";
+import {
+	InvoiceNotFoundError,
+	NotionApiError,
+} from "~/application/invoice/errors";
 import { sanitizeErrorMessage } from "~/infrastructure/utils/error-sanitizer";
 import { ErrorState, NotFoundState } from "~/presentation/components/error";
 import {
@@ -45,6 +48,15 @@ const invoiceIdSchema = z
  *
  * SEO meta tags - loader 데이터로 동적 제목 설정
  */
+export const headers: Route.HeadersFunction = ({ loaderHeaders }) => {
+	const headers = new Headers(loaderHeaders);
+	headers.set(
+		"Cache-Control",
+		"public, max-age=0, s-maxage=600, stale-while-revalidate=60",
+	);
+	return headers;
+};
+
 export const meta: Route.MetaFunction = ({ data }) => {
 	const title = data?.invoice
 		? `Invoice #${data.invoice.invoice_number}`
@@ -98,7 +110,22 @@ export const loader = async ({ params, context }: Route.LoaderArgs) => {
 			error instanceof Error
 				? sanitizeErrorMessage(error.message)
 				: "Failed to load invoice detail";
-		console.error("[InvoiceDetail Loader]", message);
+
+		if (error instanceof NotionApiError && error.cause) {
+			const causeMessage =
+				error.cause instanceof Error
+					? error.cause.message
+					: String(error.cause);
+			console.error(
+				"[InvoiceDetail Loader]",
+				message,
+				"| Cause:",
+				causeMessage,
+			);
+		} else {
+			console.error("[InvoiceDetail Loader]", message);
+		}
+
 		throw new Response(message, { status: 500 });
 	}
 };

@@ -59,8 +59,9 @@ export const createNotionInvoiceRepository = (
 				.filter(isPageObjectResponse)
 				.map(mapNotionPageToInvoice);
 		} catch (error) {
+			const detail = error instanceof Error ? error.message : "Unknown error";
 			throw new NotionApiError(
-				"Failed to fetch invoice list from Notion",
+				`Failed to fetch invoice list from Notion: ${detail}`,
 				error,
 			);
 		}
@@ -122,8 +123,9 @@ export const createNotionInvoiceRepository = (
 				line_items: lineItems,
 			};
 		} catch (error) {
+			const detail = error instanceof Error ? error.message : "Unknown error";
 			throw new NotionApiError(
-				`Failed to fetch invoice detail for ID: ${invoiceId}`,
+				`Failed to fetch invoice detail for ID: ${invoiceId}: ${detail}`,
 				error,
 			);
 		}
@@ -160,8 +162,9 @@ export const createNotionInvoiceRepository = (
 				.filter(isPageObjectResponse)
 				.map(mapNotionPageToLineItem);
 		} catch (error) {
+			const detail = error instanceof Error ? error.message : "Unknown error";
 			throw new NotionApiError(
-				`Failed to fetch line items for invoice: ${invoiceId}`,
+				`Failed to fetch line items for invoice: ${invoiceId}: ${detail}`,
 				error,
 			);
 		}

@@ -6,6 +6,15 @@ import type { Route } from "./+types/home";
  *
  * SEO meta tags for the home welcome page
  */
+export const headers: Route.HeadersFunction = ({ loaderHeaders }) => {
+	const headers = new Headers(loaderHeaders);
+	headers.set(
+		"Cache-Control",
+		"public, max-age=0, s-maxage=3600, stale-while-revalidate=60",
+	);
+	return headers;
+};
+
 export const meta = (_: Route.MetaArgs) => {
 	return [
 		{ title: "Invoice-Web - 인보이스 관리" },
