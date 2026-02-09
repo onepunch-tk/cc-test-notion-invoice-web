@@ -33,7 +33,7 @@ Follow these steps **sequentially**. Each step MUST complete before proceeding.
 | 6 | Switch to `development` branch (create if not exists) |
 | 7 | Create feature branch from `development` |
 | 8 | Run `unit-test-writer` sub-agent → **verify tests FAIL** (Red Phase). **NEVER analyze patterns or write test code yourself — always delegate to the `unit-test-writer` subagent.** |
-| 9 | Implement code to pass tests → run `bun run test` → **verify ALL pass** (Green Phase) |
+| 9 | Implement code to pass tests → run the project's test command (see CLAUDE.md Commands) → **verify ALL pass** (Green Phase) |
 
 **Auto-verify (no human wait needed)**:
 - After Step 8: If tests pass immediately → review test logic, likely not testing correctly
@@ -41,27 +41,18 @@ Follow these steps **sequentially**. Each step MUST complete before proceeding.
 
 > 💡 **Context tip**: Consider `/clear` here. Plan context is no longer needed.
 
-**Commit**: `test: add failing tests for {feature}` after Step 8, `feat: implement {feature}` after Step 9
+**Commit**: Per [workflow-commits.md](../git/references/workflow-commits.md) — Red/Green phase
 
 ---
 
 ## Phase 3: Review
 
-Select review agents based on task type:
-
-| Task Type | Agents |
-|-----------|--------|
-| UI components, styling | `code-reviewer` only |
-| API integration, data handling | `code-reviewer` + `security-auditor` |
-| Performance-sensitive (lists, heavy render) | `code-reviewer` + `performance-analyzer` |
-| Phase completion / pre-release | `code-reviewer` + `security-auditor` + `performance-analyzer` |
-
 | Step | Action |
 |------|--------|
-| 10 | Run selected review sub-agents |
-| 11 | Read ALL report files in `/docs/reports/` → fix ALL issues where status ≠ "complete" |
+| 10 | Run `code-reviewer` sub-agent (unified: quality + security + performance) |
+| 11 | Read report in `/docs/reports/code-review/` → fix ALL issues where status ≠ "complete" |
 
-**Commit**: `refactor: address review feedback for {feature}` after Step 11
+**Commit**: Per [workflow-commits.md](../git/references/workflow-commits.md) — Review phase
 
 > 💡 **Context tip**: Consider `/clear` here. Review details are no longer needed.
 
@@ -76,7 +67,7 @@ Select review agents based on task type:
 | 14 | Run `development-planner` sub-agent |
 | 15 | Merge feature branch to `development` |
 
-**Commit**: `fix: resolve e2e failures for {feature}` after Step 13 (if needed)
+**Commit**: Per [workflow-commits.md](../git/references/workflow-commits.md) — E2E fix phase (if needed)
 
 ---
 

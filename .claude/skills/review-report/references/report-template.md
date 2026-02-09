@@ -1,4 +1,4 @@
-# {Type} Review Report
+# Unified Code Review Report
 
 **Status**: Pending
 **Generated**: YYYY-MM-DD HH:MM:SS (UTC)
@@ -7,115 +7,155 @@
 
 ---
 
-⚠️ **AI 에이전트를 위한 중요 지침**:
-1. 각 이슈를 수정한 후 즉시 해당 체크박스를 체크하세요
-2. 모든 이슈가 해결되면 Status를 "✅ Complete"로 업데이트하세요
-3. 완료된 항목을 체크하지 않고 이 리포트를 떠나지 마세요
+**AI Agent Instructions**:
+1. Check each issue's checkbox immediately after fixing
+2. Update Status to "Complete" when all issues are resolved
+3. Do not leave this report without checking completed items
 
 ---
 
-## 📊 Summary
+## Executive Summary
 
-[코드의 목적과 전반적인 품질에 대한 간략한 개요]
+[Brief overview of code purpose and overall quality]
 
-| Severity | Count |
-|----------|-------|
-| 🔴 Critical | 0 |
-| 🟠 High | 0 |
-| 🟡 Medium | 0 |
-| 🟢 Low | 0 |
+| Domain | Critical | High | Medium | Low |
+|--------|----------|------|--------|-----|
+| Code Quality | 0 | 0 | 0 | 0 |
+| Security | 0 | 0 | 0 | 0 |
+| Performance | 0 | 0 | 0 | 0 |
+| **Total** | **0** | **0** | **0** | **0** |
 
----
-
-## 🚨 Critical Issues
-
-> 버그, 보안 취약점 등 반드시 수정해야 하는 이슈
-
-| # | File | Location | Category | Problem | Impact | Solution | Evidence | References |
-|---|------|----------|----------|---------|--------|----------|----------|------------|
-| 1 | path/file.ts | 10:5 | security | [문제 설명] | [중요한 이유] | [해결 방법] | [코드 스니펫] | [문서 링크] |
+**Overall Grade**: [A-F]
 
 ---
 
-## ⚠️ Major Improvements
+## Architecture & Clean Architecture Compliance
 
-> 유지보수성 또는 성능에 영향을 주는 중요한 이슈
+| Layer | Status | Notes |
+|-------|--------|-------|
+| Domain | - | - |
+| Application | - | - |
+| Infrastructure | - | - |
+| Presentation | - | - |
 
-| # | File | Location | Category | Problem | Impact | Solution | Evidence | References |
-|---|------|----------|----------|---------|--------|----------|----------|------------|
-
----
-
-## 💡 Minor Suggestions
-
-> 스타일 개선, 사소한 최적화
-
-| # | File | Location | Category | Problem | Suggestion |
-|---|------|----------|----------|---------|------------|
+**SOLID Compliance**: [Summary of SOLID principle adherence]
 
 ---
 
-## 📈 Performance Metrics
+## Critical Issues
 
-> 성능 리뷰 전용 섹션 (code-review, security-review에서는 생략)
+> Bugs, security vulnerabilities, production blockers — must fix before merge
 
-### 응답 시간 개선 가능성
-- [구체적인 최적화 및 예상 개선 효과]
-
-### 메모리 사용량 최적화
-- [메모리 패턴 및 해결책]
-
-### CPU 사용률 감소 방안
-- [계산 최적화 방안]
-
-### I/O 효율성 향상
-- [데이터베이스, 네트워크, 파일 I/O 최적화]
+| # | Domain | File | Location | Category | Confidence | Problem | Impact | Solution | Evidence |
+|---|--------|------|----------|----------|------------|---------|--------|----------|----------|
 
 ---
 
-## ✨ Positive Aspects
+## Major Improvements
 
-> 잘된 점 - 균형 잡힌 피드백을 위해 항상 포함
+> Important issues affecting maintainability, security, or performance
 
-- [긍정적인 코드 패턴이나 결정]
-- [준수된 베스트 프랙티스]
-- [효과적인 구현]
-
----
-
-## 📋 Recommended Actions
-
-> 우선순위가 지정된 다음 단계 목록
-
-1. **[Critical]** [즉시 조치가 필요한 항목]
-2. **[High]** [중요하지만 긴급하지 않은 항목]
-3. **[Medium]** [계획된 개선 항목]
+| # | Domain | File | Location | Category | Confidence | Problem | Impact | Solution | Evidence |
+|---|--------|------|----------|----------|------------|---------|--------|----------|----------|
 
 ---
 
-## ✅ Fix Checklist
+## Minor Suggestions
 
-**필수**: 이슈를 수정한 직후 각 체크박스를 체크하세요.
+> Style improvements, minor optimizations
+
+| # | Domain | File | Location | Category | Confidence | Problem | Suggestion |
+|---|--------|------|----------|----------|------------|---------|------------|
+
+---
+
+## Advisory (Low Confidence)
+
+> Findings with <70% confidence — flagged for human review, not required to fix
+
+| # | Domain | File | Location | Category | Confidence | Observation | Suggested Investigation |
+|---|--------|------|----------|----------|------------|-------------|------------------------|
+
+---
+
+## Dependency Vulnerabilities
+
+> Results from `bun audit`
+
+| Package | Current | Patched | CVE | Severity | Impact |
+|---------|---------|---------|-----|----------|--------|
+
+---
+
+## OWASP Compliance Checklist
+
+| Category | Status | Notes |
+|----------|--------|-------|
+| A01 - Broken Access Control | - | - |
+| A02 - Cryptographic Failures | - | - |
+| A03 - Injection | - | - |
+| A04 - Insecure Design | - | - |
+| A05 - Security Misconfiguration | - | - |
+| A06 - Vulnerable Components | - | - |
+| A07 - Auth Failures | - | - |
+| A08 - Data Integrity | - | - |
+| A09 - Logging Failures | - | - |
+| A10 - SSRF | - | - |
+
+---
+
+## Performance Metrics
+
+### Response Time
+- [Specific optimizations with expected improvements]
+
+### Memory Usage
+- [Memory patterns and solutions]
+
+### Algorithm Complexity
+- [Computational optimizations, Big-O analysis]
+
+### I/O Efficiency
+- [Database, network, file I/O optimizations]
+
+### Bundle Size
+- [New dependency costs, tree-shaking opportunities]
+
+---
+
+## Positive Aspects
+
+> Well-written code — always include for balanced feedback
+
+- [Positive code patterns or decisions]
+- [Best practices followed]
+- [Effective implementations]
+
+---
+
+## Fix Checklist
+
+**Required**: Check each checkbox immediately after fixing the issue.
 
 ### Critical Issues
-- [ ] #1 [Critical] file:line - 간략한 설명
+- [ ] #1 [Critical/Quality] file:line - brief description
 
 ### High Issues
-- [ ] #2 [High] file:line - 간략한 설명
+- [ ] #2 [High/Security] file:line - brief description
 
 ### Medium Issues
-- [ ] #3 [Medium] file:line - 간략한 설명
+- [ ] #3 [Medium/Performance] file:line - brief description
 
 ### Low Issues
-- [ ] #4 [Low] file:line - 간략한 설명
+- [ ] #4 [Low/Quality] file:line - brief description
 
 ---
 
-## 📝 Notes
+## Notes
 
-심각도 순서대로 이슈를 해결하세요 (Critical > High > Medium > Low).
-모든 체크박스가 체크되면 Status를 "✅ Complete"로 업데이트하세요.
+Resolve issues in severity order (Critical > High > Medium > Low).
+Update Status to "Complete" when all checkboxes are checked.
 
 ---
 
-*Generated by {agent-type} agent*
+*Generated by unified code-reviewer agent*

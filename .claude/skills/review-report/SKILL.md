@@ -11,67 +11,71 @@ allowed-tools:
   - Glob
 ---
 
-# 리뷰 리포트 스킬
+# Review Report Skill
 
-코드 리뷰 자동화 에이전트를 위한 표준화된 리포트를 생성합니다.
-
----
-
-## 파라미터
-
-`$ARGUMENTS`: 리포트 설정 (`<type> [options]` 형식)
-
-| 타입 | 출력 위치 | 설명 |
-|-----|----------|------|
-| `code-review` | `docs/reports/code-review/` | 코드 품질 리포트 |
-| `security-review` | `docs/reports/security-review/` | 보안 감사 리포트 |
-| `performance-review` | `docs/reports/performance-review/` | 성능 분석 리포트 |
+Generates a standardized unified review report for the code-reviewer agent.
 
 ---
 
-## 워크플로우
+## Output
 
-### 1. 커밋 해시 및 날짜 가져오기
+| Location | Description |
+|----------|-------------|
+| `docs/reports/code-review/` | Unified review report (quality + security + performance) |
+
+---
+
+## Workflow
+
+### 1. Get Commit Hash and Date
 ```bash
 COMMIT_HASH=$(git rev-parse --short HEAD)
 DATE=$(date +%Y%m%d)
 FILENAME="${COMMIT_HASH}_${DATE}.md"
 ```
 
-### 2. 템플릿 선택
-리포트 타입에 따라 적절한 템플릿 로드:
-- `references/report-template.md`
+### 2. Load Template
+Load `references/report-template.md` as the report structure.
 
-### 3. 이슈 집계
-호출 에이전트로부터 필수 필드와 함께 이슈 수집:
+### 3. Collect Issues
+Collect issues from the calling agent with required fields:
 - **severity**: critical | high | medium | low
+- **domain**: quality | security | performance
+- **confidence**: high (90%+) | medium (70-89%) | low (<70%)
 - **location**: file:line
-- **category**: 이슈 분류
-- **problem**: 문제 설명
-- **impact**: 중요한 이유
-- **suggestion**: 해결 방법
-- **evidence**: 코드 스니펫 또는 참조
-- **references**: 문서 링크 (선택)
+- **category**: issue classification
+- **problem**: problem description
+- **impact**: why it matters
+- **suggestion**: how to fix
+- **evidence**: code snippet or reference
+- **references**: documentation links (optional)
 
-### 4. 리포트 생성
-템플릿에 집계된 데이터를 적용하여 마크다운 리포트 생성
+### 4. Apply Confidence Filtering
+| Confidence | Treatment |
+|------------|-----------|
+| High (90%+) | Include in main findings tables |
+| Medium (70-89%) | Include in main findings with advisory note |
+| Low (<70%) | Include in Advisory section only |
 
-### 5. 리포트 저장
-`docs/reports/{type}/{commit_hash}_{YYYYMMDD}.md` 에 저장
+### 5. Generate Report
+Apply collected data to the template and generate the markdown report.
 
----
-
-## 심각도 정의
-
-| 레벨 | 이모지 | 정의 | 필요 조치 |
-|-----|-------|-----|----------|
-| Critical | 🔴 | 버그, 보안 취약점, 프로덕션 차단 | 머지 전 필수 수정 |
-| High | 🟠 | 유지보수성/보안에 영향을 주는 중요 이슈 | 머지 전 수정 권장 |
-| Medium | 🟡 | 코드 품질 이슈, 잠재적 문제 | 빠른 시일 내 해결 |
-| Low | 🟢 | 스타일 제안, 사소한 개선 | 선택 사항 |
+### 6. Save Report
+Save to `docs/reports/code-review/{commit_hash}_{YYYYMMDD}.md`
 
 ---
 
-## 참조 템플릿
+## Severity Definitions
 
-- [리포트 템플릿](references/report-template.md)
+| Level | Emoji | Definition | Required Action |
+|-------|-------|------------|-----------------|
+| Critical | 🔴 | Bugs, security vulnerabilities, production blockers | Must fix before merge |
+| High | 🟠 | Important issues affecting maintainability/security | Should fix before merge |
+| Medium | 🟡 | Code quality issues, potential problems | Fix soon |
+| Low | 🟢 | Style suggestions, minor improvements | Optional |
+
+---
+
+## Reference Template
+
+- [Report Template](references/report-template.md)

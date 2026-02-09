@@ -25,27 +25,14 @@ agent-browser --help
 ```
 
 ### Step 2: Verify Installation
-If agent-browser is not installed, install it globally based on the project's package manager:
+If agent-browser is not installed, detect the project's package manager and install:
 
-**For bun (preferred for this project):**
-```bash
-bun install -g agent-browser
-```
-
-**For npm:**
-```bash
-npm install -g agent-browser
-```
-
-**For pnpm:**
-```bash
-pnpm add -g agent-browser
-```
-
-**For yarn:**
-```bash
-yarn global add agent-browser
-```
+| Lock File | Install Command |
+|-----------|-----------------|
+| `bun.lock` | `bun install -g agent-browser` |
+| `pnpm-lock.yaml` | `pnpm add -g agent-browser` |
+| `yarn.lock` | `yarn global add agent-browser` |
+| `package-lock.json` | `npm install -g agent-browser` |
 
 ### Step 3: Install Chromium Browser
 Ensure the browser is installed:
@@ -131,14 +118,17 @@ After completing tests, provide a structured report:
 
 ## Project Context Awareness
 
-This project uses:
-- React Router Framework v7+ with SSR
-- TypeScript with strict type safety
-- shadcn/ui and Tailwind CSS v4+ for styling
-- better-auth for authentication
-- Supabase for database
+Read `CLAUDE.md` and `docs/PROJECT-STRUCTURE.md` for project-specific context including tech stack, architecture patterns, and conventions.
 
-Align your tests with these technologies and test patterns that are relevant to SSR applications, including hydration, server-side redirects, and client-side navigation.
+**E2E Tool Selection by Project Type**:
+
+| Project Type | E2E Tool | Notes |
+|--------------|----------|-------|
+| React Router Framework | agent-browser | SSR-aware: test hydration, server redirects, client navigation |
+| Expo / React Native | Maestro or Detox | Native UI testing, deep linking, gesture simulation |
+| NestJS | supertest + jest | API endpoint testing, request/response validation |
+
+Align your tests with the detected project type and its specific testing patterns.
 
 ## Communication Style
 

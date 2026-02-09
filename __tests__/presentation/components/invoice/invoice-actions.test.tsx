@@ -6,16 +6,32 @@
 
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import InvoiceActions from "~/presentation/components/invoice/invoice-actions";
+import { createValidCompanyInfoData } from "../../../fixtures/company/company.fixture";
+import { createTypedInvoiceWithLineItems } from "../../../fixtures/invoice/invoice.fixture";
 import { renderWithRouter } from "../../../utils/render-with-router";
 
-// sonner toast 모킹
-vi.mock("sonner", () => ({
-	toast: {
-		info: vi.fn(),
-	},
+// PdfDownloadButton 모킹
+vi.mock("~/presentation/components/pdf", () => ({
+	PdfDownloadButton: ({
+		invoice,
+		lineItems,
+		companyInfo,
+	}: {
+		invoice: { invoice_id: string };
+		lineItems: unknown[];
+		companyInfo: { company_name: string };
+	}) => (
+		<button
+			data-testid="pdf-download-button"
+			data-invoice-id={invoice.invoice_id}
+			data-line-items-count={lineItems.length}
+			data-company-name={companyInfo.company_name}
+		>
+			PDF 다운로드
+		</button>
+	),
 }));
 
 describe("InvoiceActions", () => {
@@ -34,8 +50,14 @@ describe("InvoiceActions", () => {
 
 	describe("기본 렌더링", () => {
 		it("액션 컨테이너가 렌더링되어야 한다", () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const container = screen.getByTestId("invoice-actions");
@@ -43,8 +65,14 @@ describe("InvoiceActions", () => {
 		});
 
 		it("3개의 액션 버튼이 렌더링되어야 한다", () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const buttons = screen.getAllByRole("button");
@@ -55,8 +83,14 @@ describe("InvoiceActions", () => {
 
 	describe("목록으로 버튼", () => {
 		it('"목록으로" 버튼이 렌더링되어야 한다', () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const backLink = screen.getByRole("link", { name: /목록으로/i });
@@ -64,8 +98,14 @@ describe("InvoiceActions", () => {
 		});
 
 		it('"목록으로" 버튼이 /invoices로 이동해야 한다', () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const backLink = screen.getByRole("link", { name: /목록으로/i });
@@ -73,8 +113,14 @@ describe("InvoiceActions", () => {
 		});
 
 		it('"목록으로" 버튼에 적절한 아이콘이 있어야 한다', () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const backLink = screen.getByRole("link", { name: /목록으로/i });
@@ -86,8 +132,14 @@ describe("InvoiceActions", () => {
 
 	describe("인쇄 버튼", () => {
 		it('"인쇄" 버튼이 렌더링되어야 한다', () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const printButton = screen.getByRole("button", { name: /인쇄/i });
@@ -97,7 +149,11 @@ describe("InvoiceActions", () => {
 		it('"인쇄" 버튼 클릭 시 window.print()가 호출되어야 한다', async () => {
 			// Arrange
 			const user = userEvent.setup();
-			renderWithRouter(<InvoiceActions />);
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Act
 			const printButton = screen.getByRole("button", { name: /인쇄/i });
@@ -108,8 +164,14 @@ describe("InvoiceActions", () => {
 		});
 
 		it('"인쇄" 버튼에 적절한 아이콘이 있어야 한다', () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const printButton = screen.getByRole("button", { name: /인쇄/i });
@@ -120,75 +182,87 @@ describe("InvoiceActions", () => {
 
 	describe("PDF 다운로드 버튼", () => {
 		it('"PDF 다운로드" 버튼이 렌더링되어야 한다', () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const pdfButton = screen.getByRole("button", { name: /pdf 다운로드/i });
 			expect(pdfButton).toBeInTheDocument();
 		});
 
-		it('"PDF 다운로드" 버튼 클릭 시 placeholder toast가 표시되어야 한다', async () => {
+		it("PdfDownloadButton에 invoice props가 전달되어야 한다", () => {
 			// Arrange
-			const user = userEvent.setup();
-			renderWithRouter(<InvoiceActions />);
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
 
 			// Act
-			const pdfButton = screen.getByRole("button", { name: /pdf 다운로드/i });
-			await user.click(pdfButton);
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
-			expect(toast.info).toHaveBeenCalledOnce();
-			expect(toast.info).toHaveBeenCalledWith(expect.stringContaining("PDF"));
+			const pdfButton = screen.getByTestId("pdf-download-button");
+			expect(pdfButton).toHaveAttribute("data-invoice-id", invoice.invoice_id);
 		});
 
-		it("onDownloadPdf prop이 제공되면 클릭 시 호출되어야 한다", async () => {
+		it("PdfDownloadButton에 lineItems props가 전달되어야 한다", () => {
 			// Arrange
-			const user = userEvent.setup();
-			const mockOnDownloadPdf = vi.fn();
-			renderWithRouter(<InvoiceActions onDownloadPdf={mockOnDownloadPdf} />);
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
 
 			// Act
-			const pdfButton = screen.getByRole("button", { name: /pdf 다운로드/i });
-			await user.click(pdfButton);
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
-			expect(mockOnDownloadPdf).toHaveBeenCalledOnce();
+			const pdfButton = screen.getByTestId("pdf-download-button");
+			expect(pdfButton).toHaveAttribute(
+				"data-line-items-count",
+				String(invoice.line_items.length),
+			);
 		});
 
-		it("onDownloadPdf prop이 제공되면 toast 대신 콜백이 실행되어야 한다", async () => {
+		it("PdfDownloadButton에 companyInfo props가 전달되어야 한다", () => {
 			// Arrange
-			const user = userEvent.setup();
-			const mockOnDownloadPdf = vi.fn();
-			renderWithRouter(<InvoiceActions onDownloadPdf={mockOnDownloadPdf} />);
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
 
 			// Act
-			const pdfButton = screen.getByRole("button", { name: /pdf 다운로드/i });
-			await user.click(pdfButton);
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
-			expect(mockOnDownloadPdf).toHaveBeenCalledOnce();
-			expect(toast.info).not.toHaveBeenCalled();
-		});
-
-		it('"PDF 다운로드" 버튼에 적절한 아이콘이 있어야 한다', () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
-
-			// Assert
-			const pdfButton = screen.getByRole("button", { name: /pdf 다운로드/i });
-			const icon = pdfButton.querySelector("svg");
-			expect(icon).toBeInTheDocument();
+			const pdfButton = screen.getByTestId("pdf-download-button");
+			expect(pdfButton).toHaveAttribute(
+				"data-company-name",
+				companyInfo.company_name,
+			);
 		});
 	});
 
 	describe("className prop 검증", () => {
 		it("className prop이 컨테이너에 적용되어야 한다", () => {
 			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
 			const customClassName = "custom-actions-class";
 
 			// Act
-			renderWithRouter(<InvoiceActions className={customClassName} />);
+			renderWithRouter(
+				<InvoiceActions
+					invoice={invoice}
+					companyInfo={companyInfo}
+					className={customClassName}
+				/>,
+			);
 
 			// Assert
 			const container = screen.getByTestId("invoice-actions");
@@ -197,10 +271,18 @@ describe("InvoiceActions", () => {
 
 		it("className prop과 기본 클래스가 함께 적용되어야 한다", () => {
 			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
 			const customClassName = "mt-4";
 
 			// Act
-			renderWithRouter(<InvoiceActions className={customClassName} />);
+			renderWithRouter(
+				<InvoiceActions
+					invoice={invoice}
+					companyInfo={companyInfo}
+					className={customClassName}
+				/>,
+			);
 
 			// Assert
 			const container = screen.getByTestId("invoice-actions");
@@ -214,8 +296,14 @@ describe("InvoiceActions", () => {
 
 	describe("레이아웃 검증", () => {
 		it("버튼들이 flex 레이아웃으로 배치되어야 한다", () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const container = screen.getByTestId("invoice-actions");
@@ -223,8 +311,14 @@ describe("InvoiceActions", () => {
 		});
 
 		it("버튼 간 적절한 간격이 있어야 한다", () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const container = screen.getByTestId("invoice-actions");
@@ -234,8 +328,14 @@ describe("InvoiceActions", () => {
 
 	describe("접근성 검증", () => {
 		it("모든 버튼에 접근 가능한 레이블이 있어야 한다", () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			expect(
@@ -248,8 +348,14 @@ describe("InvoiceActions", () => {
 		});
 
 		it("버튼들이 키보드로 접근 가능해야 한다", () => {
-			// Arrange & Act
-			renderWithRouter(<InvoiceActions />);
+			// Arrange
+			const invoice = createTypedInvoiceWithLineItems();
+			const companyInfo = createValidCompanyInfoData();
+
+			// Act
+			renderWithRouter(
+				<InvoiceActions invoice={invoice} companyInfo={companyInfo} />,
+			);
 
 			// Assert
 			const backLink = screen.getByRole("link", { name: /목록으로/i });
