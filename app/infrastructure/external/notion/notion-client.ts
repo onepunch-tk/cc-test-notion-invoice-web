@@ -26,6 +26,6 @@ export const createNotionClient = (config: NotionClientConfig): Client => {
 	return new Client({
 		auth: config.apiKey,
 		// Cloudflare Workers에서는 node-fetch 대신 native fetch 사용
-		fetch: globalThis.fetch,
+		fetch: globalThis.fetch.bind(globalThis),
 	});
 };
