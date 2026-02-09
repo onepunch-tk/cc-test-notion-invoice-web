@@ -3,7 +3,7 @@ name: workflow-team
 description: |
   Workflow for Agent Teams autonomous parallel development.
   Provides team lead orchestration guide and teammate execution protocol.
-  Covers branch strategy, file ownership, communication, and merge order.
+  Covers file ownership, communication, and merge strategy.
 argument-hint: "[lead|teammate]"
 ---
 
@@ -19,9 +19,10 @@ Invoke with: `/workflow-team lead` or `/workflow-team teammate`
 ### Setup
 
 1. Read `CLAUDE.md`, `docs/PROJECT-STRUCTURE.md`, `docs/ROADMAP.md`
-2. Break work into tasks with **clear file ownership** (no overlapping files)
-3. Create tasks with `TaskCreate` tool
-4. Spawn teammates with detailed prompts:
+2. Switch to `development` branch, create a working branch for the team
+3. Break work into tasks with **clear file ownership** (no overlapping files)
+4. Create tasks with `TaskCreate` tool
+5. Spawn teammates with detailed prompts:
    - Task file path
    - Specific files to modify
    - "Follow CLAUDE.md and read your assigned task file"
@@ -39,22 +40,33 @@ Use Sonnet for all teammates. Require plan approval.
 
 - Use **Delegate Mode** (Shift+Tab) — do NOT implement yourself
 - Enable **Plan Approval** for complex/risky tasks
-- Merge teammates' branches in dependency order
-- Run full review suite post-merge: `security-auditor` + `performance-analyzer` + `e2e-tester`
-- Update `ROADMAP.md` and `PROJECT-STRUCTURE.md` after all merges
+- All teammates work on the **same feature branch** (file ownership prevents conflicts)
+- After all teammates complete: run `bun run test` to verify integration
+- Run full review suite: `code-reviewer` + `e2e-tester`
+- Fix any integration issues discovered
+- **Lead merges** feature branch into `development`
+- Update `ROADMAP.md` and `PROJECT-STRUCTURE.md` after merge
 
-### Merge Order
+### Merge Strategy
 
 ```
 main
  └── development
-      ├── team/{teammate-A}  ← merge first (most dependencies)
-      ├── team/{teammate-B}  ← merge second
-      └── team/{teammate-C}  ← merge last (independent)
+      └── {working-branch}  ← single branch, all teammates work here
+           ├── teammate-A commits (owns: file-list-A)
+           ├── teammate-B commits (owns: file-list-B)
+           └── teammate-C commits (owns: file-list-C)
 
-After each merge: run `bun run test` + resolve conflicts
-After all merges: run e2e suite
+After all teammates done:
+  1. Lead runs `bun run test`
+  2. Lead runs `code-reviewer` + `e2e-tester`
+  3. Lead fixes integration issues
+  4. Lead merges working branch → development
 ```
+
+### Git Conventions
+
+See [workflow-commits.md](../git/references/workflow-commits.md)
 
 ---
 
@@ -65,14 +77,13 @@ After all merges: run e2e suite
 | Step | Action |
 |------|--------|
 | 1 | Read `CLAUDE.md`, `docs/PROJECT-STRUCTURE.md`, assigned task file |
-| 2 | Create branch `team/{your-name}` from `development` |
-| 3 | Run `unit-test-writer` sub-agent (Red Phase). **NEVER analyze patterns or write test code yourself — always delegate to the `unit-test-writer` subagent.** |
-| 4 | Implement code to pass tests (Green Phase) → `bun run test` |
-| 5 | Run `code-reviewer` sub-agent only (cost efficiency) |
-| 6 | Fix Critical/High issues (Medium/Low → log, don't block) |
-| 7 | Run `bun run test:coverage:check` |
-| 8 | Commit with descriptive message |
-| 9 | Message lead: files changed, test results, remaining issues |
+| 2 | Run `unit-test-writer` sub-agent (Red Phase). **NEVER analyze patterns or write test code yourself — always delegate to the `unit-test-writer` subagent.** |
+| 3 | Implement code to pass tests (Green Phase) → `bun run test` |
+| 4 | Run `code-reviewer` sub-agent only (cost efficiency) |
+| 5 | Fix Critical/High issues (Medium/Low → log, don't block) |
+| 6 | Run `bun run test:coverage:check` |
+| 7 | Commit per [workflow-commits.md](../git/references/workflow-commits.md) |
+| 8 | Message lead: files changed, test results, remaining issues |
 
 ### Teammate Rules
 
@@ -80,6 +91,7 @@ After all merges: run e2e suite
 - **NEVER touch** files owned by another teammate
 - **Shared files** (barrel `index.ts`, `routes.ts`): message lead before modifying
 - **New files**: create freely within your task scope
+- **Do NOT create branches** — work on the feature branch created by lead
 
 ### Failure Recovery (Autonomous)
 
@@ -108,6 +120,6 @@ IF any step fails:
 ## Cost Notes
 
 - Use `sonnet` model for teammates (not opus)
-- Teammates run `code-reviewer` only — lead runs full suite post-merge
+- Teammates run `code-reviewer` only — lead also runs `code-reviewer` + `e2e-tester` post-merge
 - Minimize sub-agent calls per teammate
 - Avoid broadcast messages — message lead directly
