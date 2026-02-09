@@ -25,6 +25,12 @@
 - **Centralized Keys**: Cache keys and TTL in `cache-keys.ts`
 - **Multi-layer**: KV Cache (5min) + Rate Limiter + Circuit Breaker
 
+### PDF Generation
+- **Pattern**: SSR wrapper (`pdf-download-button.tsx`) + client impl (`.client.tsx`)
+- **@react-pdf/renderer**: Client-only, use `React.lazy` + `Suspense`
+- **Font Registration**: Add duplicate check to prevent errors (`isKoreanFontRegistered` flag)
+- **Bundle**: ~150-200KB, properly code-split via `.client.tsx` suffix
+
 ## OWASP Compliance Status
 
 | Category | Status | Notes |
@@ -55,14 +61,16 @@
 ## Known Vulnerability Patterns
 
 ### Active Issues
-1. **External Image URL Injection** (High) - `logo_url` rendered without URL allowlist validation (SSRF risk)
-2. **Missing CSP Headers** (High) - Google Fonts CDN without CSP font-src
+1. **Missing CSP Headers** (Medium) - Google Fonts CDN without CSP font-src (pdf-fonts.ts uses fonts.gstatic.com)
+2. **Font Registration Guard** (Medium) - `registerKoreanFont()` lacks duplicate check (pdf-fonts.ts:16-30)
 3. **Notion Pagination** (Critical) - `findAll()` ignores `has_more` cursor, 100-item data loss
 4. **Rate Limiting Gaps** (Medium) - Detail page loader missing rate limiting
 5. **Cache Key Injection** (Critical) - `invoiceDetailKey(id)` lacks input validation
 6. **Unsafe JSON Deserialization** (High) - `kv.get()` casts unknown to T without Zod validation
+7. **Module-level Handlers** (Medium) - Event handlers like `handlePrint` defined inside components
 
 ### Resolved Issues
+- **SSRF Protection** (Task 014): `company.schemas.ts` logo_url validation (HTTPS + IP blocklist) - Resolves External Image URL Injection
 - Error sanitization: 16+ patterns in `error-sanitizer.ts`
 - Env vars: Zod schema validation in `adapters/shared/env.ts`
 - Parallel API calls: `Promise.all` in `InvoiceService.getInvoiceDetail()`
@@ -90,6 +98,8 @@
 
 ## Files with Known Issues
 
+- `app/presentation/components/pdf/pdf-fonts.ts:16-30` - Missing duplicate registration guard (Task 014)
+- `app/presentation/components/invoice/invoice-actions.tsx:29-31` - handlePrint should be module-level (Task 014)
 - `app/root.tsx:19-32` - Duplicated sanitization logic
 - `app/infrastructure/external/cloudflare/kv-cache.service.ts:32-59` - Silent error swallowing
 - `app/infrastructure/external/notion/cached-invoice.repository.ts:44-72` - Duplicated rate limit
@@ -103,6 +113,7 @@
 
 | Date | Scope | Files | Issues | Grade |
 |------|-------|-------|--------|-------|
+| 2026-02-09 | Task 014: PDF Download Feature | 9 | 3 (0C/0H/3M/0L) | A |
 | 2026-02-06 | Task 012: Integration Tests | 6 | 8 (0C/0H/3M/5L) | A- |
 | 2026-02-06 | Task 010: Invoice List | 2 | 5 (0C/0H/2M/3L) | A |
 | 2026-02-05 | Full App Directory | 32 | 14 (0C/0H/6M/8L) | A- |

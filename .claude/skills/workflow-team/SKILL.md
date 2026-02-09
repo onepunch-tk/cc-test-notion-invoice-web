@@ -16,13 +16,25 @@ Invoke with: `/workflow-team lead` or `/workflow-team teammate`
 
 ## For Team Lead (`/workflow-team lead`)
 
-### Setup
+### Phase 1: Plan
 
-1. Read `CLAUDE.md`, `docs/PROJECT-STRUCTURE.md`, `docs/ROADMAP.md`
-2. Switch to `development` branch, create a working branch for the team
-3. Break work into tasks with **clear file ownership** (no overlapping files)
-4. Create tasks with `TaskCreate` tool
-5. Spawn teammates with detailed prompts:
+| Step | Action |
+|------|--------|
+| 1 | Enter `PlanMode` |
+| 2 | Read `CLAUDE.md`, `docs/PROJECT-STRUCTURE.md`, `docs/ROADMAP.md` |
+| 3 | Analyze task scope, identify required files and dependencies |
+| 4 | Break work into tasks with **clear file ownership** (no overlapping files) |
+| 5 | Create detailed step-by-step plan with task breakdown |
+| 6 | Call `TaskCreate` tool |
+| 7 | **STOP** — Call `TaskList` tool to display tasks |
+
+> ⛔ **CHECKPOINT**: MUST wait for explicit user instruction (e.g., "proceed", "start", "go").
+> DO NOT spawn teammates or auto-execute without user approval.
+
+### Phase 2: Execute (after user approval)
+
+1. Switch to `development` branch, create a working branch for the team
+2. Spawn teammates with detailed prompts:
    - Task file path
    - Specific files to modify
    - "Follow CLAUDE.md and read your assigned task file"
@@ -41,7 +53,7 @@ Use Sonnet for all teammates. Require plan approval.
 - Use **Delegate Mode** (Shift+Tab) — do NOT implement yourself
 - Enable **Plan Approval** for complex/risky tasks
 - All teammates work on the **same feature branch** (file ownership prevents conflicts)
-- After all teammates complete: run `bun run test` to verify integration
+- After all teammates complete: run the project's test command (see CLAUDE.md Commands) to verify integration
 - Run full review suite: `code-reviewer` + `e2e-tester`
 - Fix any integration issues discovered
 - **Lead merges** feature branch into `development`
@@ -58,7 +70,7 @@ main
            └── teammate-C commits (owns: file-list-C)
 
 After all teammates done:
-  1. Lead runs `bun run test`
+  1. Lead runs the project's test command
   2. Lead runs `code-reviewer` + `e2e-tester`
   3. Lead fixes integration issues
   4. Lead merges working branch → development
@@ -78,10 +90,10 @@ See [workflow-commits.md](../git/references/workflow-commits.md)
 |------|--------|
 | 1 | Read `CLAUDE.md`, `docs/PROJECT-STRUCTURE.md`, assigned task file |
 | 2 | Run `unit-test-writer` sub-agent (Red Phase). **NEVER analyze patterns or write test code yourself — always delegate to the `unit-test-writer` subagent.** |
-| 3 | Implement code to pass tests (Green Phase) → `bun run test` |
+| 3 | Implement code to pass tests (Green Phase) → run the project's test command (see CLAUDE.md Commands) |
 | 4 | Run `code-reviewer` sub-agent only (cost efficiency) |
 | 5 | Fix Critical/High issues (Medium/Low → log, don't block) |
-| 6 | Run `bun run test:coverage:check` |
+| 6 | Run the project's coverage command (see CLAUDE.md Commands) |
 | 7 | Commit per [workflow-commits.md](../git/references/workflow-commits.md) |
 | 8 | Message lead: files changed, test results, remaining issues |
 
@@ -119,7 +131,7 @@ IF any step fails:
 
 ## Cost Notes
 
-- Use `sonnet` model for teammates (not opus)
+- Use `opus` model for teammates
 - Teammates run `code-reviewer` only — lead also runs `code-reviewer` + `e2e-tester` post-merge
 - Minimize sub-agent calls per teammate
 - Avoid broadcast messages — message lead directly

@@ -96,11 +96,11 @@ The skill routes to appropriate reference file based on detected framework.
 #### 6-1. Run Tests
 
 ```bash
-# Run specific test file (adjust for package manager)
-bun run test __tests__/path/to/file.test.ts
+# Run specific test file using detected package manager (Step 2-1)
+{pkg_cmd} test __tests__/path/to/file.test.ts
 
 # Run all tests
-bun run test
+{pkg_cmd} test
 ```
 
 > **Note**: Type check is automatically performed by PostToolUse hook after file modifications.
@@ -110,8 +110,8 @@ bun run test
 **MUST** Verify coverage after tests pass.
 
 ```bash
-# Generate and verify coverage report
-bun run test:coverage
+# Generate and verify coverage report (use project's coverage command from CLAUDE.md)
+{pkg_cmd} test:coverage
 ```
 
 | Metric | Minimum Threshold |

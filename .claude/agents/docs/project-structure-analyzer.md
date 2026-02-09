@@ -34,8 +34,19 @@ For each significant directory, determine:
 - **How it relates to other directories** (dependencies, data flow)
 - **What architectural layer it belongs to** (if applicable)
 
-### Step 4: Document Generation
-Generate the PROJECT-STRUCTURE.md following the existing format template if provided, or use this structure:
+### Step 4: Template-Aware Document Generation
+
+**When template is provided** (invoked via `/project-structure` skill):
+- Use the provided template as a skeleton
+- Fill each section with actual analysis findings from Steps 1-3
+- Ensure no placeholder text remains
+
+**When template is NOT provided** (direct agent invocation):
+- Auto-detect project type from config files:
+  - `react-router.config.ts` → Load `.claude/skills/project-structure/references/react-router.template.md`
+  - `app.json` + expo dependency → Load `.claude/skills/project-structure/references/expo.template.md`
+  - `nest-cli.json` → Load `.claude/skills/project-structure/references/nestjs.template.md`
+- If detection fails: use the generic format below
 
 ```markdown
 # Project Structure
@@ -83,4 +94,6 @@ Before finalizing, verify:
 - [ ] Directory purposes explain the "why" not just the "what"
 - [ ] Format matches any provided template
 - [ ] No individual files are listed (only directory-level documentation)
+- [ ] Template sections filled with actual findings (no placeholder text)
+- [ ] Extra directories not in template documented in additional sections
 - [ ] The document would help a new developer understand the codebase organization
