@@ -5,10 +5,7 @@
  */
 
 import type { Client } from "@notionhq/client";
-import type {
-	PageObjectResponse,
-	QueryDatabaseResponse,
-} from "@notionhq/client/build/src/api-endpoints";
+import type { QueryDatabaseResponse } from "@notionhq/client/build/src/api-endpoints";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { NotionInvoiceRepositoryConfig } from "~/infrastructure/external/notion/invoice.repository.impl";
 import { createNotionInvoiceRepository } from "~/infrastructure/external/notion/invoice.repository.impl";
@@ -153,7 +150,20 @@ describe("createNotionInvoiceRepository", () => {
 
 			// Act & Assert
 			await expect(repository.findAll()).rejects.toThrow(
-				"Failed to fetch invoice list from Notion",
+				"Failed to fetch invoice list from Notion: Notion API Error",
+			);
+		});
+
+		it("Notion API 오류 발생 시 Error가 아닌 경우 Unknown error 메시지를 포함한다", async () => {
+			// Arrange
+			const error = "something went wrong";
+			vi.mocked(mockClient.databases.query).mockRejectedValue(error);
+
+			const repository = createNotionInvoiceRepository(mockClient, config);
+
+			// Act & Assert
+			await expect(repository.findAll()).rejects.toThrow(
+				"Failed to fetch invoice list from Notion: Unknown error",
 			);
 		});
 	});
@@ -364,7 +374,21 @@ describe("createNotionInvoiceRepository", () => {
 
 			// Act & Assert
 			await expect(repository.findById(invoiceId)).rejects.toThrow(
-				`Failed to fetch invoice detail for ID: ${invoiceId}`,
+				`Failed to fetch invoice detail for ID: ${invoiceId}: Notion API Error`,
+			);
+		});
+
+		it("Notion API 오류 발생 시 Error가 아닌 경우 Unknown error 메시지를 포함한다", async () => {
+			// Arrange
+			const invoiceId = "inv-001";
+			const error = "something went wrong";
+			vi.mocked(mockClient.databases.query).mockRejectedValue(error);
+
+			const repository = createNotionInvoiceRepository(mockClient, config);
+
+			// Act & Assert
+			await expect(repository.findById(invoiceId)).rejects.toThrow(
+				`Failed to fetch invoice detail for ID: ${invoiceId}: Unknown error`,
 			);
 		});
 	});
@@ -507,7 +531,21 @@ describe("createNotionInvoiceRepository", () => {
 
 			// Act & Assert
 			await expect(repository.findLineItems(invoiceId)).rejects.toThrow(
-				`Failed to fetch line items for invoice: ${invoiceId}`,
+				`Failed to fetch line items for invoice: ${invoiceId}: Notion API Error`,
+			);
+		});
+
+		it("Notion API 오류 발생 시 Error가 아닌 경우 Unknown error 메시지를 포함한다", async () => {
+			// Arrange
+			const invoiceId = "inv-001";
+			const error = "something went wrong";
+			vi.mocked(mockClient.databases.query).mockRejectedValue(error);
+
+			const repository = createNotionInvoiceRepository(mockClient, config);
+
+			// Act & Assert
+			await expect(repository.findLineItems(invoiceId)).rejects.toThrow(
+				`Failed to fetch line items for invoice: ${invoiceId}: Unknown error`,
 			);
 		});
 	});
