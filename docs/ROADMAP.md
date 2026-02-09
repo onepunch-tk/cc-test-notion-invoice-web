@@ -227,14 +227,16 @@ Invoice-Web은 관리자(Notion에서 인보이스 관리)와 클라이언트(�
   - ✅ 567개 테스트 통과 (39개 PDF 관련 테스트 포함)
   - Related: F002
 
-- **Task 014: PDF Download Feature**
+- **Task 014: PDF Download Feature** ✅ - Completed
   - blockedBy: Task 013
   - blocks: Task 015
-  - See: `/tasks/014-pdf-download.md`
-  - PDFDownloadLink 컴포넌트로 다운로드 기능 구현
-  - 클라이언트 사이드 전용 (dynamic import)
-  - 다운로드 중 로딩 상태 처리
-  - 파일명 규칙 (invoice_number.pdf)
+  - **Must** Read: [014-pdf-download.md](/tasks/014-pdf-download.md)
+  - ✅ PdfDownloadButtonClient (.client.tsx) — PDFDownloadLink 기반 클라이언트 전용
+  - ✅ PdfDownloadButton — React.lazy + Suspense SSR 래퍼
+  - ✅ InvoiceActions 통합 — 플레이스홀더 → 실제 PDF 다운로드 버튼
+  - ✅ 파일명 규칙: `${invoice_number}.pdf`
+  - ✅ SSRF 방지: company.schemas.ts에 logo_url HTTPS 강제 + 내부 IP 차단
+  - ✅ 661개 테스트 통과, 코드 리뷰 Grade A
   - Related: F002
 
 - **Task 015: Performance Optimization**
